@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\MessageLoadException.cs" />
+    <Compile Include="Common\IMessage.cs" />
+    <Compile Include="Common\ProtocolId.cs" />
+    <Compile Include="Common\MessageId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
