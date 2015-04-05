@@ -21,9 +21,9 @@ namespace Sdm.Core
                         var currentType = dict[newMsgId];
                         if (currentType != newType)
                         {
-                            throw new Exception(String.Format("Can't associate MessageId.{0} with type {1} " +
-                                "because it is already associated with type {2}.",
-                                newMsgId, newType.FullName, currentType.FullName));
+                            throw new Exception(String.Format("Can't associate {0}.{1} with type {2} " +
+                                "because it is already associated with type {3}.",
+                                typeof(MessageId).FullName, newMsgId, newType.FullName, currentType.FullName));
                         }
                     }
                     else
@@ -33,9 +33,9 @@ namespace Sdm.Core
                         var currentMsgId = rdict[newType];
                         if (currentMsgId != newMsgId)
                         {
-                            throw new Exception(String.Format("Can't associate type {0} with MessageId.{1} " +
-                                "because it is already associated with MessageId.{2}.",
-                                newType.FullName, newMsgId, currentMsgId));
+                            throw new Exception(String.Format("Can't associate type {0} with {1}.{2} " +
+                                "because it is already associated with {1}.{3}.",
+                                newType.FullName, typeof(MessageId).FullName, newMsgId, currentMsgId));
                         }
                     }
                     else
