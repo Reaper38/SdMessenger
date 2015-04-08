@@ -1,15 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography;
 
 namespace Sdm.Core.Common
 {
-    class CryptoAES
+    /// <summary>Represents metods for AES encoding</summary>
+    public class CryptoAES
     {
-        public string EncryptSym(string input, string password)
+        private static readonly uint SaltLenght = 7;
+        public readonly byte[] saltBytes = new byte[SaltLenght];   
+   
+        CryptoAES()
+        {
+            Random rnd = new Random();
+            rnd.NextBytes(saltBytes);
+        }
+
+        /// <summary>Metod for encryption of strings with AES</summary>
+        public string EncryptSym(string input, string password, byte[] saltBytes)
         {
             // Get the bytes of the string
             byte[] bytesToBeEncrypted = Encoding.UTF8.GetBytes(input);
@@ -17,21 +26,14 @@ namespace Sdm.Core.Common
 
             // Hash the password with SHA256
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
-
-            byte[] bytesEncrypted = AES_Encrypt(bytesToBeEncrypted, passwordBytes);
-
+            byte[] bytesEncrypted = EncryptAES(bytesToBeEncrypted, passwordBytes, saltBytes);
             string result = Convert.ToBase64String(bytesEncrypted);
-
             return result;
         }
-        public byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+
+        private byte[] EncryptAES(byte[] bytesToBeEncrypted, byte[] passwordBytes, byte[] saltBytes)
         {
             byte[] encryptedBytes = null;
-
-            // Set your salt here, change it to meet your flavor:
-            // The salt bytes must be at least 8 bytes.
-            byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-
             using (MemoryStream ms = new MemoryStream())
             {
                 using (RijndaelManaged AES = new RijndaelManaged())
@@ -42,7 +44,6 @@ namespace Sdm.Core.Common
                     var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
                     AES.Key = key.GetBytes(AES.KeySize / 8);
                     AES.IV = key.GetBytes(AES.BlockSize / 8);
-
                     AES.Mode = CipherMode.CBC;
 
                     using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
@@ -53,32 +54,25 @@ namespace Sdm.Core.Common
                     encryptedBytes = ms.ToArray();
                 }
             }
-
             return encryptedBytes;
         }
 
-        public string DecryptSym(string input, string password)
+        /// <summary>Metod for decryption AES encoded strings</summary>
+        public string DecryptSym(string input, string password, byte[] saltBytes)
         {
-            // Get the bytes of the string
+            if (saltBytes.Length < 7) throw new ArgumentException("DecryptSym: Salt is too short");
             byte[] bytesToBeDecrypted = Convert.FromBase64String(input);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
 
-            byte[] bytesDecrypted = AES_Decrypt(bytesToBeDecrypted, passwordBytes);
-
+            byte[] bytesDecrypted = DecryptAES(bytesToBeDecrypted, passwordBytes, saltBytes);
             string result = Encoding.UTF8.GetString(bytesDecrypted);
-
             return result;
         }
 
-        public byte[] AES_Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+        private byte[] DecryptAES(byte[] bytesToBeDecrypted, byte[] passwordBytes, byte[] saltBytes)
         {
             byte[] decryptedBytes = null;
-
-            // Set your salt here, change it to meet your flavor:
-            // The salt bytes must be at least 8 bytes.
-            byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-
             using (MemoryStream ms = new MemoryStream())
             {
                 using (RijndaelManaged AES = new RijndaelManaged())
@@ -89,7 +83,6 @@ namespace Sdm.Core.Common
                     var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
                     AES.Key = key.GetBytes(AES.KeySize / 8);
                     AES.IV = key.GetBytes(AES.BlockSize / 8);
-
                     AES.Mode = CipherMode.CBC;
 
                     using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
@@ -100,7 +93,6 @@ namespace Sdm.Core.Common
                     decryptedBytes = ms.ToArray();
                 }
             }
-
             return decryptedBytes;
         }
     }

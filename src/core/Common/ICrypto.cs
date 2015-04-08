@@ -1,13 +1,13 @@
-﻿namespace Sdm.Core.Common
+﻿namespace Sdm.Core
 {
     public interface ICrypto
     {
-        string GetPrivateKeyASym();
-        string GetPublicKeyASym();
+        byte[] GetPrivateKeyASym();
+        byte[] GetPublicKeyASym();
         string EncryptASym(string plaintext, string publicKey_ = null);
         string DecryptASym(string ciphertext, string privateKey_ = null);
-        string EncryptSym(string input, string password);
-        string DecryptSym(string input, string password);
+        string EncryptSym(string input, string password, byte[] saltBytes);
+        string DecryptSym(string input, string password, byte[] saltBytes);
 
     }
 }
