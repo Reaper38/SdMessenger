@@ -12,7 +12,7 @@ namespace Sdm.Core
         public readonly string privateKey;      /// <summary>RSA private key</summary>
         public readonly string publicKey;       /// <summary>RSA public key</summary>
 
-        CryptoRSA()
+        public CryptoRSA()
         {           
             privateKey = rsa.ToXmlString(true);
             publicKey = rsa.ToXmlString(false);
