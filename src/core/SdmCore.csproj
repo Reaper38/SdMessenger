@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\CryptoAES.cs" />
+    <Compile Include="Common\CryptoRSA.cs" />
+    <Compile Include="Common\ICrypto.cs" />
     <Compile Include="Common\MessageLoadException.cs" />
     <Compile Include="Common\IMessage.cs" />
     <Compile Include="Common\ProtocolId.cs" />
