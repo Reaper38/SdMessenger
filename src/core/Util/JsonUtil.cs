@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
+using Sdm.Core.IO;
 
 namespace Sdm.Core.Json
 {
@@ -12,8 +13,8 @@ namespace Sdm.Core.Json
 
     public class JsonStreamReader : JsonTextReader
     {
-        public JsonStreamReader(Stream s)
-            : base(new StreamReader(s))
+        public JsonStreamReader(Stream s, bool buffered = true)
+            : base(buffered ? (TextReader)new StreamReader(s) : (TextReader)new UnbufferedStreamReader(s))
         {}
     }
 }
