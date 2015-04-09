@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ISdmSerializable.cs" />
     <Compile Include="Common\IClient.cs" />
     <Compile Include="Common\IPureClient.cs" />
     <Compile Include="Common\NetCommon.cs" />
