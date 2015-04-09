@@ -1,0 +1,3 @@
+[submodule "src/lib/Newtonsoft.Json"]
+	path = src/lib/Newtonsoft.Json
+	url = https://github.com/nitrocaster/Newtonsoft.Json.git
