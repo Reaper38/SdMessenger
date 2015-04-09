@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\JsonUtil.cs" />
+    <Compile Include="Util\JsonUtil.cs" />
     <Compile Include="Common\CryptoAES.cs" />
     <Compile Include="Common\CryptoRSA.cs" />
     <Compile Include="Common\ICrypto.cs" />
