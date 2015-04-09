@@ -43,9 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Util\JsonUtil.cs" />
-    <Compile Include="Common\CryptoAES.cs" />
-    <Compile Include="Common\CryptoRSA.cs" />
-    <Compile Include="Common\ICrypto.cs" />
+    <Compile Include="Crypto\CryptoAES.cs" />
+    <Compile Include="Crypto\CryptoRSA.cs" />
+    <Compile Include="Crypto\ICrypto.cs" />
     <Compile Include="Common\MessageLoadException.cs" />
     <Compile Include="Common\IMessage.cs" />
     <Compile Include="Common\ProtocolId.cs" />
