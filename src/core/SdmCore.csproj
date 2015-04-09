@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IO\UnbufferedStreamReader.cs" />
-    <Compile Include="Util\JsonUtil.cs" />
+    <Compile Include="Json\JsonUtil.cs" />
     <Compile Include="Crypto\CryptoAES.cs" />
     <Compile Include="Crypto\CryptoRSA.cs" />
     <Compile Include="Crypto\ICrypto.cs" />
