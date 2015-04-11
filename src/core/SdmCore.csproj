@@ -56,6 +56,7 @@
     <Compile Include="Common\ProtocolId.cs" />
     <Compile Include="Common\MessageId.cs" />
     <Compile Include="Common\MessageIdChecker.cs" />
+    <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
