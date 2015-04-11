@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Sdm.Core.Util;
 
 namespace Sdm.Core
 {
@@ -100,6 +101,7 @@ namespace Sdm.Core
             {
                 if (disposing)
                     msw.Close();
+                DisposeHelper.OnDispose<ClientLogger>(disposing);
                 disposed = true;
             }
         }
