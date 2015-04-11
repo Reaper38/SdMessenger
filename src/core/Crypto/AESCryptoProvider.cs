@@ -11,7 +11,7 @@ namespace Sdm.Core
         private static readonly uint SaltLenght = 7;
         public readonly byte[] saltBytes = new byte[SaltLenght];   
    
-        AESCryptoProvider()
+        public AESCryptoProvider()
         {
             Random rnd = new Random();
             rnd.NextBytes(saltBytes);
