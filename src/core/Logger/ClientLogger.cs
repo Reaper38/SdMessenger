@@ -5,7 +5,7 @@ using Sdm.Core.Util;
 
 namespace Sdm.Core
 {
-    public class ClientLogger : SdmLoggerBase
+    internal class ClientLogger : SdmLoggerBase
     {
         private readonly object sync = 0;
         private MemoryStream ms;

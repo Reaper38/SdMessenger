@@ -2,7 +2,7 @@
 
 namespace Sdm.Core
 {
-    public abstract class SdmLoggerBase : ILogger
+    internal abstract class SdmLoggerBase : ILogger
     {
         public event Action<string> MessageLogged;
         public event Action LogCleared;
