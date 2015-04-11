@@ -58,6 +58,7 @@
     <Compile Include="Common\MessageIdChecker.cs" />
     <Compile Include="Logger\ClientLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Logger\SdmLoggerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\DisposeHelper.cs" />
   </ItemGroup>

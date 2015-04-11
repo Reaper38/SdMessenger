@@ -5,82 +5,57 @@ using Sdm.Core.Util;
 
 namespace Sdm.Core
 {
-    public class ClientLogger : ILogger
+    public class ClientLogger : SdmLoggerBase
     {
-        #region Events
-
-        public event Action<string> MessageLogged;
-        public event Action LogCleared;
-
-        private void OnMessageLogged(string msg)
-        {
-            if (MessageLogged != null)
-                MessageLogged(msg);
-        }
-
-        private void OnLogCleaned()
-        {
-            if (LogCleared != null)
-                LogCleared();
-        }
-
-        #endregion
-
         private object sync = 0;
         private MemoryStream ms;
         private StreamWriter msw;
         private DateTime startTime;
         private volatile int lineCount;
         private string fDir, fBaseName, fExt;
-        private static readonly string dateTimeFormat = "dd.MM.yy-HH:mm:ss";
-        private LogLevel minLogLevel;
         private bool disposed = false;
 
-        public ClientLogger(string dir, string baseName, string ext, LogLevel minLogLevel)
+        public ClientLogger(string dir, string baseName, string ext, LogLevel minLogLevel) :
+            base(minLogLevel)
         {
             fDir = dir;
             fBaseName = baseName;
             fExt = ext;
-            this.minLogLevel = minLogLevel;
             ms = new MemoryStream();
             msw = new StreamWriter(ms, Encoding.Default);
             msw.AutoFlush = true;
             startTime = DateTime.Now;
         }
 
-        public int LineCount
-        {
-            get { return lineCount; }
-            private set { lineCount = value; }
-        }
+        public override int LineCount { get { return lineCount; } }
 
-        public void Log(LogLevel logLevel, string message)
+        public override void Log(LogLevel logLevel, string message)
         {
-            if (logLevel < minLogLevel)
+            if (logLevel < MinLogLevel)
                 return;
             lock (sync)
             {
                 msw.WriteLine(String.Format("{0} [{1}] {2}",
-                    DateTime.Now.ToString(dateTimeFormat), logLevel, message));
-                LineCount++;
+                    DateTime.Now.ToString(DateTimeFormat), logLevel, message));
+                lineCount++;
             }
             OnMessageLogged(message);
         }
 
-        public void Clear()
+        public override void Clear()
         {
             lock (sync)
             {
                 ms.SetLength(0);
-                LineCount = 0;
+                lineCount = 0;
             }
             OnLogCleaned();
         }
 
-        public void Flush()
+        public override void Flush()
         {
-            var startTimeStr = startTime.ToString(dateTimeFormat);
-            var currentTimeStr = DateTime.Now.ToString(dateTimeFormat);
+            var startTimeStr = startTime.ToString(DateTimeFormat);
+            var currentTimeStr = DateTime.Now.ToString(DateTimeFormat);
             var fName = String.Format("{0}/{1}_{2}_{3}{4}", fDir, fBaseName, startTimeStr, currentTimeStr, fExt);
             using (var fs = new FileStream(fName, FileMode.Create))
             {
@@ -89,7 +64,7 @@ namespace Sdm.Core
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
