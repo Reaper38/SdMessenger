@@ -1,6 +1,6 @@
 ﻿namespace Sdm.Core
 {
-    public interface ICrypto
+    public interface ICryptoProvider
     {
         byte[] GetPrivateKeyASym();
         byte[] GetPublicKeyASym();
