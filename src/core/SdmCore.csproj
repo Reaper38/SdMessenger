@@ -50,7 +50,7 @@
     <Compile Include="Json\JsonUtil.cs" />
     <Compile Include="Crypto\AESCryptoProvider.cs" />
     <Compile Include="Crypto\RSACryptoProvider.cs" />
-    <Compile Include="Crypto\ICrypto.cs" />
+    <Compile Include="Crypto\ICryptoProvider.cs" />
     <Compile Include="Common\MessageLoadException.cs" />
     <Compile Include="Common\IMessage.cs" />
     <Compile Include="Common\ProtocolId.cs" />
