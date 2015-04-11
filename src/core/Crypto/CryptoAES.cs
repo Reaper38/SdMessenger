@@ -3,7 +3,7 @@ using System.Text;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace Sdm.Core.Common
+namespace Sdm.Core
 {
     /// <summary>Represents metods for AES encoding</summary>
     public class CryptoAES
