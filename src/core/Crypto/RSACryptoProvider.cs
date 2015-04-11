@@ -5,14 +5,14 @@ using System.Security.Cryptography;
 namespace Sdm.Core
 {
     /// <summary>Represents metods for RSA encoding</summary>
-    public class CryptoRSA
+    public class RSACryptoProvider
     {
         private readonly static int RSAKeyLenght = 2048;
         private readonly RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(RSAKeyLenght);
         public readonly string privateKey;      /// <summary>RSA private key</summary>
         public readonly string publicKey;       /// <summary>RSA public key</summary>
 
-        public CryptoRSA()
+        public RSACryptoProvider()
         {           
             privateKey = rsa.ToXmlString(true);
             publicKey = rsa.ToXmlString(false);

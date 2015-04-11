@@ -49,7 +49,7 @@
     <Compile Include="IO\UnbufferedStreamReader.cs" />
     <Compile Include="Json\JsonUtil.cs" />
     <Compile Include="Crypto\CryptoAES.cs" />
-    <Compile Include="Crypto\CryptoRSA.cs" />
+    <Compile Include="Crypto\RSACryptoProvider.cs" />
     <Compile Include="Crypto\ICrypto.cs" />
     <Compile Include="Common\MessageLoadException.cs" />
     <Compile Include="Common\IMessage.cs" />
