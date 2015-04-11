@@ -6,12 +6,12 @@ using System.Security.Cryptography;
 namespace Sdm.Core
 {
     /// <summary>Represents metods for AES encoding</summary>
-    public class CryptoAES
+    public class AESCryptoProvider
     {
         private static readonly uint SaltLenght = 7;
         public readonly byte[] saltBytes = new byte[SaltLenght];   
    
-        CryptoAES()
+        AESCryptoProvider()
         {
             Random rnd = new Random();
             rnd.NextBytes(saltBytes);
