@@ -7,7 +7,7 @@ namespace Sdm.Core
 {
     public class ClientLogger : SdmLoggerBase
     {
-        private object sync = 0;
+        private readonly object sync = 0;
         private MemoryStream ms;
         private StreamWriter msw;
         private DateTime startTime;
