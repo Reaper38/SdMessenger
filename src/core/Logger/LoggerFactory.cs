@@ -2,6 +2,12 @@
 
 namespace Sdm.Core
 {
+    public enum LoggerType
+    {
+        Client,
+        Server,
+    }
+
     public sealed class LoggerFactory
     {
         #region Singleton implementation
@@ -12,17 +18,14 @@ namespace Sdm.Core
 
         #endregion
 
-        public ILogger CreateLogger(object user, LogLevel lvl)
+        public ILogger CreateLogger(LoggerType type, LogLevel lvl)
         {
-            // todo: implement CreateLogger
-            /* supposed implementation:
-            if (user is IServer)
-                return new ServerLogger("sdm_server.log", lvl);
-            if (user is IClient)
-                return new ClientLogger(".", "sdm_client", ".log", lvl);
-            throw new NotSupportedException("There's no logger provided for specified user.");
-            */
-            throw new NotImplementedException();
+            switch (type)
+            {
+            case LoggerType.Client: return new ClientLogger(".", "sdm_client", ".log", lvl);
+            case LoggerType.Server: return new ServerLogger("sdm_server.log", lvl);
+            default: throw new NotSupportedException(type + " is not supported.");
+            }
         }
     }
 }
