@@ -30,7 +30,14 @@ namespace Sdm.Core
 
     public interface ISymmetricCryptoProvider : ICryptoProvider
     {
+        /// <summary>
+        /// Gets or sets the secret key for the symmetric algorithm.
+        /// </summary>
         byte[] Key { get; set; }
+        /// <summary>
+        /// Gets or sets the initialization vector (IV) for the symmetric algorithm.
+        /// </summary>
+        byte[] IV { get; set; }
     }
     
     public interface IAsymmetricCryptoProvider : ICryptoProvider
