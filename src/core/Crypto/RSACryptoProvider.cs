@@ -1,58 +1,68 @@
 ﻿using System;
-using System.Text;
+using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace Sdm.Core
 {
-    /// <summary>Represents metods for RSA encoding</summary>
-    public class RSACryptoProvider
+    public class RSACryptoProvider : IAsymmetricCryptoProvider
     {
-        private readonly static int RSAKeyLenght = 2048;
-        private readonly RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(RSAKeyLenght);
-        public readonly string privateKey;      /// <summary>RSA private key</summary>
-        public readonly string publicKey;       /// <summary>RSA public key</summary>
+        private RSACryptoServiceProvider rsa;
+        private List<int> validKeySizes = null;
 
-        public RSACryptoProvider()
-        {           
-            privateKey = rsa.ToXmlString(true);
-            publicKey = rsa.ToXmlString(false);
-        }
-        /// <summary>Metod for decryption RSA encoded strings</summary>
-        public string DecryptASym(string ciphertext, string privateKey_ = null)
+        #region IAsymmetricCryptoProvider Members
+
+        public string GetKey(bool includePrivateParams = false)
+        { return rsa.ToXmlString(includePrivateParams); }
+
+        public void SetKey(string key) { rsa.FromXmlString(key); }
+
+        public byte[] Encrypt(byte[] src)
+        { return rsa.Encrypt(src, false); }
+
+        public byte[] Decrypt(byte[] src)
+        { return rsa.Decrypt(src, false); }
+
+        #endregion
+
+        #region ICryptoProvider Members
+
+        public IEnumerable<int> ValidKeySizes
         {
-            if (ciphertext.Length <= 0) throw new ArgumentNullException("ciphertext");
-
-            string key = String.IsNullOrEmpty(privateKey_) ? privateKey : privateKey_;
-            return DecryptRSA(ciphertext, key);
+            get
+            {
+                if (validKeySizes == null)
+                {
+                    validKeySizes = new List<int>();
+                    var keySizes = rsa.LegalKeySizes;
+                    for (int i = 0; i < keySizes.Length; i++)
+                    {
+                        if (keySizes[i].SkipSize == 0)
+                            validKeySizes.Add(keySizes[i].MinSize);
+                        else
+                        {
+                            for (int j = keySizes[i].MinSize;
+                                j <= keySizes[i].MaxSize;
+                                j += keySizes[i].SkipSize)
+                            {
+                                validKeySizes.Add(j);
+                            }
+                        }
+                    }
+                }
+                return validKeySizes.AsReadOnly();
+            }
         }
-        private string DecryptRSA(string ciphertext, string privateKey)
-        {
-            if (String.IsNullOrEmpty(privateKey)) throw new ArgumentNullException("privateKey");
 
-            byte[] ciphertext_Bytes = Convert.FromBase64String(ciphertext);
-            rsa.FromXmlString(privateKey);
+        public void Initialize(int keySize)
+        { rsa = new RSACryptoServiceProvider(keySize); }
 
-            byte[] plaintext = rsa.Decrypt(ciphertext_Bytes, false);
-            return Encoding.Unicode.GetString(plaintext);
-        }
+        public int ComputeEncryptedSize(int noncryptedSize)
+        { return rsa.KeySize / 8; }
 
-        /// <summary>Metod for encryption of strings with RSA</summary>
-        public string EncryptASym(string plaintext, string publicKey_ = null)
-        {
-            if (plaintext.Length <= 0) throw new ArgumentNullException("plaintext");
+        public int ComputeDecryptedSize(int encryptedSize)
+        { return encryptedSize; }
 
-            string key = String.IsNullOrEmpty(publicKey_) ? publicKey : publicKey_;
-            return EncryptRSA(plaintext, key);
-        }
-        private string EncryptRSA(string plaintext, string publicKey)
-        {
-            if (String.IsNullOrEmpty(publicKey)) throw new ArgumentNullException("publicKey");
-
-            byte[] plaintext_Bytes = Encoding.Unicode.GetBytes(plaintext);
-            rsa.FromXmlString(publicKey);
-
-            byte[] ciphertext = rsa.Encrypt(plaintext_Bytes, false);
-            return Convert.ToBase64String(ciphertext);
-        }
+        #endregion
     }
 }
