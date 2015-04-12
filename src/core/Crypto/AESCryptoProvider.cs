@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using Sdm.Core.Util;
 
 namespace Sdm.Core
 {
@@ -9,6 +10,7 @@ namespace Sdm.Core
     {
         private RijndaelManaged rij = new RijndaelManaged { BlockSize = 128, Mode = CipherMode.CBC };
         private List<int> validKeySizes = null;
+        private bool disposed = false;
         
         #region ISymmetricCryptoProvider Members
 
@@ -100,6 +102,29 @@ namespace Sdm.Core
 
         public int ComputeDecryptedSize(int encryptedSize)
         { return encryptedSize; }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                    rij.Dispose();
+                DisposeHelper.OnDispose<AESCryptoProvider>(disposing);
+                disposed = true;
+            }
+        }
+
+        ~AESCryptoProvider() { Dispose(false); }
 
         #endregion
     }

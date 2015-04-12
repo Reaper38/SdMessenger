@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using Sdm.Core.Util;
 
 namespace Sdm.Core
 {
@@ -9,6 +10,7 @@ namespace Sdm.Core
     {
         private RSACryptoServiceProvider rsa;
         private List<int> validKeySizes = null;
+        private bool disposed = false;
 
         #region IAsymmetricCryptoProvider Members
 
@@ -62,6 +64,29 @@ namespace Sdm.Core
 
         public int ComputeDecryptedSize(int encryptedSize)
         { return encryptedSize; }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                    rsa.Dispose();
+                DisposeHelper.OnDispose<AESCryptoProvider>(disposing);
+                disposed = true;
+            }
+        }
+
+        ~RSACryptoProvider() { Dispose(false); }
 
         #endregion
     }

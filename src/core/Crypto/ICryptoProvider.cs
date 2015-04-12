@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Sdm.Core
 {
-    public interface ICryptoProvider
+    public interface ICryptoProvider : IDisposable
     {
         /// <summary>
         /// Gets valid key sizes (in bits).
