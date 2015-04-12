@@ -1,101 +1,106 @@
 ﻿using System;
-using System.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 
 namespace Sdm.Core
 {
-    /// <summary>Represents metods for AES encoding</summary>
-    public class AESCryptoProvider
+    public class AESCryptoProvider : ISymmetricCryptoProvider
     {
-        private static readonly uint SaltLenght = 7;
-        public readonly byte[] saltBytes = new byte[SaltLenght];   
-   
-        public AESCryptoProvider()
+        private RijndaelManaged rij = new RijndaelManaged { BlockSize = 128, Mode = CipherMode.CBC };
+        private List<int> validKeySizes = null;
+        
+        #region ISymmetricCryptoProvider Members
+
+        public byte[] Key
         {
-            Random rnd = new Random();
-            rnd.NextBytes(saltBytes);
+            get { return rij.Key; }
+            set { rij.Key = value; }
         }
 
-        /// <summary>Metod for encryption of strings with AES</summary>
-        public string EncryptSym(string input, string password, byte[] saltBytes)
+        public byte[] IV
         {
-            // Get the bytes of the string
-            byte[] bytesToBeEncrypted = Encoding.UTF8.GetBytes(input);
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-
-            // Hash the password with SHA256
-            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
-            byte[] bytesEncrypted = EncryptAES(bytesToBeEncrypted, passwordBytes, saltBytes);
-            string result = Convert.ToBase64String(bytesEncrypted);
-            return result;
+            get { return rij.IV; }
+            set { rij.IV = value; }
         }
 
-        private byte[] EncryptAES(byte[] bytesToBeEncrypted, byte[] passwordBytes, byte[] saltBytes)
+        #endregion
+
+        #region ICryptoProvider Members
+
+        public IEnumerable<int> ValidKeySizes
         {
-            byte[] encryptedBytes = null;
-            using (MemoryStream ms = new MemoryStream())
+            get
             {
-                using (RijndaelManaged AES = new RijndaelManaged())
+                if (validKeySizes == null)
                 {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;
-
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize / 8);
-                    AES.IV = key.GetBytes(AES.BlockSize / 8);
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
+                    validKeySizes = new List<int>();
+                    var keySizes = rij.LegalKeySizes;
+                    for (int i = 0; i < keySizes.Length; i++)
                     {
-                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
-                        cs.Close();
+                        if (keySizes[i].SkipSize == 0)
+                            validKeySizes.Add(keySizes[i].MinSize);
+                        else
+                        {
+                            for (int j = keySizes[i].MinSize;
+                                j <= keySizes[i].MaxSize;
+                                j += keySizes[i].SkipSize)
+                            {
+                                validKeySizes.Add(j);
+                            }
+                        }
                     }
-                    encryptedBytes = ms.ToArray();
+                }
+                return validKeySizes.AsReadOnly();
+            }
+        }
+
+        public void Initialize(int keySize)
+        { rij.KeySize = keySize; }
+
+        public int ComputeEncryptedSize(int noncryptedSize)
+        {
+            var blockSize = rij.BlockSize / 8;
+            var blocks = noncryptedSize / blockSize;
+            if (noncryptedSize % blockSize != 0)
+                blocks++;
+            return blocks * blockSize;
+        }
+
+        public int ComputeDecryptedSize(int encryptedSize)
+        { return encryptedSize; }
+
+        private static void Transform(ICryptoTransform transform, Stream dst, Stream src, int srcByteCount)
+        {
+            using (var cs = new CryptoStream(dst, transform, CryptoStreamMode.Write))
+            {
+                var buf = new byte[256];
+                var readByteCount = 0;
+                while (readByteCount < srcByteCount)
+                {
+                    var r = src.Read(buf, 0, Math.Min(buf.Length, srcByteCount - readByteCount));
+                    cs.Write(buf, 0, r);
+                    readByteCount += r;
                 }
             }
-            return encryptedBytes;
         }
 
-        /// <summary>Metod for decryption AES encoded strings</summary>
-        public string DecryptSym(string input, string password, byte[] saltBytes)
+        public void Encrypt(Stream dst, Stream src, int srcByteCount)
         {
-            if (saltBytes.Length < 7) throw new ArgumentException("DecryptSym: Salt is too short");
-            byte[] bytesToBeDecrypted = Convert.FromBase64String(input);
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
-
-            byte[] bytesDecrypted = DecryptAES(bytesToBeDecrypted, passwordBytes, saltBytes);
-            string result = Encoding.UTF8.GetString(bytesDecrypted);
-            return result;
-        }
-
-        private byte[] DecryptAES(byte[] bytesToBeDecrypted, byte[] passwordBytes, byte[] saltBytes)
-        {
-            byte[] decryptedBytes = null;
-            using (MemoryStream ms = new MemoryStream())
+            using (var transform = rij.CreateEncryptor())
             {
-                using (RijndaelManaged AES = new RijndaelManaged())
-                {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;
-
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize / 8);
-                    AES.IV = key.GetBytes(AES.BlockSize / 8);
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
-                        cs.Close();
-                    }
-                    decryptedBytes = ms.ToArray();
-                }
+                Transform(transform, dst, src, srcByteCount);
             }
-            return decryptedBytes;
         }
+
+        public void Decrypt(Stream dst, Stream src, int srcByteCount)
+        {
+            using (var transform = rij.CreateDecryptor())
+            {
+                Transform(transform, dst, src, srcByteCount);
+            }
+        }
+
+        #endregion
     }
 }
-
-
