@@ -24,8 +24,6 @@ namespace Sdm.Core
         /// </summary>
         /// <param name="encryptedSize">Size of encrypted data.</param>
         int ComputeDecryptedSize(int encryptedSize);
-        void Encrypt(Stream dst, Stream src, int srcByteCount);
-        void Decrypt(Stream dst, Stream src, int srcByteCount);
     }
 
     public interface ISymmetricCryptoProvider : ICryptoProvider
@@ -38,11 +36,15 @@ namespace Sdm.Core
         /// Gets or sets the initialization vector (IV) for the symmetric algorithm.
         /// </summary>
         byte[] IV { get; set; }
+        void Encrypt(Stream dst, Stream src, int srcByteCount);
+        void Decrypt(Stream dst, Stream src, int srcByteCount);
     }
     
     public interface IAsymmetricCryptoProvider : ICryptoProvider
     {
         string GetKey(bool includePrivateParams = false);
         void SetKey(string key);
+        byte[] Encrypt(byte[] src);
+        byte[] Decrypt(byte[] src);
     }
 }

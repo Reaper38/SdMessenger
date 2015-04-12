@@ -24,6 +24,37 @@ namespace Sdm.Core
             set { rij.IV = value; }
         }
 
+        private static void Transform(ICryptoTransform transform, Stream dst, Stream src, int srcByteCount)
+        {
+            using (var cs = new CryptoStream(dst, transform, CryptoStreamMode.Write))
+            {
+                var buf = new byte[256];
+                var readByteCount = 0;
+                while (readByteCount < srcByteCount)
+                {
+                    var r = src.Read(buf, 0, Math.Min(buf.Length, srcByteCount - readByteCount));
+                    cs.Write(buf, 0, r);
+                    readByteCount += r;
+                }
+            }
+        }
+
+        public void Encrypt(Stream dst, Stream src, int srcByteCount)
+        {
+            using (var transform = rij.CreateEncryptor())
+            {
+                Transform(transform, dst, src, srcByteCount);
+            }
+        }
+
+        public void Decrypt(Stream dst, Stream src, int srcByteCount)
+        {
+            using (var transform = rij.CreateDecryptor())
+            {
+                Transform(transform, dst, src, srcByteCount);
+            }
+        }
+
         #endregion
 
         #region ICryptoProvider Members
@@ -69,37 +100,6 @@ namespace Sdm.Core
 
         public int ComputeDecryptedSize(int encryptedSize)
         { return encryptedSize; }
-
-        private static void Transform(ICryptoTransform transform, Stream dst, Stream src, int srcByteCount)
-        {
-            using (var cs = new CryptoStream(dst, transform, CryptoStreamMode.Write))
-            {
-                var buf = new byte[256];
-                var readByteCount = 0;
-                while (readByteCount < srcByteCount)
-                {
-                    var r = src.Read(buf, 0, Math.Min(buf.Length, srcByteCount - readByteCount));
-                    cs.Write(buf, 0, r);
-                    readByteCount += r;
-                }
-            }
-        }
-
-        public void Encrypt(Stream dst, Stream src, int srcByteCount)
-        {
-            using (var transform = rij.CreateEncryptor())
-            {
-                Transform(transform, dst, src, srcByteCount);
-            }
-        }
-
-        public void Decrypt(Stream dst, Stream src, int srcByteCount)
-        {
-            using (var transform = rij.CreateDecryptor())
-            {
-                Transform(transform, dst, src, srcByteCount);
-            }
-        }
 
         #endregion
     }
