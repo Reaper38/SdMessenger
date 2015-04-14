@@ -18,5 +18,9 @@ namespace Sdm.Core
         ClientAccessFlags AccessFlags { get; set; }
         string SessionKey { get; } // AES key
         // client state could be added here
+
+        int Send(byte[] data, int offset, int size);
+        int AvailableDataSize { get; }
+        int Receive(byte[] data, int offset, int size);
     }
 }
