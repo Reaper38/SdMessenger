@@ -4,7 +4,14 @@ namespace Sdm.Core
 {
     public struct ClientId
     {
-        public int Value;
+        private static int lastId;
+        public readonly int Value;
+
+        public ClientId(SocketClientParams clParams)
+        {
+            // XXX: improve id generation
+            Value = lastId++;
+        }
     }
 
     public interface INetStatistics
