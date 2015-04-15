@@ -25,7 +25,7 @@ namespace Sdm.Server
         public IPAddress Address { get { return ((IPEndPoint)Socket.RemoteEndPoint).Address; } }
         public int Port { get { return ((IPEndPoint)Socket.RemoteEndPoint).Port; } }
     }
-
+    
     internal abstract class SocketClientBase : IClient
     {
         protected PureServerBase Server;
@@ -53,28 +53,28 @@ namespace Sdm.Server
         #endregion
     }
 
-    internal class Server : PureServerBase
+    internal class Client : SocketClientBase
     {
-        private class Client : SocketClientBase
+        private ClientFlags flags;
+
+        public Client(Server srv, ClientId id, SocketClientParams clParams, string sessionKey) :
+            base(srv, id, clParams, sessionKey)
         {
-            private ClientFlags flags;
-
-            public Client(Server srv, ClientId id, SocketClientParams clParams, string sessionKey) :
-                base(srv, id, clParams, sessionKey)
-            {
-                flags = ClientFlags.None;
-                AccessFlags = ClientAccessFlags.Default;
-            }
-
-            public override INetStatistics Stats { get { return null; } }
-            
-            public override ClientFlags Flags
-            {
-                get { return flags; }
-                protected set { flags = value; }
-            }
+            flags = ClientFlags.None;
+            AccessFlags = ClientAccessFlags.Default;
         }
 
+        public override INetStatistics Stats { get { return null; } }
+
+        public override ClientFlags Flags
+        {
+            get { return flags; }
+            protected set { flags = value; }
+        }
+    }
+
+    internal class Server : PureServerBase
+    {
         private Socket svSocket;
         private Thread acceptingThread;
         private readonly SortedList<ClientId, SocketClientBase> clients;
