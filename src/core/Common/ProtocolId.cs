@@ -2,8 +2,9 @@
 {
     public enum ProtocolId
     {
-        Binary = 0,
-        Json = 1,
+        Unknown = 0,
+        Binary = 1,
+        Json = 2,
         // add new protocol types here
     }
 }
