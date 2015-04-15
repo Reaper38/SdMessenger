@@ -65,4 +65,26 @@ namespace Sdm.Core
         Admin = 4, // can manage server (change settings, disconnect players, etc)
         Max = 0xffffffff
     }
+
+    public class NetStats : INetStatistics
+    {
+        public long BytesSent { get; private set; }
+        public long BytesSentPerSec { get; private set; }
+        public long BytesReceived { get; private set; }
+        public long BytesReceivedPerSec { get; private set; }
+
+        public virtual void OnDataSent(long byteCount)
+        { BytesSent += byteCount; }
+
+        public virtual void OnDataReceived(long byteCount)
+        { BytesReceived += byteCount; }
+
+        public void Clear()
+        {
+            BytesSent = 0;
+            BytesSentPerSec = 0;
+            BytesReceived = 0;
+            BytesReceivedPerSec = 0;
+        }
+    }
 }
