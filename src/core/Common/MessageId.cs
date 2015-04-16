@@ -4,5 +4,10 @@
     // Sv : server to client
     public enum MessageId : ushort
     {
+        SvPublicKeyChallenge = 0,
+        ClPublicKeyRespond = 1,
+        SvAuthChallenge = 2,
+        ClAuthRespond = 3,
+        SvAuthResult = 4,
     }
 }
