@@ -325,4 +325,76 @@ namespace Sdm.Core.Messages
             }
         }
     }
+
+    public class ClDisconnect : DummyMessage<ClDisconnect>
+    {
+        public ClDisconnect() : base(MessageId.ClDisconnect) {}
+    }
+
+    public class SvDisconnect : MultiprotocolMessage<SvDisconnect>
+    {
+        public DisconnectReason Reason;
+        public string Message;
+
+        public SvDisconnect() : base(MessageId.SvDisconnect) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                var tmp = obj.GetInt32("reason");
+                try
+                {
+                    Reason = (DisconnectReason)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid reason: " + tmp);
+                }
+                Message = obj.GetString("msg");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("result");
+                w.WriteValue((int)Reason);
+                w.WritePropertyName("msg");
+                w.WriteValue(Message);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                var tmp = r.ReadByte();
+                try
+                {
+                    Reason = (DisconnectReason)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid reason: " + tmp);
+                }
+                Message = r.ReadString();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write((byte)Reason);
+                w.Write(Message);
+                w.Flush();
+            }
+        }
+    }
 }

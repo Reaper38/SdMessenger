@@ -63,6 +63,13 @@ namespace Sdm.Core
         Banned = 2,
     }
 
+    public enum DisconnectReason : byte
+    {
+        Unknown = 0,
+        Shutdown = 1,
+        Banned = 2,
+    }
+
     [Flags]
     public enum ClientAccessFlags : uint
     {

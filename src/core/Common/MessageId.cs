@@ -9,5 +9,7 @@
         SvAuthChallenge = 2,
         ClAuthRespond = 3,
         SvAuthResult = 4,
+        ClDisconnect = 5,
+        SvDisconnect = 6,
     }
 }
