@@ -81,7 +81,7 @@ namespace Sdm.Core
             {
                 if (disposing)
                     rsa.Dispose();
-                DisposeHelper.OnDispose<AESCryptoProvider>(disposing);
+                DisposeHelper.OnDispose<RSACryptoProvider>(disposing);
                 disposed = true;
             }
         }
