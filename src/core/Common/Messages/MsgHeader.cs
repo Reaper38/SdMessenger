@@ -16,12 +16,23 @@ namespace Sdm.Core.Messages
         // ISdmSerializable
         public void Load(Stream s, ProtocolId ptype)
         {
-            switch (ptype)
+            try
             {
-            case ProtocolId.Binary: LoadBin(s); break;
-            case ProtocolId.Json: LoadJson(s); break;
-            default: throw new NotSupportedException("Unsupported protocol");
+                switch (ptype)
+                {
+                case ProtocolId.Binary: LoadBin(s); return;
+                case ProtocolId.Json: LoadJson(s); return;
+                }
             }
+            catch (MessageLoadException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new MessageLoadException(e.Message);
+            }
+            throw new NotSupportedException("Unsupported protocol");
         }
 
         public void Save(Stream s, ProtocolId ptype)
@@ -58,11 +69,27 @@ namespace Sdm.Core.Messages
             {
                 var magic = r.ReadInt32();
                 if (magic != binHdrMagic)
-                    throw new InvalidDataException("Binary header magic value mismatch.");
+                    throw new MessageLoadException("Binary header magic value mismatch");
                 Size = r.ReadUInt16();
                 r.ReadByte();
-                Flags = (MessageFlags)r.ReadByte();
-                Id = (MessageId)r.ReadUInt16();
+                var tmpU8 = r.ReadByte();
+                try
+                {
+                    Flags = (MessageFlags)tmpU8;
+                }
+                catch (InvalidCastException)
+                {
+                    throw new MessageLoadException("Invalid message flags: " + tmpU8);
+                }
+                var tmpU16 = r.ReadUInt16();
+                try
+                {
+                    Id = (MessageId)tmpU16;
+                }
+                catch (InvalidCastException)
+                {
+                    throw new MessageLoadException("Invalid message id: " + tmpU16);
+                }
             }
         }
 
@@ -70,7 +97,6 @@ namespace Sdm.Core.Messages
         {
             using (var w = new JsonStreamWriter(s))
             {
-                // message size
                 w.WriteStartObject();
                 w.WritePropertyName("msz");
                 w.WriteValue(Size);
