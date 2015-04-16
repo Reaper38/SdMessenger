@@ -5,9 +5,8 @@ namespace Sdm.Core.Messages
 {
     public static class JsonHelper
     {
-        public static int GetInt32(this JObject obj, string key)
+        private static JToken GetValue(JObject obj, string key, JTokenType expectedType)
         {
-            var expectedType = JTokenType.Integer;
             JToken tok = obj[key];
             if (tok == null)
                 throw new MessageLoadException("Key not found: " + key);
@@ -16,7 +15,13 @@ namespace Sdm.Core.Messages
                 var msg = String.Format("Token type mismatch: expected '{0}', got '{1}'", expectedType, tok.Type);
                 throw new MessageLoadException(msg);
             }
-            return (int)tok;
+            return tok;
         }
+
+        public static int GetInt32(this JObject obj, string key)
+        { return (int) GetValue(obj, key, JTokenType.Integer); }
+
+        public static string GetString(this JObject obj, string key)
+        { return (string)GetValue(obj, key, JTokenType.String); }
     }
 }
