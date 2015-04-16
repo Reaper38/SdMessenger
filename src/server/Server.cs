@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Sdm.Core;
+using Sdm.Core.Messages;
 using Sdm.Core.Util;
 
 namespace Sdm.Server
@@ -157,16 +158,39 @@ namespace Sdm.Server
 
         public override void Update()
         {
+            var hdr = new MsgHeader();
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
-                if (cl.Params.Socket.Available > 0)
+                if (cl.Params.Socket.Available == 0)
+                    continue;
+                // try to read one message from each client
+                try
                 {
-                    // try to read one message from each client:
-                    // read msg header
-                    // read message
-                    // process message : OnMessage(msg, cl.Id);
+                    hdr.Load(cl.NetStream, Protocol);
                 }
+                catch (MessageLoadException e)
+                {
+                    // XXX: log exception
+                    DisconnectClient(cl, "bad message header");
+                    continue;
+                }
+                // XXX: could be optimized - use one large buffer + unclosable MemoryStream
+                var buf = new byte[hdr.Size];
+                cl.NetStream.Read(buf, 0, buf.Length);
+                var ms = new MemoryStream(buf);
+                var msg = MessageFactory.CreateMessage(hdr.Id);
+                try
+                {
+                    msg.Load(ms, Protocol);
+                }
+                catch (MessageLoadException e)
+                {
+                    // XXX: log exception
+                    DisconnectClient(cl, "bad message");
+                    continue;
+                }
+                OnMessage(msg, cl.Id);
             }
         }
 
