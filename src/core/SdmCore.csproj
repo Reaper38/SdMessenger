@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Messages\MsgHeader.cs" />
     <Compile Include="Common\DiagNetStream.cs" />
     <Compile Include="Common\ISdmSerializable.cs" />
     <Compile Include="Common\IClient.cs" />
