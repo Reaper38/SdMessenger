@@ -82,28 +82,14 @@ namespace Sdm.Core.Messages
                 w.Flush();
             }
         }
-
-        private int JsonGetInt32(JObject obj, string key)
-        {
-            var expectedType = JTokenType.Integer;
-            JToken tok = obj[key];
-            if (tok == null)
-                throw new MessageLoadException("Key not found: " + key);
-            if (tok.Type != expectedType)
-            {
-                var msg = String.Format("Token type mismatch: expected '{0}', got '{1}'", expectedType, tok.Type);
-                throw new MessageLoadException(msg);
-            }
-            return (int)tok;
-        }
-
+        
         private void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s, false) { SupportMultipleContent = true })
             {
                 var obj = JObject.Load(r);
-                Size = JsonGetInt32(obj, "msz");
-                int tmp = JsonGetInt32(obj, "mid");
+                Size = obj.GetInt32("msz");
+                int tmp = obj.GetInt32("mid");
                 try
                 {
                     Id = (MessageId)tmp;
@@ -112,7 +98,7 @@ namespace Sdm.Core.Messages
                 {
                     throw new MessageLoadException("Invalid message id: " + tmp);
                 }
-                tmp = JsonGetInt32(obj, "mflags");
+                tmp = obj.GetInt32("mflags");
                 try
                 {
                     Flags = (MessageFlags)tmp;
