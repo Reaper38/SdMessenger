@@ -58,7 +58,7 @@ namespace Sdm.Core
         }
 
         #endregion
-
+        
         #region ICryptoProvider Members
 
         public IEnumerable<int> ValidKeySizes
@@ -88,8 +88,11 @@ namespace Sdm.Core
             }
         }
 
-        public void Initialize(int keySize)
-        { rij.KeySize = keySize; }
+        public int KeySize
+        {
+            set { rij.KeySize = value; }
+            get { return rij.KeySize; }
+        }
 
         public int ComputeEncryptedSize(int noncryptedSize)
         {

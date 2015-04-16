@@ -8,7 +8,7 @@ namespace Sdm.Core
 {
     public class RSACryptoProvider : IAsymmetricCryptoProvider
     {
-        private RSACryptoServiceProvider rsa;
+        private RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
         private List<int> validKeySizes = null;
         private bool disposed = false;
 
@@ -26,7 +26,7 @@ namespace Sdm.Core
         { return rsa.Decrypt(src, false); }
 
         #endregion
-
+        
         #region ICryptoProvider Members
 
         public IEnumerable<int> ValidKeySizes
@@ -56,8 +56,17 @@ namespace Sdm.Core
             }
         }
 
-        public void Initialize(int keySize)
-        { rsa = new RSACryptoServiceProvider(keySize); }
+        public int KeySize
+        {
+            get { return rsa.KeySize; }
+            set
+            {
+                if (value == rsa.KeySize)
+                    return;
+                rsa.Dispose();
+                rsa = new RSACryptoServiceProvider(value);
+            }
+        }
 
         public int ComputeEncryptedSize(int noncryptedSize)
         { return rsa.KeySize / 8; }

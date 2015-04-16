@@ -11,10 +11,9 @@ namespace Sdm.Core
         /// </summary>
         IEnumerable<int> ValidKeySizes { get; }
         /// <summary>
-        /// Initializes ICryptoProvider instance using given key size.
+        /// Gets or sets the size (in bits) of the key used by the underlying crypto algorithm.
         /// </summary>
-        /// <param name="keySize">Key size (in bits)</param>
-        void Initialize(int keySize);
+        int KeySize { get; set; }
         /// <summary>
         /// Returns size of encrypted data.
         /// </summary>
