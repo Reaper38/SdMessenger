@@ -56,6 +56,13 @@ namespace Sdm.Core
         Rejected = 3,
     }
 
+    public enum AuthResult : byte
+    {
+        Accepted = 0,
+        InvalidLogin = 1,
+        Banned = 2,
+    }
+
     [Flags]
     public enum ClientAccessFlags : uint
     {
