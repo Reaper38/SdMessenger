@@ -30,14 +30,7 @@ namespace Sdm.Core
         {
             using (var cs = new CryptoStream(dst, transform, CryptoStreamMode.Write))
             {
-                var buf = new byte[256];
-                var readByteCount = 0;
-                while (readByteCount < srcByteCount)
-                {
-                    var r = src.Read(buf, 0, Math.Min(buf.Length, srcByteCount - readByteCount));
-                    cs.Write(buf, 0, r);
-                    readByteCount += r;
-                }
+                src.ReadTo(cs, srcByteCount);
             }
         }
 
