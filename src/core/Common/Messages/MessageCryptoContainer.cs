@@ -8,6 +8,7 @@ namespace Sdm.Core.Messages
 {
     public sealed class MessageCryptoContainer : ISdmSerializable, IDisposable
     {
+        // XXX: include salt instead of complete IV
         private byte[] iv;
         private readonly MemoryStream cdata;
         private readonly Stream cdataWrap; // unclosable wrapper over cdata
