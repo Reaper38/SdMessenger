@@ -24,7 +24,7 @@ namespace Sdm.Core
         string Password { get; set; }
         ClientFlags Flags { get; }
         ClientAccessFlags AccessFlags { get; set; }
-        string SessionKey { get; } // AES key
+        byte[] SessionKey { get; } // AES key
         // client state could be added here
 
         Stream NetStream { get; }

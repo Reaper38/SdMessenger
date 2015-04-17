@@ -32,7 +32,7 @@ namespace Sdm.Server
         protected PureServerBase Server;
         public SocketClientParams Params { get; protected set; }
 
-        protected SocketClientBase(PureServerBase srv, ClientId id, SocketClientParams clParams, string sessionKey)
+        protected SocketClientBase(PureServerBase srv, ClientId id, SocketClientParams clParams, byte[] sessionKey)
         {
             Server = srv;
             Params = clParams;
@@ -49,7 +49,7 @@ namespace Sdm.Server
         public string Password { get; set; }
         public abstract ClientFlags Flags { get; protected set; }
         public ClientAccessFlags AccessFlags { get; set; }
-        public string SessionKey { get; protected set; }
+        public byte[] SessionKey { get; protected set; }
         public Stream NetStream { get { return Params.NetStream; } }
         #endregion
     }
@@ -58,7 +58,7 @@ namespace Sdm.Server
     {
         private ClientFlags flags;
 
-        public Client(Server srv, ClientId id, SocketClientParams clParams, string sessionKey) :
+        public Client(Server srv, ClientId id, SocketClientParams clParams, byte[] sessionKey) :
             base(srv, id, clParams, sessionKey)
         {
             flags = ClientFlags.None;
@@ -180,16 +180,16 @@ namespace Sdm.Server
                 cl.NetStream.Read(buf, 0, buf.Length);
                 var ms = new MemoryStream(buf);
                 var msg = MessageFactory.CreateMessage(hdr.Id);
-                try
-                {
-                    msg.Load(ms, Protocol);
-                }
-                catch (MessageLoadException e)
-                {
-                    // XXX: log exception
-                    DisconnectClient(cl, "bad message");
-                    continue;
-                }
+                        try
+                        {
+                            msg.Load(ms, Protocol);
+                        }
+                        catch (MessageLoadException e)
+                        {
+                            // XXX: log exception
+                            DisconnectClient(cl, "bad message");
+                            continue;
+                        }
                 OnMessage(msg, cl.Id);
             }
         }
@@ -301,10 +301,10 @@ namespace Sdm.Server
             iclients.Remove(cl);
         }
 
-        private string GenerateSessionKey()
+        private byte[] GenerateSessionKey()
         {
             // XXX: generate session key
-            return "0123456789abcdef";
+            return new byte[16];
         }
     }
 }
