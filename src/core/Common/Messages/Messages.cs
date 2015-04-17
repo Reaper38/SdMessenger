@@ -108,9 +108,7 @@ namespace Sdm.Core.Messages
     {
         public string Key;
 
-        public ClPublicKeyRespond() :
-            base(MessageId.ClPublicKeyRespond)
-        {}
+        public ClPublicKeyRespond() : base(MessageId.ClPublicKeyRespond) {}
 
         protected override void LoadJson(Stream s)
         {
