@@ -133,6 +133,7 @@ namespace Sdm.Server
         
         public override void Connect(IPAddress address, ushort port)
         {
+            Root.Log(LogLevel.Info, "Server: starting...");
             if (Connected)
                 throw new InvalidOperationException("Already connected");
             // XXX: get socket params from config
@@ -153,11 +154,12 @@ namespace Sdm.Server
             {
                 if (se.SocketErrorCode == SocketError.AddressAlreadyInUse)
                 {
-                    // XXX: log 'port is busy'
+                    Root.Log(LogLevel.Error, "Server: port {0} is busy!", port);
                 }
-                // XXX: log failure
+                Root.Log(LogLevel.Error, "Server: connection failed ({0})", se.Message);
                 throw;
             }
+            Root.Log(LogLevel.Info, "Server: listening port " + port);
             StartAcceptLoop();
         }
 
@@ -176,7 +178,7 @@ namespace Sdm.Server
                 }
                 catch (MessageLoadException e)
                 {
-                    // XXX: log exception
+                    Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})", GetClientName(cl), e.Message);
                     DisconnectClient(cl, "bad message header");
                     continue;
                 }
@@ -205,7 +207,8 @@ namespace Sdm.Server
                         }
                         catch (MessageLoadException e)
                         {
-                            // XXX: log exception
+                            Root.Log(LogLevel.Warning, "Client {0} : bad message ({1})",
+                                GetClientName(cl), e.Message);
                             DisconnectClient(cl, "bad message");
                             continue;
                         }
@@ -242,19 +245,15 @@ namespace Sdm.Server
                 OnNewClient(clParams, ref allow);
                 if (allow)
                 {
-                    // XXX: log 'connection accepted'
                     var cl = CreateClient(clParams);
                     AddClient(cl);
                     var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
                     SendTo(cl.Id, challenge); // XXX: thread safety!
                 }
                 else
-                {
-                    // XXX: log 'connection rejected'
                     clSocket.Close();
-                }
             }
-            // XXX: log 'disconnected'
+            Root.Log(LogLevel.Info, "Server: disconnected");
             if (semAcceptingThread.CurrentCount == 0)
                 semAcceptingThread.Release();
         }
@@ -264,7 +263,7 @@ namespace Sdm.Server
         public override void Disconnect()
         {
             disconnecting = true;
-            // XXX: log 'disconnect'
+            Root.Log(LogLevel.Info, "Server: disconnecting");
             foreach (var cl in iclients)
                 DisconnectClient(cl, "Server stopped");
             if (svSocket != null)
@@ -280,6 +279,9 @@ namespace Sdm.Server
             return cl;
         }
 
+        private static string GetClientName(IClient cl)
+        { return cl.Login ?? "#" + cl.Id; }
+
         public override void DisconnectClient(IClient cl, string reason)
         {
             var scl = clients[cl.Id];
@@ -289,7 +291,7 @@ namespace Sdm.Server
 
         private void DisconnectClient(SocketClientBase cl)
         {
-            // XXX: log 'disconnecting client'
+            Root.Log(LogLevel.Info, "Server: disconnecting client: " + GetClientName(cl));
             RemoveClient(cl);
             cl.Params.Socket.Close();
         }
@@ -334,12 +336,14 @@ namespace Sdm.Server
                 cl.Flags |= ClientFlags.Authenticated;
                 respond.Message = "All ok";
                 SendTo(id, respond);
+                Root.Log(LogLevel.Info, "Client {0} : authentication succeeded", cl.Login);
             }
             else
             {
                 // XXX: add extra details here
                 respond.Message = "";
                 SendTo(id, respond);
+                Root.Log(LogLevel.Info, "Client {0} : authentication failed", cl.Login);
                 DisconnectClient(cl);
             }
         }
@@ -356,7 +360,9 @@ namespace Sdm.Server
 
         private void OnClDisconnect(ClDisconnect msg, ClientId id)
         {
-            DisconnectClient(clients[id]);
+            var cl = clients[id];
+            Root.Log(LogLevel.Info, "Client {0} : disconnect", cl.Login);
+            DisconnectClient(cl);
             // XXX: broadcast event
         }
 
