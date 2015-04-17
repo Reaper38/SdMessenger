@@ -38,6 +38,7 @@ namespace Sdm.Core
 
     public interface ISymmetricCryptoProvider : ICryptoProvider
     {
+        SdmSymmetricAlgorithm Algorithm { get; }
         /// <summary>
         /// Gets or sets the secret key for the symmetric algorithm.
         /// </summary>
@@ -52,6 +53,7 @@ namespace Sdm.Core
     
     public interface IAsymmetricCryptoProvider : ICryptoProvider
     {
+        SdmAsymmetricAlgorithm Algorithm { get; }
         string GetKey(bool includePrivateParams = false);
         void SetKey(string key);
         byte[] Encrypt(byte[] src);

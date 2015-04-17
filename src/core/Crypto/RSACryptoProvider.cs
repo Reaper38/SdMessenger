@@ -14,6 +14,8 @@ namespace Sdm.Core
 
         #region IAsymmetricCryptoProvider Members
 
+        public SdmAsymmetricAlgorithm Algorithm { get { return SdmAsymmetricAlgorithm.RSA; } }
+
         public string GetKey(bool includePrivateParams = false)
         { return rsa.ToXmlString(includePrivateParams); }
 

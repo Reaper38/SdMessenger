@@ -14,6 +14,8 @@ namespace Sdm.Core
         
         #region ISymmetricCryptoProvider Members
 
+        public SdmSymmetricAlgorithm Algorithm { get { return SdmSymmetricAlgorithm.AES; } }
+
         public byte[] Key
         {
             get { return rij.Key; }
