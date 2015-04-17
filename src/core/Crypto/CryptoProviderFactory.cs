@@ -2,16 +2,6 @@
 
 namespace Sdm.Core
 {
-    public enum SdmSymmetricAlgorithm
-    {
-        AES,
-    }
-
-    public enum SdmAsymmetricAlgorithm
-    {
-        RSA,
-    }
-
     public sealed class CryptoProviderFactory
     {
         #region Singleton implementation

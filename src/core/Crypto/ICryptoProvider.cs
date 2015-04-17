@@ -26,6 +26,16 @@ namespace Sdm.Core
         int ComputeDecryptedSize(int encryptedSize);
     }
 
+    public enum SdmSymmetricAlgorithm
+    {
+        AES,
+    }
+
+    public enum SdmAsymmetricAlgorithm
+    {
+        RSA,
+    }
+
     public interface ISymmetricCryptoProvider : ICryptoProvider
     {
         /// <summary>
