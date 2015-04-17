@@ -8,6 +8,7 @@ namespace Sdm.Core.Messages
 {
     public sealed class MessageCryptoContainer : ISdmSerializable, IDisposable
     {
+        private byte[] iv;
         private readonly MemoryStream cdata;
         private readonly Stream cdataWrap; // unclosable wrapper over cdata
         private bool disposed = false;
@@ -28,6 +29,7 @@ namespace Sdm.Core.Messages
                 srcWrap.Seek(0, SeekOrigin.Begin);
                 cdataWrap.Seek(0, SeekOrigin.Begin);
                 cryptoProvider.Encrypt(cdataWrap, srcWrap, (int)src.Length);
+                iv = cryptoProvider.IV;
             }
         }
 
@@ -37,6 +39,7 @@ namespace Sdm.Core.Messages
             {
                 var dstWrap = dst.AsUnclosable();
                 cdataWrap.Seek(0, SeekOrigin.Begin);
+                cryptoProvider.IV = iv;
                 cryptoProvider.Decrypt(dstWrap, cdataWrap, (int)cdata.Length);
                 dstWrap.Seek(0, SeekOrigin.Begin);
                 var msg = MessageFactory.CreateMessage(id);
@@ -83,8 +86,18 @@ namespace Sdm.Core.Messages
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
-                var scdata = obj.GetString("cdata");
                 byte[] tmp;
+                var siv = obj.GetString("iv");
+                try
+                {
+                    tmp = Convert.FromBase64String(siv);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid iv format");
+                }
+                iv = tmp;
+                var scdata = obj.GetString("cdata");
                 try
                 {
                     tmp = Convert.FromBase64String(scdata);
@@ -103,8 +116,11 @@ namespace Sdm.Core.Messages
         {
             using (var w = new JsonStreamWriter(s))
             {
+                var siv = Convert.ToBase64String(iv, 0, iv.Length);
                 var scdata = Convert.ToBase64String(cdata.GetBuffer(), 0, (int)cdata.Length);
                 w.WriteStartObject();
+                w.WritePropertyName("iv");
+                w.WriteValue(siv);
                 w.WritePropertyName("cdata");
                 w.WriteValue(scdata);
                 w.WriteEndObject();
@@ -117,6 +133,8 @@ namespace Sdm.Core.Messages
             using (var r = new BinaryReader(s))
             {
                 var len = r.ReadInt32();
+                iv = r.ReadBytes(len);
+                len = r.ReadInt32();
                 var read = r.ReadTo(cdata, len);
                 if (len != read)
                     throw new MessageLoadException("Incomplete cdata");
@@ -127,6 +145,8 @@ namespace Sdm.Core.Messages
         {
             using (var w = new BinaryWriter(s))
             {
+                w.Write(iv.Length);
+                w.Write(iv);
                 w.Write(cdata.Length);
                 w.Write(cdata.GetBuffer(), 0, (int)cdata.Length);
                 w.Flush();
