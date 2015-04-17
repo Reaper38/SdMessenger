@@ -283,7 +283,7 @@ namespace Sdm.Server
                 {
                     var cl = CreateClient(clParams);
                     AddClient(cl);
-                    var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
+                    var challenge = new SvPublicKeyChallenge {KeySize = asymCp.KeySize};
                     try
                     {
                         SendTo(cl.Id, challenge); // XXX: thread safety!
@@ -299,7 +299,10 @@ namespace Sdm.Server
                     }
                 }
                 else
+                {
+                    clSocket.Shutdown(SocketShutdown.Both);
                     clSocket.Close();
+                }
             }
             Root.Log(LogLevel.Info, "Server: disconnected");
             if (semAcceptingThread.CurrentCount == 0)
@@ -315,7 +318,10 @@ namespace Sdm.Server
             foreach (var cl in iclients)
                 DisconnectClient(cl, "Server stopped");
             if (svSocket != null)
+            {
+                svSocket.Shutdown(SocketShutdown.Both);
                 svSocket.Close();
+            }
             semAcceptingThread.Wait();
             disconnecting = false;
         }
@@ -341,6 +347,7 @@ namespace Sdm.Server
         {
             Root.Log(LogLevel.Info, "Server: disconnecting client: " + GetClientName(cl));
             RemoveClient(cl);
+            cl.Params.Socket.Shutdown(SocketShutdown.Both);
             cl.Params.Socket.Close();
         }
 
