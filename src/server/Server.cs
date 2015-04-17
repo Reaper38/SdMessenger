@@ -47,7 +47,7 @@ namespace Sdm.Server
         public abstract INetStatistics Stats { get; }
         public string Login { get; set; }
         public string Password { get; set; }
-        public abstract ClientFlags Flags { get; protected set; }
+        public abstract ClientFlags Flags { get; set; }
         public ClientAccessFlags AccessFlags { get; set; }
         public byte[] SessionKey { get; protected set; }
         public Stream NetStream { get { return Params.NetStream; } }
@@ -70,7 +70,7 @@ namespace Sdm.Server
         public override ClientFlags Flags
         {
             get { return flags; }
-            protected set { flags = value; }
+            set { flags = value; }
         }
     }
 
