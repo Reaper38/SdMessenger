@@ -83,6 +83,8 @@ namespace Sdm.Server
         private readonly ReadOnlyCollection<IClient> roClients;
         private readonly SemaphoreSlim semAcceptingThread;
         private volatile bool disconnecting = false;
+        private IAsymmetricCryptoProvider asymCp;
+        private ISymmetricCryptoProvider symCp;
 
         public ProtocolId Protocol { get; private set; }
 
@@ -94,6 +96,8 @@ namespace Sdm.Server
             semAcceptingThread = new SemaphoreSlim(0, 1);
             // XXX: load protocol id from config
             Protocol = ProtocolId.Json;
+            asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(SdmAsymmetricAlgorithm.RSA);
+            symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
         }
         
         #region PureServerBase Members
@@ -178,11 +182,25 @@ namespace Sdm.Server
                 // XXX: could be optimized - use one large buffer + unclosable MemoryStream
                 var buf = new byte[hdr.Size];
                 cl.NetStream.Read(buf, 0, buf.Length);
-                var ms = new MemoryStream(buf);
-                var msg = MessageFactory.CreateMessage(hdr.Id);
+                IMessage msg;
+                using (var ms = new MemoryStream(buf))
+                {
+                    var msWrap = ms.AsUnclosable();
+                    if ((hdr.Flags & MessageFlags.Secure) == MessageFlags.Secure)
+                    {
+                        using (var container = new MessageCryptoContainer())
+                        {
+                            container.Load(msWrap, Protocol);
+                            symCp.Key = cl.SessionKey;
+                            msg = container.Extract(hdr.Id, symCp, Protocol);
+                        }
+                    }
+                    else
+                    {
+                        msg = MessageFactory.CreateMessage(hdr.Id);
                         try
                         {
-                            msg.Load(ms, Protocol);
+                            msg.Load(msWrap, Protocol);
                         }
                         catch (MessageLoadException e)
                         {
@@ -190,6 +208,8 @@ namespace Sdm.Server
                             DisconnectClient(cl, "bad message");
                             continue;
                         }
+                    }
+                }
                 OnMessage(msg, cl.Id);
             }
         }
