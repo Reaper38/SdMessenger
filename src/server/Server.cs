@@ -164,12 +164,30 @@ namespace Sdm.Server
             StartAcceptLoop();
         }
 
+        /// <summary>Check if the base exception is SocketException with ConnectionReset error code.</summary>
+        private static bool CheckConnectionReset(Exception e)
+        {
+            var se = e.GetBaseException() as SocketException;
+            return se != null && se.SocketErrorCode == SocketError.ConnectionReset;
+        }
+
+        private void OnClientConnectionReset(SocketClientBase cl)
+        {
+            Root.Log(LogLevel.Info, "Client {0} : connection lost", GetClientName(cl));
+            DisconnectClient(cl);
+        }
+
         public override void Update()
         {
             var hdr = new MsgHeader();
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
+                if (!cl.Params.Socket.Connected)
+                {
+                    OnClientConnectionReset(cl);
+                    continue;
+                }
                 if (cl.Params.Socket.Available == 0)
                     continue;
                 // try to read one message from each client
@@ -179,13 +197,30 @@ namespace Sdm.Server
                 }
                 catch (MessageLoadException e)
                 {
+                    if (CheckConnectionReset(e))
+                    {
+                        OnClientConnectionReset(cl);
+                        continue;
+                    }
                     Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})", GetClientName(cl), e.Message);
                     DisconnectClient(cl, "bad message header");
                     continue;
                 }
                 // XXX: could be optimized - use one large buffer + unclosable MemoryStream
                 var buf = new byte[hdr.Size];
-                cl.NetStream.Read(buf, 0, buf.Length);
+                try
+                {
+                    cl.NetStream.Read(buf, 0, buf.Length);
+                }
+                catch (IOException e)
+                {
+                    if (CheckConnectionReset(e))
+                    {
+                        OnClientConnectionReset(cl);
+                        continue;
+                    }
+                    throw;
+                }
                 IMessage msg;
                 using (var ms = new MemoryStream(buf))
                 {
@@ -234,7 +269,7 @@ namespace Sdm.Server
                 {
                     clSocket = svSocket.Accept();
                 }
-                catch
+                catch // XXX: catch specific exceptions and log
                 {
                     break;
                 }
@@ -249,7 +284,19 @@ namespace Sdm.Server
                     var cl = CreateClient(clParams);
                     AddClient(cl);
                     var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
-                    SendTo(cl.Id, challenge); // XXX: thread safety!
+                    try
+                    {
+                        SendTo(cl.Id, challenge); // XXX: thread safety!
+                    }
+                    catch (IOException e)
+                    {
+                        if (CheckConnectionReset(e))
+                        {
+                            OnClientConnectionReset(cl);
+                            continue;
+                        }
+                        throw;
+                    }
                 }
                 else
                     clSocket.Close();
@@ -330,22 +377,34 @@ namespace Sdm.Server
             var accessFlags = ClientAccessFlags.Default;
             var result = AuthenticateClient(msg.Login, msg.Password, ref accessFlags);
             var respond = new SvAuthResult { Result = result };
-            if (result == AuthResult.Accepted)
+            try
             {
-                cl.Login = msg.Login;
-                cl.Password = msg.Password;
-                cl.Flags |= ClientFlags.Authenticated;
-                respond.Message = "All ok";
-                SendTo(id, respond);
-                Root.Log(LogLevel.Info, "Client {0} : authentication succeeded", cl.Login);
+                if (result == AuthResult.Accepted)
+                {
+                    cl.Login = msg.Login;
+                    cl.Password = msg.Password;
+                    cl.Flags |= ClientFlags.Authenticated;
+                    respond.Message = "All ok";
+                    SendTo(id, respond);
+                    Root.Log(LogLevel.Info, "Client {0} : authentication succeeded", cl.Login);
+                }
+                else
+                {
+                    // XXX: add extra details here
+                    respond.Message = "";
+                    SendTo(id, respond);
+                    Root.Log(LogLevel.Info, "Client {0} : authentication failed", cl.Login);
+                    DisconnectClient(cl);
+                }
             }
-            else
+            catch (IOException e)
             {
-                // XXX: add extra details here
-                respond.Message = "";
-                SendTo(id, respond);
-                Root.Log(LogLevel.Info, "Client {0} : authentication failed", cl.Login);
-                DisconnectClient(cl);
+                if (CheckConnectionReset(e))
+                {
+                    OnClientConnectionReset(cl);
+                    return;
+                }
+                throw;
             }
         }
 
@@ -355,7 +414,19 @@ namespace Sdm.Server
             asymCp.SetKey(msg.Key);
             var encryptedKey = asymCp.Encrypt(cl.SessionKey);
             var challenge = new SvAuthChallenge { SessionKey = encryptedKey };
-            SendTo(id, challenge);
+            try
+            {
+                SendTo(id, challenge);
+            }
+            catch (IOException e)
+            {
+                if (CheckConnectionReset(e))
+                {
+                    OnClientConnectionReset(cl);
+                    return;
+                }
+                throw;
+            }
             cl.Flags |= ClientFlags.Secure;
         }
 
