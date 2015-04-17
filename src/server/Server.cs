@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Sdm.Core;
@@ -244,10 +245,13 @@ namespace Sdm.Server
                     // XXX: log 'connection accepted'
                     var cl = CreateClient(clParams);
                     AddClient(cl);
+                    var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
+                    SendTo(cl.Id, challenge); // XXX: thread safety!
                 }
                 else
                 {
                     // XXX: log 'connection rejected'
+                    clSocket.Close();
                 }
             }
             // XXX: log 'disconnected'
@@ -280,13 +284,80 @@ namespace Sdm.Server
         {
             var scl = clients[cl.Id];
             // XXX: send notification to client
-            RemoveClient(scl);
-            scl.Params.Socket.Close();
+            DisconnectClient(scl);
+        }
+
+        private void DisconnectClient(SocketClientBase cl)
+        {
+            // XXX: log 'disconnecting client'
+            RemoveClient(cl);
+            cl.Params.Socket.Close();
+        }
+
+        private AuthResult AuthenticateClient(string login, string password, ref ClientAccessFlags accessFlags)
+        {
+            // XXX: implement account verification
+            // 1] check if user with specified login exists in account db
+            // 2] calculate password hash
+            // 3] check if calculated hash matches one in account db
+            // 4] get access flags
+            return AuthResult.Accepted;
         }
 
         public override void OnMessage(IMessage msg, ClientId cl)
         {
             // XXX: handle messages here
+            switch (msg.Id)
+            {
+            case MessageId.ClPublicKeyRespond:
+                OnClPublicKeyRespond(msg as ClPublicKeyRespond, cl);
+                break;
+            case MessageId.ClAuthRespond:
+                OnClAuthRespond(msg as ClAuthRespond, cl);
+                break;
+            case MessageId.ClDisconnect:
+                OnClDisconnect(msg as ClDisconnect, cl);
+                break;
+            }
+        }
+
+        private void OnClAuthRespond(ClAuthRespond msg, ClientId id)
+        {
+            var cl = clients[id];
+            var accessFlags = ClientAccessFlags.Default;
+            var result = AuthenticateClient(msg.Login, msg.Password, ref accessFlags);
+            var respond = new SvAuthResult { Result = result };
+            if (result == AuthResult.Accepted)
+            {
+                cl.Login = msg.Login;
+                cl.Password = msg.Password;
+                cl.Flags |= ClientFlags.Authenticated;
+                respond.Message = "All ok";
+                SendTo(id, respond);
+            }
+            else
+            {
+                // XXX: add extra details here
+                respond.Message = "";
+                SendTo(id, respond);
+                DisconnectClient(cl);
+            }
+        }
+
+        private void OnClPublicKeyRespond(ClPublicKeyRespond msg, ClientId id)
+        {
+            var cl = clients[id];
+            asymCp.SetKey(msg.Key);
+            var encryptedKey = asymCp.Encrypt(cl.SessionKey);
+            var challenge = new SvAuthChallenge { SessionKey = encryptedKey };
+            SendTo(id, challenge);
+            cl.Flags |= ClientFlags.Secure;
+        }
+
+        private void OnClDisconnect(ClDisconnect msg, ClientId id)
+        {
+            DisconnectClient(clients[id]);
+            // XXX: broadcast event
         }
 
         public override IClient IdToClient(ClientId id)
@@ -295,9 +366,21 @@ namespace Sdm.Server
         public override void SendTo(ClientId id, IMessage msg)
         {
             var cl = clients[id];
-            msg.Save(cl.NetStream, Protocol);
+            if ((cl.Flags & ClientFlags.Secure) == ClientFlags.Secure)
+            {
+                using (var container = new MessageCryptoContainer())
+                {
+                    symCp.Key = cl.SessionKey;
+                    // XXX: generate new symCp.IV
+                    container.Store(msg, symCp, Protocol);
+                    container.Save(cl.NetStream, Protocol);
+                }
+            }
+            else
+                msg.Save(cl.NetStream, Protocol);
         }
 
+        // XXX: skip non-authenticated clients (add parameter)
         public override void SendBroadcast(ClientId exclude, IMessage msg)
         {
             foreach (var cl in iclients)
@@ -323,8 +406,13 @@ namespace Sdm.Server
 
         private byte[] GenerateSessionKey()
         {
-            // XXX: generate session key
-            return new byte[16];
+            var keySize = symCp.KeySize / 8;
+            var key = new byte[keySize];
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(key);
+            }
+            return key;
         }
     }
 }

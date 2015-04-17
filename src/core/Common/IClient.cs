@@ -11,7 +11,8 @@ namespace Sdm.Core
     public enum ClientFlags
     {
         None = 0,
-        Authenticated = 1,
+        Secure = 1,
+        Authenticated = 2,
     }
     // represents remote client (for server app)
     public interface IClient
