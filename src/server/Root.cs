@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sdm.Server
 {
-    class Program
+    internal static class Root
     {
         static int Main(string[] args)
         {
