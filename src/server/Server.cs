@@ -269,7 +269,7 @@ namespace Sdm.Server
                 {
                     clSocket = svSocket.Accept();
                 }
-                catch // XXX: catch specific exceptions and log
+                catch (ObjectDisposedException) // Disconnect() called
                 {
                     break;
                 }
