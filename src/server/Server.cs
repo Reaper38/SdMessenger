@@ -156,7 +156,8 @@ namespace Sdm.Server
                 {
                     Root.Log(LogLevel.Error, "Server: port {0} is busy!", port);
                 }
-                Root.Log(LogLevel.Error, "Server: connection failed ({0})", se.Message);
+                Root.Log(LogLevel.Error, "Server: connection failed ({0})",
+                    NetUtil.GetSocketErrorDesc(se.SocketErrorCode));
                 throw;
             }
             Root.Log(LogLevel.Info, "Server: listening port " + port);
