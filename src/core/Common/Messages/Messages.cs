@@ -37,7 +37,7 @@ namespace Sdm.Core.Messages
             }
             catch (Exception e)
             {
-                throw new MessageLoadException(e.Message);
+                throw new MessageLoadException(e.Message, e);
             }
             throw new NotSupportedException("Unsupported protocol");
         }
