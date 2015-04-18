@@ -183,6 +183,8 @@ namespace Sdm.Server
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
+                // BUG: don't modify client list inside foreach loop
+                // XXX: instead, set some flag or add bad clients to list and disconnect them afterwards
                 if (!cl.Params.Socket.Connected)
                 {
                     OnClientConnectionReset(cl);
