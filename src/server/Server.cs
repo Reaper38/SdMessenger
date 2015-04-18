@@ -198,12 +198,13 @@ namespace Sdm.Server
                 catch (MessageLoadException e)
                 {
                     if (CheckConnectionReset(e))
-                    {
                         OnClientConnectionReset(cl);
-                        continue;
+                    else
+                    {
+                        Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})",
+                            GetClientName(cl), e.Message);
+                        DisconnectClient(cl, "bad message header");
                     }
-                    Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})", GetClientName(cl), e.Message);
-                    DisconnectClient(cl, "bad message header");
                     continue;
                 }
                 // XXX: could be optimized - use one large buffer + unclosable MemoryStream
@@ -283,7 +284,7 @@ namespace Sdm.Server
                 {
                     var cl = CreateClient(clParams);
                     AddClient(cl);
-                    var challenge = new SvPublicKeyChallenge {KeySize = asymCp.KeySize};
+                    var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
                     try
                     {
                         SendTo(cl.Id, challenge); // XXX: thread safety!
@@ -291,11 +292,9 @@ namespace Sdm.Server
                     catch (IOException e)
                     {
                         if (CheckConnectionReset(e))
-                        {
                             OnClientConnectionReset(cl);
-                            continue;
-                        }
-                        throw;
+                        else
+                            throw;
                     }
                 }
                 else
@@ -407,11 +406,9 @@ namespace Sdm.Server
             catch (IOException e)
             {
                 if (CheckConnectionReset(e))
-                {
                     OnClientConnectionReset(cl);
-                    return;
-                }
-                throw;
+                else
+                    throw;
             }
         }
 
@@ -428,11 +425,9 @@ namespace Sdm.Server
             catch (IOException e)
             {
                 if (CheckConnectionReset(e))
-                {
                     OnClientConnectionReset(cl);
-                    return;
-                }
-                throw;
+                else
+                    throw;
             }
             cl.Flags |= ClientFlags.Secure;
         }
