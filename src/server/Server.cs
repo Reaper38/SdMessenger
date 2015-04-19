@@ -83,6 +83,7 @@ namespace Sdm.Server
         private IAsymmetricCryptoProvider asymCp;
         private ISymmetricCryptoProvider symCp;
         private RNGCryptoServiceProvider rng;
+        private bool disposed = false;
 
         public ProtocolId Protocol { get; private set; }
 
@@ -530,6 +531,22 @@ namespace Sdm.Server
             var key = new byte[keySize];
             rng.GetBytes(key);
             return key;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    svSocket.Dispose();
+                    asymCp.Dispose();
+                    symCp.Dispose();
+                    rng.Dispose();
+                }
+                DisposeHelper.OnDispose<Server>(disposing);
+                disposed = true;
+            }
         }
     }
 }

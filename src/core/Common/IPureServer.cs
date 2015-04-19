@@ -5,7 +5,7 @@ using System.Net;
 namespace Sdm.Core
 {
     // represents server by itself (for server app)
-    public abstract class PureServerBase
+    public abstract class PureServerBase : IDisposable
     {
         public abstract bool Connected { get; }
         public abstract IPAddress Address { get; }
@@ -21,6 +21,20 @@ namespace Sdm.Core
         public abstract void SendBroadcast(ClientId exclude, IMessage msg, bool authenticatedOnly = true);
         public abstract IClient IdToClient(ClientId id);
         protected abstract void OnNewClient(IClientParams clParams, ref bool allow);
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void Dispose(bool disposing);
+
+        ~PureServerBase() { Dispose(false); }
+
+        #endregion
     }
 
     public interface IClientParams
