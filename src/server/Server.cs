@@ -82,6 +82,7 @@ namespace Sdm.Server
         private volatile bool disconnecting = false;
         private IAsymmetricCryptoProvider asymCp;
         private ISymmetricCryptoProvider symCp;
+        private RNGCryptoServiceProvider rng;
 
         public ProtocolId Protocol { get; private set; }
 
@@ -97,6 +98,7 @@ namespace Sdm.Server
             Protocol = ProtocolId.Json;
             asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(SdmAsymmetricAlgorithm.RSA);
             symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
+            rng = new RNGCryptoServiceProvider();
         }
         
         #region PureServerBase Members
@@ -526,10 +528,7 @@ namespace Sdm.Server
         {
             var keySize = symCp.KeySize / 8;
             var key = new byte[keySize];
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(key);
-            }
+            rng.GetBytes(key);
             return key;
         }
     }
