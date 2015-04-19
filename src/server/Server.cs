@@ -501,7 +501,6 @@ namespace Sdm.Server
                 msg.Save(cl.NetStream, Protocol);
         }
 
-        // XXX: skip non-authenticated clients (add parameter)
         public override void SendBroadcast(ClientId exclude, IMessage msg, bool authenticatedOnly = true)
         {
             foreach (var cl in iclients)
