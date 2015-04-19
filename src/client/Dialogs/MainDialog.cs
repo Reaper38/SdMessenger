@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Sdm.Client
 {
-    public partial class MainDialog : Form
+    internal partial class MainDialog : Form
     {
         public MainDialog()
         {
