@@ -7,14 +7,6 @@ using System.Text;
 
 namespace Sdm.Core
 {
-    [Flags]
-    public enum ClientFlags
-    {
-        None = 0,
-        Secure = 1,
-        Authenticated = 2,
-        DeferredDisconnect = 4,
-    }
     // represents remote client (for server app)
     public interface IClient
     {
@@ -24,11 +16,12 @@ namespace Sdm.Core
         INetStatistics Stats { get; }
         string Login { get; set; }
         string Password { get; set; }
-        ClientFlags Flags { get; }
+        bool Secure { get; }
+        bool Authenticated { get; }
+        bool DeferredDisconnect { get; }
         ClientAccessFlags AccessFlags { get; set; }
         byte[] SessionKey { get; } // AES key
         // client state could be added here
-
         Stream NetStream { get; }
     }
 }

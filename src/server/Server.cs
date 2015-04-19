@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -48,7 +49,9 @@ namespace Sdm.Server
         public abstract INetStatistics Stats { get; }
         public string Login { get; set; }
         public string Password { get; set; }
-        public abstract ClientFlags Flags { get; set; }
+        public bool Secure { get; set; }
+        public bool Authenticated { get; set; }
+        public bool DeferredDisconnect { get; set; }
         public ClientAccessFlags AccessFlags { get; set; }
         public byte[] SessionKey { get; protected set; }
         public Stream NetStream { get { return Params.NetStream; } }
@@ -57,22 +60,13 @@ namespace Sdm.Server
 
     internal class Client : SocketClientBase
     {
-        private ClientFlags flags;
-
         public Client(Server srv, ClientId id, SocketClientParams clParams, byte[] sessionKey) :
             base(srv, id, clParams, sessionKey)
         {
-            flags = ClientFlags.None;
             AccessFlags = ClientAccessFlags.Default;
         }
 
         public override INetStatistics Stats { get { return null; } }
-
-        public override ClientFlags Flags
-        {
-            get { return flags; }
-            set { flags = value; }
-        }
     }
 
     internal class Server : PureServerBase
@@ -80,7 +74,7 @@ namespace Sdm.Server
         private Socket svSocket;
         private Thread acceptingThread;
         private readonly SortedList<ClientId, SocketClientBase> clients;
-        private readonly List<SocketClientBase> newClients, delClients;
+        private readonly ConcurrentQueue<SocketClientBase> newClients, delClients;
         private readonly List<IClient> iclients;
         private readonly ReadOnlyCollection<IClient> roClients;
         private readonly SemaphoreSlim semAcceptingThread;
@@ -93,8 +87,8 @@ namespace Sdm.Server
         public Server()
         {
             clients = new SortedList<ClientId, SocketClientBase>();
-            newClients = new List<SocketClientBase>();
-            delClients = new List<SocketClientBase>();
+            newClients = new ConcurrentQueue<SocketClientBase>();
+            delClients = new ConcurrentQueue<SocketClientBase>();
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
             semAcceptingThread = new SemaphoreSlim(0, 1);
@@ -182,7 +176,8 @@ namespace Sdm.Server
 
         private void ProcessNewClients()
         {
-            foreach (var cl in newClients)
+            SocketClientBase cl;
+            while (newClients.TryDequeue(out cl))
             {
                 AddClient(cl);
                 var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
@@ -198,14 +193,13 @@ namespace Sdm.Server
                         throw;
                 }
             }
-            newClients.Clear();
         }
 
         private void ProcessDisconnectedClients()
         {
-            foreach (var cl in delClients)
+            SocketClientBase cl;
+            while (delClients.TryDequeue(out cl))
                 RemoveClient(cl);
-            delClients.Clear();
         }
         
         public override void Update()
@@ -331,8 +325,7 @@ namespace Sdm.Server
                 if (allow)
                 {
                     var cl = CreateClient(clParams);
-                    // XXX: wrap to lock (newClients is accessed from the main thread)
-                    newClients.Add(cl);
+                    newClients.Enqueue(cl);
                 }
                 else
                 {
@@ -383,8 +376,8 @@ namespace Sdm.Server
         private void DisconnectClient(SocketClientBase cl)
         {
             Root.Log(LogLevel.Info, "Server: disconnecting client: " + GetClientName(cl));
-            cl.Flags |= ClientFlags.DeferredDisconnect;
-            delClients.Add(cl);
+            cl.DeferredDisconnect = true;
+            delClients.Enqueue(cl);
             cl.Params.Socket.Shutdown(SocketShutdown.Both);
             cl.Params.Socket.Close();
         }
@@ -428,7 +421,7 @@ namespace Sdm.Server
                 {
                     cl.Login = msg.Login;
                     cl.Password = msg.Password;
-                    cl.Flags |= ClientFlags.Authenticated;
+                    cl.Authenticated = true;
                     respond.Message = "All ok";
                     SendTo(id, respond);
                     Root.Log(LogLevel.Info, "Client {0} : authentication succeeded", cl.Login);
@@ -468,7 +461,7 @@ namespace Sdm.Server
                 else
                     throw;
             }
-            cl.Flags |= ClientFlags.Secure;
+            cl.Secure = true;
         }
 
         private void OnClDisconnect(ClDisconnect msg, ClientId id)
@@ -485,7 +478,7 @@ namespace Sdm.Server
         public override void SendTo(ClientId id, IMessage msg)
         {
             var cl = clients[id];
-            if ((cl.Flags & ClientFlags.Secure) == ClientFlags.Secure)
+            if (cl.Secure)
             {
                 using (var container = new MessageCryptoContainer())
                 {
