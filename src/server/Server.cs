@@ -207,10 +207,11 @@ namespace Sdm.Server
                 RemoveClient(cl);
             delClients.Clear();
         }
-
+        
         public override void Update()
         {
             var hdr = new MsgHeader();
+            // try to read one message from each client
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
@@ -221,71 +222,85 @@ namespace Sdm.Server
                 }
                 if (cl.Params.Socket.Available == 0)
                     continue;
-                // try to read one message from each client
-                try
-                {
-                    hdr.Load(cl.NetStream, Protocol);
-                }
-                catch (MessageLoadException e)
-                {
-                    if (CheckConnectionReset(e))
-                        OnClientConnectionReset(cl);
-                    else
-                    {
-                        Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})",
-                            GetClientName(cl), e.Message);
-                        DisconnectClient(cl, "bad message header");
-                    }
+                if (!ReceiveMessageHeader(hdr, cl))
                     continue;
-                }
-                // XXX: could be optimized - use one large buffer + unclosable MemoryStream
-                var buf = new byte[hdr.Size];
-                try
-                {
-                    cl.NetStream.Read(buf, 0, buf.Length);
-                }
-                catch (IOException e)
-                {
-                    if (CheckConnectionReset(e))
-                    {
-                        OnClientConnectionReset(cl);
-                        continue;
-                    }
-                    throw;
-                }
                 IMessage msg;
-                using (var ms = new MemoryStream(buf))
-                {
-                    var msWrap = ms.AsUnclosable();
-                    if ((hdr.Flags & MessageFlags.Secure) == MessageFlags.Secure)
-                    {
-                        using (var container = new MessageCryptoContainer())
-                        {
-                            container.Load(msWrap, Protocol);
-                            symCp.Key = cl.SessionKey;
-                            msg = container.Extract(hdr.Id, symCp, Protocol);
-                        }
-                    }
-                    else
-                    {
-                        msg = MessageFactory.CreateMessage(hdr.Id);
-                        try
-                        {
-                            msg.Load(msWrap, Protocol);
-                        }
-                        catch (MessageLoadException e)
-                        {
-                            Root.Log(LogLevel.Warning, "Client {0} : bad message ({1})",
-                                GetClientName(cl), e.Message);
-                            DisconnectClient(cl, "bad message");
-                            continue;
-                        }
-                    }
-                }
+                if (!ReceiveMessage(hdr, cl, out msg))
+                    continue;
                 OnMessage(msg, cl.Id);
             }
             ProcessDisconnectedClients();
             ProcessNewClients();
+        }
+
+        private bool ReceiveMessageHeader(MsgHeader hdr, SocketClientBase cl)
+        {
+            try
+            {
+                hdr.Load(cl.NetStream, Protocol);
+            }
+            catch (MessageLoadException e)
+            {
+                if (CheckConnectionReset(e))
+                    OnClientConnectionReset(cl);
+                else
+                {
+                    Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})",
+                        GetClientName(cl), e.Message);
+                    DisconnectClient(cl, "bad message header");
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private bool ReceiveMessage(MsgHeader hdr, SocketClientBase cl, out IMessage msg)
+        {
+            msg = null;
+            // XXX: could be optimized - use one large buffer + unclosable MemoryStream
+            var buf = new byte[hdr.Size];
+            try
+            {
+                cl.NetStream.Read(buf, 0, buf.Length);
+            }
+            catch (IOException e)
+            {
+                if (CheckConnectionReset(e))
+                {
+                    OnClientConnectionReset(cl);
+                    return false;
+                }
+                throw;
+            }
+            using (var ms = new MemoryStream(buf))
+            {
+                var msWrap = ms.AsUnclosable();
+                if ((hdr.Flags & MessageFlags.Secure) == MessageFlags.Secure)
+                {
+                    using (var container = new MessageCryptoContainer())
+                    {
+                        container.Load(msWrap, Protocol);
+                        symCp.Key = cl.SessionKey;
+                        msg = container.Extract(hdr.Id, symCp, Protocol);
+                    }
+                }
+                else
+                {
+                    msg = MessageFactory.CreateMessage(hdr.Id);
+                    try
+                    {
+                        msg.Load(msWrap, Protocol);
+                    }
+                    catch (MessageLoadException e)
+                    {
+                        Root.Log(LogLevel.Warning, "Client {0} : bad message ({1})",
+                            GetClientName(cl), e.Message);
+                        DisconnectClient(cl, "bad message");
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void StartAcceptLoop()
