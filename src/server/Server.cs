@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -478,6 +479,11 @@ namespace Sdm.Server
         public override void SendTo(ClientId id, IMessage msg)
         {
             var cl = clients[id];
+            if (cl.DeferredDisconnect)
+            {
+                Root.Log(LogLevel.Debug, "Server: attempt to send message to disconnected client");
+                return;
+            }
             if (cl.Secure)
             {
                 using (var container = new MessageCryptoContainer())
