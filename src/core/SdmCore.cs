@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 
@@ -31,8 +32,15 @@ namespace Sdm.Core
             {
                 if (initialized)
                     return;
-                Config = new IniFile("sdm_config.ini", Encoding.UTF8);
                 var lvl = LogLevel.Info;
+                try
+                {
+                    Config = new IniFile("sdm_config.ini", Encoding.UTF8);
+                }
+                catch (IOException)
+                {
+                    Config = IniFile.Empty;
+                }
                 do
                 {
                     if (!Config.ContainsSection("log"))
