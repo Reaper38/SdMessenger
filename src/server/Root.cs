@@ -15,10 +15,29 @@ namespace Sdm.Server
 
         private static int Main(string[] args)
         {
+#if !DEBUG
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+#endif
             SdmCore.Initialize(AppType.Server);
             // XXX: initialize server here
             SdmCore.Destroy();
             return 0;
         }
+
+#if !DEBUG
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                var ex = (Exception)e.ExceptionObject;
+                if (SdmCore.Logger != null)
+                    SdmCore.Logger.Log(LogLevel.Fatal, ex.ToString());
+                SdmCore.Destroy();
+            }
+            catch
+            { }
+            Environment.FailFast("Unhandled exception", ex);
+        }
+#endif
     }
 }
