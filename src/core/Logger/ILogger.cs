@@ -4,12 +4,14 @@ namespace Sdm.Core
 {
     public enum LogLevel
     {
-        Trace,
-        Debug,
-        Info,
-        Warning,
-        Error,
-        Fatal
+        Verbose = Trace,
+        Trace = 0,
+        Debug = 1,
+        Info = 2,
+        Warning = 3,
+        Error = 4,
+        Fatal = 5,
+        Off = 6
     }
 
     public interface ILogger : IDisposable
