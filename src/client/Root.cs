@@ -5,10 +5,10 @@ using System.Windows.Forms;
 
 namespace Sdm.Client
 {
-    static class Program
+    internal static class Root
     {
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
