@@ -331,6 +331,7 @@ namespace Sdm.Server
                 if (allow)
                 {
                     var cl = CreateClient(clParams);
+                    // XXX: wrap to lock (newClients is accessed from the main thread)
                     newClients.Add(cl);
                 }
                 else
