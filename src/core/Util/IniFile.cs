@@ -24,13 +24,23 @@ namespace Sdm.Core
     {
         private readonly string[] lines;
         private readonly SortedList<string, int> sections;
-
+        
         public IniFile(string filename, Encoding encoding)
         {
             lines = File.ReadAllLines(filename, encoding);
             sections = new SortedList<string, int>(32);
             ScanSections();
         }
+
+        private IniFile()
+        {
+            lines = new string[0];
+            sections = new SortedList<string, int>(1);
+        }
+
+        static IniFile() { Empty = new IniFile(); }
+
+        public static IniFile Empty { get; private set; }
 
         public static KeyValuePair<string, string> ExtractKeyValuePair(string line, bool trimComment)
         {
