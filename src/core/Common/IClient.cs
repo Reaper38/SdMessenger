@@ -13,6 +13,7 @@ namespace Sdm.Core
         None = 0,
         Secure = 1,
         Authenticated = 2,
+        DeferredDisconnect = 4,
     }
     // represents remote client (for server app)
     public interface IClient

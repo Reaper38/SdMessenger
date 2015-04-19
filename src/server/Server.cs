@@ -80,6 +80,7 @@ namespace Sdm.Server
         private Socket svSocket;
         private Thread acceptingThread;
         private readonly SortedList<ClientId, SocketClientBase> clients;
+        private readonly List<SocketClientBase> newClients, delClients;
         private readonly List<IClient> iclients;
         private readonly ReadOnlyCollection<IClient> roClients;
         private readonly SemaphoreSlim semAcceptingThread;
@@ -92,6 +93,8 @@ namespace Sdm.Server
         public Server()
         {
             clients = new SortedList<ClientId, SocketClientBase>();
+            newClients = new List<SocketClientBase>();
+            delClients = new List<SocketClientBase>();
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
             semAcceptingThread = new SemaphoreSlim(0, 1);
@@ -177,14 +180,40 @@ namespace Sdm.Server
             DisconnectClient(cl);
         }
 
+        private void ProcessNewClients()
+        {
+            foreach (var cl in newClients)
+            {
+                AddClient(cl);
+                var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
+                try
+                {
+                    SendTo(cl.Id, challenge);
+                }
+                catch (IOException e)
+                {
+                    if (CheckConnectionReset(e))
+                        OnClientConnectionReset(cl);
+                    else
+                        throw;
+                }
+            }
+            newClients.Clear();
+        }
+
+        private void ProcessDisconnectedClients()
+        {
+            foreach (var cl in delClients)
+                RemoveClient(cl);
+            delClients.Clear();
+        }
+
         public override void Update()
         {
             var hdr = new MsgHeader();
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
-                // BUG: don't modify client list inside foreach loop
-                // XXX: instead, set some flag or add bad clients to list and disconnect them afterwards
                 if (!cl.Params.Socket.Connected)
                 {
                     OnClientConnectionReset(cl);
@@ -255,6 +284,8 @@ namespace Sdm.Server
                 }
                 OnMessage(msg, cl.Id);
             }
+            ProcessDisconnectedClients();
+            ProcessNewClients();
         }
 
         private void StartAcceptLoop()
@@ -285,19 +316,7 @@ namespace Sdm.Server
                 if (allow)
                 {
                     var cl = CreateClient(clParams);
-                    AddClient(cl);
-                    var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
-                    try
-                    {
-                        SendTo(cl.Id, challenge); // XXX: thread safety!
-                    }
-                    catch (IOException e)
-                    {
-                        if (CheckConnectionReset(e))
-                            OnClientConnectionReset(cl);
-                        else
-                            throw;
-                    }
+                    newClients.Add(cl);
                 }
                 else
                 {
@@ -318,6 +337,7 @@ namespace Sdm.Server
             Root.Log(LogLevel.Info, "Server: disconnecting");
             foreach (var cl in iclients)
                 DisconnectClient(cl, "Server stopped");
+            ProcessDisconnectedClients();
             if (svSocket != null)
             {
                 svSocket.Shutdown(SocketShutdown.Both);
@@ -347,7 +367,8 @@ namespace Sdm.Server
         private void DisconnectClient(SocketClientBase cl)
         {
             Root.Log(LogLevel.Info, "Server: disconnecting client: " + GetClientName(cl));
-            RemoveClient(cl);
+            cl.Flags |= ClientFlags.DeferredDisconnect;
+            delClients.Add(cl);
             cl.Params.Socket.Shutdown(SocketShutdown.Both);
             cl.Params.Socket.Close();
         }
