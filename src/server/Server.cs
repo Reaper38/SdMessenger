@@ -499,11 +499,11 @@ namespace Sdm.Server
         }
 
         // XXX: skip non-authenticated clients (add parameter)
-        public override void SendBroadcast(ClientId exclude, IMessage msg)
+        public override void SendBroadcast(ClientId exclude, IMessage msg, bool authenticatedOnly = true)
         {
             foreach (var cl in iclients)
             {
-                if (cl.Id != exclude)
+                if (cl.Id != exclude && (!authenticatedOnly || cl.Authenticated))
                     SendTo(cl.Id, msg);
             }
         }

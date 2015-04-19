@@ -18,7 +18,7 @@ namespace Sdm.Core
         public abstract void Update();
         public abstract void OnMessage(IMessage msg, ClientId sender);
         public abstract void SendTo(ClientId id, IMessage msg);
-        public abstract void SendBroadcast(ClientId exclude, IMessage msg);
+        public abstract void SendBroadcast(ClientId exclude, IMessage msg, bool authenticatedOnly = true);
         public abstract IClient IdToClient(ClientId id);
         protected abstract void OnNewClient(IClientParams clParams, ref bool allow);
     }
