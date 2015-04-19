@@ -17,7 +17,14 @@ namespace Sdm.Core
 
         private static volatile bool initialized = false;
         private static readonly object sync = 0;
-        
+
+        static SdmCore()
+        {
+#if !DEBUG
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+#endif
+        }
+
         public static void Initialize(AppType app)
         {
             lock (sync)
@@ -77,5 +84,21 @@ namespace Sdm.Core
                 initialized = false;
             }
         }
+
+#if !DEBUG
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                var ex = (Exception)e.ExceptionObject;
+                if (SdmCore.Logger != null)
+                    SdmCore.Logger.Log(LogLevel.Fatal, ex.ToString());
+                SdmCore.Destroy();
+            }
+            catch
+            { }
+            Environment.FailFast("Unhandled exception", ex);
+        }
+#endif
     }
 }
