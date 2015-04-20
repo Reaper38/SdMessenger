@@ -37,6 +37,7 @@
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.tbNewMsg = new System.Windows.Forms.TextBox();
+            this.btnSrv = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
@@ -68,6 +69,7 @@
             // 
             // scRoot.Panel1
             // 
+            this.scRoot.Panel1.Controls.Add(this.btnSrv);
             this.scRoot.Panel1.Controls.Add(this.tbHost);
             this.scRoot.Panel1.Controls.Add(this.lvUsers);
             this.scRoot.Panel1MinSize = 160;
@@ -87,7 +89,7 @@
             this.tbHost.Location = new System.Drawing.Point(3, 3);
             this.tbHost.Name = "tbHost";
             this.tbHost.ReadOnly = true;
-            this.tbHost.Size = new System.Drawing.Size(174, 20);
+            this.tbHost.Size = new System.Drawing.Size(149, 20);
             this.tbHost.TabIndex = 1;
             // 
             // scChat
@@ -168,6 +170,16 @@
             this.tbNewMsg.Size = new System.Drawing.Size(448, 73);
             this.tbNewMsg.TabIndex = 0;
             // 
+            // btnSrv
+            // 
+            this.btnSrv.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSrv.Location = new System.Drawing.Point(153, 2);
+            this.btnSrv.Name = "btnSrv";
+            this.btnSrv.Size = new System.Drawing.Size(25, 22);
+            this.btnSrv.TabIndex = 3;
+            this.btnSrv.Text = "...";
+            this.btnSrv.UseVisualStyleBackColor = true;
+            // 
             // MainDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -203,5 +215,6 @@
         private System.Windows.Forms.Button btnSendFile;
         private System.Windows.Forms.TabControl tabConversations;
         private System.Windows.Forms.TabPage tpDummy;
+        private System.Windows.Forms.Button btnSrv;
     }
 }
