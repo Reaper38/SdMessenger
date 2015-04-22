@@ -7,6 +7,7 @@ namespace Sdm.Core
     public abstract class PureClientBase : IDisposable
     {
         public event Action<ConnectionResult, string> ConnectionResult;
+        public event Action<AuthResult, string> AuthResult;
 
         public abstract ConnectionState ConnectionState { get; }
         public abstract ClientId Id { get; }
@@ -17,11 +18,18 @@ namespace Sdm.Core
         public abstract void Connect(IPAddress address, ushort port, string login, string password);
         public abstract void Disconnect();
         public abstract void OnMessage(IMessage msg);
+        public abstract void Send(IMessage msg);
 
         protected void OnConnectionResult(ConnectionResult cr, string msg = null)
         {
             if (ConnectionResult != null)
                 ConnectionResult(cr, msg);
+        }
+
+        protected void OnAuthResult(AuthResult ar, string msg = null)
+        {
+            if (AuthResult != null)
+                AuthResult(ar, msg);
         }
 
         #region IDisposable Members
