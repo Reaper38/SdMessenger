@@ -480,8 +480,9 @@ namespace Sdm.Server
                 Root.Log(LogLevel.Debug, "Server: attempt to send message to disconnected client");
                 return;
             }
-            using (var buf = new MemoryStream())
+            using (var rawBuf = new MemoryStream())
             {
+                var buf = rawBuf.AsUnclosable();
                 var header = new MsgHeader();
                 header.Id = msg.Id;
                 header.Flags = MessageFlags.None;
@@ -503,7 +504,7 @@ namespace Sdm.Server
                     header.Size = (int)buf.Length;
                 }
                 header.Save(cl.NetStream, Protocol);
-                buf.WriteTo(cl.NetStream);
+                rawBuf.WriteTo(cl.NetStream);
             }
         }
 
