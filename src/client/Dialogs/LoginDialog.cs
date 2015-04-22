@@ -53,12 +53,13 @@ namespace Sdm.Client
         {
             switch (cr)
             {
-            case ConnectionResult.InvalidHost:
-                ShowError(msg, tbHost);
-                break;
-            case ConnectionResult.InvalidLogin:
-                ShowError(msg, tbLogin);
-                break;
+            // XXX: arrange
+            // case ConnectionResult.InvalidHost:
+            //     ShowError(msg, tbHost);
+            //     break;
+            // case ConnectionResult.InvalidLogin:
+            //     ShowError(msg, tbLogin);
+            //     break;
             case ConnectionResult.Rejected:
                 ShowError(msg, btnConnect);
                 break;
