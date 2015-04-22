@@ -18,6 +18,12 @@ namespace Sdm.Core
         public abstract void Disconnect();
         public abstract void OnMessage(IMessage msg);
 
+        protected void OnConnectionResult(ConnectionResult cr)
+        {
+            if (ConnectionResult != null)
+                ConnectionResult(cr);
+        }
+
         #region IDisposable Members
 
         public void Dispose()
