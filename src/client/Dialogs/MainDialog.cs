@@ -15,5 +15,37 @@ namespace Sdm.Client
         {
             InitializeComponent();
         }
+
+        private void TrySendMessage()
+        {
+            if (tbNewMsg.TextLength == 0)
+                return;
+            // XXX: send message
+            tbNewMsg.Clear();
+        }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        { TrySendMessage(); }
+
+        private void btnSendFile_Click(object sender, EventArgs e)
+        {
+            // XXX: show OpenFile dialog
+        }
+
+        private void btnSrv_Click(object sender, EventArgs e)
+        {
+            // XXX: show context menu (connect/disconnect)
+        }
+
+        private void lvUsers_DoubleClick(object sender, EventArgs e)
+        {
+            // XXX: get selected user and show conversation tab
+        }
+
+        private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+                ; // XXX: send message
+        }
     }
 }

@@ -30,6 +30,7 @@
         {
             this.lvUsers = new System.Windows.Forms.ListView();
             this.scRoot = new System.Windows.Forms.SplitContainer();
+            this.btnSrv = new System.Windows.Forms.Button();
             this.tbHost = new System.Windows.Forms.TextBox();
             this.scChat = new System.Windows.Forms.SplitContainer();
             this.tabConversations = new System.Windows.Forms.TabControl();
@@ -37,7 +38,6 @@
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.tbNewMsg = new System.Windows.Forms.TextBox();
-            this.btnSrv = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
@@ -59,6 +59,7 @@
             this.lvUsers.Size = new System.Drawing.Size(174, 322);
             this.lvUsers.TabIndex = 0;
             this.lvUsers.UseCompatibleStateImageBehavior = false;
+            this.lvUsers.DoubleClick += new System.EventHandler(this.lvUsers_DoubleClick);
             // 
             // scRoot
             // 
@@ -81,6 +82,17 @@
             this.scRoot.Size = new System.Drawing.Size(640, 351);
             this.scRoot.SplitterDistance = 180;
             this.scRoot.TabIndex = 1;
+            // 
+            // btnSrv
+            // 
+            this.btnSrv.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSrv.Location = new System.Drawing.Point(153, 2);
+            this.btnSrv.Name = "btnSrv";
+            this.btnSrv.Size = new System.Drawing.Size(25, 22);
+            this.btnSrv.TabIndex = 3;
+            this.btnSrv.Text = "...";
+            this.btnSrv.UseVisualStyleBackColor = true;
+            this.btnSrv.Click += new System.EventHandler(this.btnSrv_Click);
             // 
             // tbHost
             // 
@@ -146,6 +158,7 @@
             this.btnSendFile.TabIndex = 2;
             this.btnSendFile.Text = "Send file...";
             this.btnSendFile.UseVisualStyleBackColor = true;
+            this.btnSendFile.Click += new System.EventHandler(this.btnSendFile_Click);
             // 
             // btnSend
             // 
@@ -156,6 +169,7 @@
             this.btnSend.TabIndex = 1;
             this.btnSend.Text = "Send";
             this.btnSend.UseVisualStyleBackColor = true;
+            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
             // tbNewMsg
             // 
@@ -169,16 +183,7 @@
             this.tbNewMsg.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbNewMsg.Size = new System.Drawing.Size(448, 73);
             this.tbNewMsg.TabIndex = 0;
-            // 
-            // btnSrv
-            // 
-            this.btnSrv.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSrv.Location = new System.Drawing.Point(153, 2);
-            this.btnSrv.Name = "btnSrv";
-            this.btnSrv.Size = new System.Drawing.Size(25, 22);
-            this.btnSrv.TabIndex = 3;
-            this.btnSrv.Text = "...";
-            this.btnSrv.UseVisualStyleBackColor = true;
+            this.tbNewMsg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbNewMsg_KeyDown);
             // 
             // MainDialog
             // 
