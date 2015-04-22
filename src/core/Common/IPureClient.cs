@@ -10,7 +10,6 @@ namespace Sdm.Core
         public event Action<AuthResult, string> AuthResult;
 
         public abstract ConnectionState ConnectionState { get; }
-        public abstract ClientId Id { get; }
         public abstract IPAddress ServerAddress { get; }
         public abstract ushort ServerPort { get; }
         public abstract INetStatistics Stats { get; }

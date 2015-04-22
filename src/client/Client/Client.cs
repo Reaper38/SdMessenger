@@ -14,7 +14,6 @@ namespace Sdm.Client
         private NetworkStream rawNetStream;
         private Stream netStream; // unclosable
         private ConnectionState connectionState;
-        private ClientId selfId; // XXX: remove
         private byte[] sessionKey; // null == no session key has been received yet
         private string login, password;
         private bool authenticated;
@@ -37,8 +36,6 @@ namespace Sdm.Client
 
         public override ConnectionState ConnectionState
         { get { return connectionState; } }
-
-        public override ClientId Id { get { return selfId; } }
         
         public override IPAddress ServerAddress
         {
