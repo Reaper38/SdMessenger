@@ -17,6 +17,7 @@ namespace Sdm.Client
         private byte[] sessionKey; // null == no session key has been received yet
         private string login, password;
         private bool authenticated;
+        private bool disconnectReceived;
         private IAsymmetricCryptoProvider asymCp;
         private ISymmetricCryptoProvider symCp;
         private const ProtocolId Protocol = ProtocolId.Json;
@@ -89,6 +90,7 @@ namespace Sdm.Client
             var prevState = connectionState;
             connectionState = ConnectionState.Disconnected;
             authenticated = false;
+            disconnectReceived = false;
             sessionKey = null;
             netStream = null;
             if (rawNetStream != null)
@@ -131,8 +133,11 @@ namespace Sdm.Client
         public override void Disconnect()
         {
             Log(LogLevel.Info, "Client: disconnect");
-            var msg = new ClDisconnect();
-            Send(msg);
+            if (!disconnectReceived)
+            {
+                var msg = new ClDisconnect();
+                Send(msg);
+            }
             clSocket.Shutdown(SocketShutdown.Both);
             Reset();
         }
@@ -237,6 +242,9 @@ namespace Sdm.Client
             case MessageId.SvAuthResult:
                 OnAuthResult(msg as SvAuthResult);
                 break;
+            case MessageId.SvDisconnect:
+                OnDisconnect(msg as SvDisconnect);
+                break;
             default:
                 // log unknown message
                 break;
@@ -270,6 +278,27 @@ namespace Sdm.Client
                 Reset(); // server closes connection after rejection
             }
             OnAuthResult(msg.Result, msg.Message);
+        }
+
+        private void OnDisconnect(SvDisconnect msg)
+        {
+            string info;
+            switch (msg.Reason)
+            {
+            case DisconnectReason.Shutdown:
+                info = "server shutdown";
+                break;
+            case DisconnectReason.Banned:
+                info = "banned";
+                break;
+            default:
+                info = "unknown";
+                break;
+            }
+            var infoEx = msg.Message == "" ? "" : String.Format(" <{0}>", msg.Message);
+            Log(LogLevel.Info, "Client: disconnect received: {0}{1}", info, infoEx);
+            disconnectReceived = true;
+            Disconnect();
         }
 
         // XXX: write generalized version (both for server and client) and move to core
