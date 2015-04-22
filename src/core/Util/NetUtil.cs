@@ -1,4 +1,5 @@
-﻿using System.Net.NetworkInformation;
+﻿using System;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace Sdm.Core.Util
@@ -164,6 +165,13 @@ namespace Sdm.Core.Util
             default:
                 return "Unknown error";
             }
+        }
+
+        /// <summary>Check if the base exception is SocketException with ConnectionReset error code.</summary>
+        public static bool CheckConnectionReset(Exception e)
+        {
+            var se = e.GetBaseException() as SocketException;
+            return se != null && se.SocketErrorCode == SocketError.ConnectionReset;
         }
     }
 }

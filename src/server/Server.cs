@@ -164,14 +164,7 @@ namespace Sdm.Server
             Root.Log(LogLevel.Info, "Server: listening port " + port);
             StartAcceptLoop();
         }
-
-        /// <summary>Check if the base exception is SocketException with ConnectionReset error code.</summary>
-        private static bool CheckConnectionReset(Exception e)
-        {
-            var se = e.GetBaseException() as SocketException;
-            return se != null && se.SocketErrorCode == SocketError.ConnectionReset;
-        }
-
+        
         private void OnClientConnectionReset(SocketClientBase cl)
         {
             Root.Log(LogLevel.Info, "Client {0} : connection lost", GetClientName(cl));
@@ -191,7 +184,7 @@ namespace Sdm.Server
                 }
                 catch (IOException e)
                 {
-                    if (CheckConnectionReset(e))
+                    if (NetUtil.CheckConnectionReset(e))
                         OnClientConnectionReset(cl);
                     else
                         throw;
@@ -239,7 +232,7 @@ namespace Sdm.Server
             }
             catch (MessageLoadException e)
             {
-                if (CheckConnectionReset(e))
+                if (NetUtil.CheckConnectionReset(e))
                     OnClientConnectionReset(cl);
                 else
                 {
@@ -263,7 +256,7 @@ namespace Sdm.Server
             }
             catch (IOException e)
             {
-                if (CheckConnectionReset(e))
+                if (NetUtil.CheckConnectionReset(e))
                 {
                     OnClientConnectionReset(cl);
                     return false;
@@ -441,7 +434,7 @@ namespace Sdm.Server
             }
             catch (IOException e)
             {
-                if (CheckConnectionReset(e))
+                if (NetUtil.CheckConnectionReset(e))
                     OnClientConnectionReset(cl);
                 else
                     throw;
@@ -460,7 +453,7 @@ namespace Sdm.Server
             }
             catch (IOException e)
             {
-                if (CheckConnectionReset(e))
+                if (NetUtil.CheckConnectionReset(e))
                     OnClientConnectionReset(cl);
                 else
                     throw;
