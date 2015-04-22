@@ -487,18 +487,31 @@ namespace Sdm.Server
                 Root.Log(LogLevel.Debug, "Server: attempt to send message to disconnected client");
                 return;
             }
-            if (cl.Secure)
+            using (var buf = new MemoryStream())
             {
-                using (var container = new MessageCryptoContainer())
+                var header = new MsgHeader();
+                header.Id = msg.Id;
+                header.Flags = MessageFlags.None;
+                if (cl.Secure)
                 {
-                    symCp.Key = cl.SessionKey;
-                    // XXX: generate new symCp.IV
-                    container.Store(msg, symCp, Protocol);
-                    container.Save(cl.NetStream, Protocol);
+                    using (var container = new MessageCryptoContainer())
+                    {
+                        symCp.Key = cl.SessionKey;
+                        // XXX: generate new symCp.IV
+                        container.Store(msg, symCp, Protocol);
+                        container.Save(buf, Protocol);
+                        header.Size = (int) buf.Length;
+                        header.Flags |= MessageFlags.Secure;
+                    }
                 }
+                else
+                {
+                    msg.Save(buf, Protocol);
+                    header.Size = (int)buf.Length;
+                }
+                header.Save(cl.NetStream, Protocol);
+                buf.WriteTo(cl.NetStream);
             }
-            else
-                msg.Save(cl.NetStream, Protocol);
         }
 
         public override void SendBroadcast(ClientId exclude, IMessage msg, bool authenticatedOnly = true)
