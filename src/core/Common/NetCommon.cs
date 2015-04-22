@@ -51,9 +51,7 @@ namespace Sdm.Core
     public enum ConnectionResult
     {
         Accepted = 0,
-        InvalidHost = 1,
-        InvalidLogin = 2,
-        Rejected = 3,
+        Rejected = 1,
     }
 
     public enum ConnectionState
