@@ -45,7 +45,7 @@ namespace Sdm.Client
         private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
-                ; // XXX: send message
+                TrySendMessage();
         }
     }
 }
