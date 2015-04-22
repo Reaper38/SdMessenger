@@ -56,6 +56,13 @@ namespace Sdm.Core
         Rejected = 3,
     }
 
+    public enum ConnectionState
+    {
+        Connected = 0,
+        Waiting = 1,
+        Disconnected = 2,
+    }
+
     public enum AuthResult : byte
     {
         Accepted = 0,
