@@ -17,6 +17,7 @@ namespace Sdm.Core
         // connection result have to be checked using ConnectionResult event
         public abstract void Connect(IPAddress address, ushort port, string login, string password);
         public abstract void Disconnect();
+        public abstract void Update();
         public abstract void OnMessage(IMessage msg);
         public abstract void Send(IMessage msg);
 
