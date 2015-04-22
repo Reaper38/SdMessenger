@@ -6,7 +6,7 @@ namespace Sdm.Core
     // represents local client (for client app)
     public abstract class PureClientBase : IDisposable
     {
-        public event Action<ConnectionResult> ConnectionResult;
+        public event Action<ConnectionResult, string> ConnectionResult;
 
         public abstract ConnectionState ConnectionState { get; }
         public abstract ClientId Id { get; }
@@ -18,10 +18,10 @@ namespace Sdm.Core
         public abstract void Disconnect();
         public abstract void OnMessage(IMessage msg);
 
-        protected void OnConnectionResult(ConnectionResult cr)
+        protected void OnConnectionResult(ConnectionResult cr, string msg = null)
         {
             if (ConnectionResult != null)
-                ConnectionResult(cr);
+                ConnectionResult(cr, msg);
         }
 
         #region IDisposable Members
