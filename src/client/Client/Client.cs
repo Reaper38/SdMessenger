@@ -86,6 +86,7 @@ namespace Sdm.Client
 
         private void Reset()
         {
+            var prevState = connectionState;
             connectionState = ConnectionState.Disconnected;
             authenticated = false;
             sessionKey = null;
@@ -100,6 +101,8 @@ namespace Sdm.Client
                 clSocket.Close();
                 clSocket = null;
             }
+            if (prevState == ConnectionState.Connected)
+                Log(LogLevel.Info, "Client: disconnected");
         }
 
         private void EndConnect(object sender, SocketAsyncEventArgs e)
@@ -112,6 +115,7 @@ namespace Sdm.Client
             {
                 cr = Core.ConnectionResult.Rejected;
                 msg = NetUtil.GetSocketErrorDesc(err);
+                Log(LogLevel.Error, "Client: connection failed: " + msg);
                 Reset();
             }
             else
@@ -119,12 +123,14 @@ namespace Sdm.Client
                 cr = Core.ConnectionResult.Accepted;
                 connectionState = ConnectionState.Connected;
                 msg = "Connection established";
+                Log(LogLevel.Info, "Client: connection established");
             }
             OnConnectionResult(cr, msg);
         }
 
         public override void Disconnect()
         {
+            Log(LogLevel.Info, "Client: disconnect");
             var msg = new ClDisconnect();
             Send(msg);
             clSocket.Shutdown(SocketShutdown.Both);
@@ -146,6 +152,7 @@ namespace Sdm.Client
 
         private void OnServerConnectionReset()
         {
+            Log(LogLevel.Info, "Client: connection lost");
             Reset();
         }
 
@@ -162,7 +169,7 @@ namespace Sdm.Client
                 else
                 {
                     Log(LogLevel.Warning, "Client: bad message header received from server ({1})", e.Message);
-                    // XXX: disconnect
+                    Disconnect();
                 }
                 return false;
             }
@@ -209,7 +216,7 @@ namespace Sdm.Client
                     catch (MessageLoadException e)
                     {
                         Log(LogLevel.Warning, "Client: bad message received from server ({0})", e.Message);
-                        // XXX: disconnect
+                        Disconnect();
                         return false;
                     }
                 }
@@ -253,9 +260,15 @@ namespace Sdm.Client
         private void OnAuthResult(SvAuthResult msg)
         {
             if (msg.Result == Core.AuthResult.Accepted)
+            {
                 authenticated = true;
+                Log(LogLevel.Info, "Server: authentication succeeded <{0}>", msg.Message);
+            }
             else
+            {
+                Log(LogLevel.Error, "Server: authentication failed <{0}>", msg.Message);
                 Reset(); // server closes connection after rejection
+            }
             OnAuthResult(msg.Result, msg.Message);
         }
 
