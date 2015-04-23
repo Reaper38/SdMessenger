@@ -219,7 +219,7 @@ namespace Sdm.Server
                 {
                     Root.Log(LogLevel.Error, "Discarding message [{0}] from non-authenticated client: {1}",
                         hdr.Id, GetClientName(cl));
-                    DisconnectClient(cl, "Can't process message without authentication");
+                    DisconnectClient(cl, DisconnectReason.Unknown, "Can't process message without authentication");
                     continue;
                 }
                 IMessage msg;
@@ -245,7 +245,7 @@ namespace Sdm.Server
                 {
                     Root.Log(LogLevel.Warning, "Client {0} : bad message header ({1})",
                         GetClientName(cl), e.Message);
-                    DisconnectClient(cl, "bad message header");
+                    DisconnectClient(cl, DisconnectReason.Unknown, "bad message header");
                 }
                 return false;
             }
@@ -293,7 +293,7 @@ namespace Sdm.Server
                     {
                         Root.Log(LogLevel.Warning, "Client {0} : bad message ({1})",
                             GetClientName(cl), e.Message);
-                        DisconnectClient(cl, "bad message");
+                        DisconnectClient(cl, DisconnectReason.Unknown, "bad message");
                         return false;
                     }
                 }
@@ -349,7 +349,7 @@ namespace Sdm.Server
             disconnecting = true;
             Root.Log(LogLevel.Info, "Server: disconnecting");
             foreach (var cl in iclients)
-                DisconnectClient(cl, "Server stopped");
+                DisconnectClient(cl, DisconnectReason.Shutdown, "Server stopped");
             ProcessDisconnectedClients();
             if (svSocket != null)
             {
@@ -370,10 +370,11 @@ namespace Sdm.Server
         private static string GetClientName(IClient cl)
         { return cl.Login ?? "#" + cl.Id; }
 
-        public override void DisconnectClient(IClient cl, string reason)
+        public override void DisconnectClient(IClient cl, DisconnectReason reason, string message = "")
         {
+            var msg = new SvDisconnect { Message = message, Reason = reason };
+            SendTo(cl.Id, msg);
             var scl = clients[cl.Id];
-            // XXX: send notification to client
             DisconnectClient(scl);
         }
 

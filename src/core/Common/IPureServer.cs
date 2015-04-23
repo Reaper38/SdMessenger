@@ -14,7 +14,7 @@ namespace Sdm.Core
         public abstract IList<IClient> Clients { get; }
         public abstract void Connect(IPAddress address, ushort port);
         public abstract void Disconnect();
-        public abstract void DisconnectClient(IClient cl, string reason);
+        public abstract void DisconnectClient(IClient cl, DisconnectReason reason, string message = "");
         public abstract void Update();
         public abstract void OnMessage(IMessage msg, ClientId sender);
         public abstract void SendTo(ClientId id, IMessage msg);
