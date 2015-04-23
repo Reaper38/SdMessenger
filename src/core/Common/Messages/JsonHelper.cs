@@ -23,5 +23,12 @@ namespace Sdm.Core.Messages
 
         public static string GetString(this JObject obj, string key)
         { return (string)GetValue(obj, key, JTokenType.String); }
+
+        public static T[] GetArray<T>(this JObject obj, string key)
+        {
+            var tok = obj.GetValue(key);
+            var jar = (JArray)tok;
+            return (T[])jar.ToObject(typeof(T[]));
+        }
     }
 }
