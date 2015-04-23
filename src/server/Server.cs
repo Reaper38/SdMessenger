@@ -403,6 +403,9 @@ namespace Sdm.Server
             case MessageId.ClDisconnect:
                 OnClDisconnect(msg as ClDisconnect, cl);
                 break;
+            case MessageId.ClUserlistRequest:
+                OnClUserlistRequest(msg as ClUserlistRequest, cl);
+                break;
             }
         }
 
@@ -467,6 +470,16 @@ namespace Sdm.Server
             Root.Log(LogLevel.Info, "Client {0} : disconnect", cl.Login);
             DisconnectClient(cl);
             // XXX: broadcast event
+        }
+
+        private void OnClUserlistRequest(ClUserlistRequest msg, ClientId id)
+        {
+            var unames = new string[clients.Count];
+            for (int i = 0; i < clients.Count; i++)
+                unames[i] = clients.Values[i].Login;
+            var respond = new SvUserlistRespond();
+            respond.Usernames = unames;
+            SendTo(id, respond);
         }
 
         public override IClient IdToClient(ClientId id)
