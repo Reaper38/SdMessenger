@@ -391,7 +391,6 @@ namespace Sdm.Server
 
         public override void OnMessage(IMessage msg, ClientId cl)
         {
-            // XXX: handle messages here
             switch (msg.Id)
             {
             case MessageId.ClPublicKeyRespond:
