@@ -395,4 +395,62 @@ namespace Sdm.Core.Messages
             }
         }
     }
+
+    public class ClUserlistRequest : DummyMessage<ClUserlistRequest>
+    {
+        public ClUserlistRequest() : base(MessageId.ClUserlistRequest) {}
+    }
+
+    public class SvUserlistRespond : MultiprotocolMessage<SvUserlistRespond>
+    {
+        public string[] Usernames;
+
+        public SvUserlistRespond() : base(MessageId.SvUserlistRespond) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                Usernames = obj.GetArray<string>("unames");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("unames");
+                w.WriteStartArray();
+                foreach (var uname in Usernames)
+                    w.WriteValue(uname);
+                w.WriteEndArray();
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                var len = r.ReadInt32();
+                Usernames = new string[len];
+                for (int i = 0; i < len; i++)
+                    Usernames[i] = r.ReadString();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(Usernames.Length);
+                foreach (var uname in Usernames)
+                    w.Write(uname);
+                w.Flush();
+            }
+        }
+    }
 }

@@ -11,5 +11,7 @@
         SvAuthResult = 4,
         ClDisconnect = 5,
         SvDisconnect = 6,
+        ClUserlistRequest = 7,
+        SvUserlistRespond = 8,
     }
 }
