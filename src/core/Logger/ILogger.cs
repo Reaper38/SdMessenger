@@ -20,6 +20,7 @@ namespace Sdm.Core
         event Action LogCleared;
         int LineCount { get; }
         void Log(LogLevel logLevel, string message);
+        void Log(LogLevel logLevel, string format, params object[] args);
         void Clear();
         void Flush();
     }
