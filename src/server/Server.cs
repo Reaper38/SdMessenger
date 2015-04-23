@@ -215,6 +215,13 @@ namespace Sdm.Server
                     continue;
                 if (!ReceiveMessageHeader(hdr, cl))
                     continue;
+                if (hdr.Id.IsAuthRequired() && !cl.Authenticated)
+                {
+                    Root.Log(LogLevel.Error, "Discarding message [{0}] from non-authenticated client: {1}",
+                        hdr.Id, GetClientName(cl));
+                    DisconnectClient(cl, "Can't process message without authentication");
+                    continue;
+                }
                 IMessage msg;
                 if (!ReceiveMessage(hdr, cl, out msg))
                     continue;
