@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Sdm.Core
 {
-    public class MessageFactory
+    public static class MessageFactory
     {
         private static Dictionary<MessageId, Type> dict = new Dictionary<MessageId, Type>();
         private static Dictionary<Type, MessageId> rdict = new Dictionary<Type, MessageId>();
