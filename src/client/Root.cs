@@ -14,8 +14,7 @@ namespace Sdm.Client
             SdmCore.Initialize(AppType.Client);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var mainDlg = new MainDialog();
-            Application.Run(mainDlg);
+            Application.Run(AppController.Instance);
             SdmCore.Destroy();
         }
     }

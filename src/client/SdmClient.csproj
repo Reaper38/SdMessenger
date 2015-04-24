@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppController.cs" />
     <Compile Include="Client\Client.cs" />
     <Compile Include="Controls\RichTextBoxEx.cs">
       <SubType>Component</SubType>

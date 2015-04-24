@@ -24,6 +24,13 @@ namespace Sdm.Client
             tbNewMsg.Clear();
         }
 
+        private void OpenConversation(string username)
+        {
+            // XXX: ensure that corresponding tab exists
+            // load history if needed
+            // select tab
+        }
+
         private void btnSend_Click(object sender, EventArgs e)
         { TrySendMessage(); }
 
@@ -35,6 +42,7 @@ namespace Sdm.Client
         private void btnSrv_Click(object sender, EventArgs e)
         {
             // XXX: show context menu (connect/disconnect)
+            cmConnection.Show(btnSrv, new Point(0, btnSrv.Height));
         }
 
         private void lvUsers_DoubleClick(object sender, EventArgs e)
@@ -46,6 +54,17 @@ namespace Sdm.Client
         {
             if (e.KeyCode == Keys.Return)
                 TrySendMessage();
+        }
+
+        private void cmConnection_Popup(object sender, EventArgs e)
+        {
+            // XXX: show login/logout according to connection state
+        }
+
+        private void cmiLogin_Click(object sender, EventArgs e)
+        {
+            // XXX: show login window or logout
+            AppController.Instance.ShowLoginDialog();
         }
     }
 }

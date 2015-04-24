@@ -38,6 +38,8 @@
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.tbNewMsg = new System.Windows.Forms.TextBox();
+            this.cmConnection = new System.Windows.Forms.ContextMenu();
+            this.cmiLogin = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
@@ -185,6 +187,18 @@
             this.tbNewMsg.TabIndex = 0;
             this.tbNewMsg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbNewMsg_KeyDown);
             // 
+            // cmConnection
+            // 
+            this.cmConnection.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.cmiLogin});
+            this.cmConnection.Popup += new System.EventHandler(this.cmConnection_Popup);
+            // 
+            // cmiLogin
+            // 
+            this.cmiLogin.Index = 0;
+            this.cmiLogin.Text = "Login";
+            this.cmiLogin.Click += new System.EventHandler(this.cmiLogin_Click);
+            // 
             // MainDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -221,5 +235,7 @@
         private System.Windows.Forms.TabControl tabConversations;
         private System.Windows.Forms.TabPage tpDummy;
         private System.Windows.Forms.Button btnSrv;
+        private System.Windows.Forms.ContextMenu cmConnection;
+        private System.Windows.Forms.MenuItem cmiLogin;
     }
 }
