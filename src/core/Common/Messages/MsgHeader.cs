@@ -101,7 +101,7 @@ namespace Sdm.Core.Messages
                 w.WritePropertyName("msz");
                 w.WriteValue(Size);
                 w.WritePropertyName("mid");
-                w.WriteValue(Id.ToString());
+                w.WriteValue((int)Id);
                 w.WritePropertyName("mflags");
                 w.WriteValue((int)Flags);
                 w.WriteEndObject();
