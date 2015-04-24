@@ -72,6 +72,7 @@ namespace Sdm.Server
 
     internal class Server : PureServerBase
     {
+        private ServerConfig cfg;
         private Socket svSocket;
         private Thread acceptingThread;
         private readonly SortedList<ClientId, SocketClientBase> clients;
@@ -87,18 +88,20 @@ namespace Sdm.Server
 
         public ProtocolId Protocol { get; private set; }
 
-        public Server()
+        public Server(ServerConfig cfg)
         {
+            this.cfg = cfg;
             clients = new SortedList<ClientId, SocketClientBase>();
             newClients = new ConcurrentQueue<SocketClientBase>();
             delClients = new ConcurrentQueue<SocketClientBase>();
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
             semAcceptingThread = new SemaphoreSlim(0, 1);
-            // XXX: load protocol id from config
-            Protocol = ProtocolId.Json;
-            asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(SdmAsymmetricAlgorithm.RSA);
-            symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
+            Protocol = cfg.Protocol;
+            asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(cfg.AsymAlgorithm);
+            asymCp.KeySize = cfg.AsymAlgorithmKeySize;
+            symCp = CryptoProviderFactory.Instance.CreateSymmetric(cfg.SymAlgorithm);
+            symCp.KeySize = cfg.SymAlgorithmKeySize;
             rng = new RNGCryptoServiceProvider();
         }
         
@@ -137,19 +140,18 @@ namespace Sdm.Server
             Root.Log(LogLevel.Info, "Server: starting...");
             if (Connected)
                 throw new InvalidOperationException("Already connected");
-            // XXX: get socket params from config
-            svSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            var af = cfg.UseIPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            svSocket = new Socket(af, SocketType.Stream, ProtocolType.Tcp)
             {
-                SendTimeout = 1000,
-                SendBufferSize = 0x8000,
-                ReceiveBufferSize = 0x8000
+                SendTimeout = cfg.SocketSendTimeout,
+                SendBufferSize = cfg.SocketSendBufferSize,
+                ReceiveBufferSize = cfg.SocketReceiveBufferSize
             };
             var localEp = new IPEndPoint(IPAddress.Any, port);
             try
             {
                 svSocket.Bind(localEp);
-                // XXX: get backlog count from config
-                svSocket.Listen(4);
+                svSocket.Listen(cfg.SocketBacklog);
             }
             catch (SocketException se)
             {

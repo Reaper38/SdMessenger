@@ -18,12 +18,13 @@ namespace Sdm.Server
         private static int Main(string[] args)
         {
             SdmCore.Initialize(AppType.Server);
-            using (var srv = new Server())
+            var cfg = new ServerConfig();
+            using (var srv = new Server(cfg))
             {
-                srv.Connect(IPAddress.Any, 5477); // load from config
+                srv.Connect(cfg.Address, cfg.Port);
                 while (srv.Connected)
                 {
-                    Thread.Sleep(50); // XXX: load from config
+                    Thread.Sleep(cfg.UpdateSleep);
                     srv.Update();
                 }
             }
