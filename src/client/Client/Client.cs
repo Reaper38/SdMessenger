@@ -75,8 +75,6 @@ namespace Sdm.Client
                 SendBufferSize = 0x8000,
                 ReceiveBufferSize = 0x8000
             };
-            rawNetStream = new NetworkStream(clSocket);
-            netStream = rawNetStream.AsUnclosable();
             var args = new SocketAsyncEventArgs();
             args.RemoteEndPoint = new IPEndPoint(address, port);
             args.Completed += EndConnect;
@@ -126,6 +124,8 @@ namespace Sdm.Client
                 connectionState = ConnectionState.Connected;
                 msg = "Connection established";
                 Log(LogLevel.Info, "Client: connection established");
+                rawNetStream = new NetworkStream(clSocket);
+                netStream = rawNetStream.AsUnclosable();
             }
             OnConnectionResult(cr, msg);
         }
