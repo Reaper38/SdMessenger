@@ -9,19 +9,23 @@ using Sdm.Core.Json;
 namespace Sdm.Core.Messages
 {
     // for messages without data
-    public class DummyMessage<T> : MessageIdChecker<T>
+    public class DummyMessage : IMessage
     {
-        protected DummyMessage(MessageId id) : base(id) {}
-        public override void Load(Stream s, ProtocolId ptype) {}
-        public override void Save(Stream s, ProtocolId ptype) {}
+        protected DummyMessage(MessageId id)
+        { Id = id; }
+        public void Load(Stream s, ProtocolId ptype) {}
+        public void Save(Stream s, ProtocolId ptype) {}
+        public MessageId Id { get; private set; }
+        public virtual bool AuthRequired { get { return true; }}
     }
     
-    public abstract class MultiprotocolMessage<T> : MessageIdChecker<T>
+    public abstract class MultiprotocolMessage : IMessage
     {
-        protected MultiprotocolMessage(MessageId id) : base(id) {}
+        protected MultiprotocolMessage(MessageId id)
+        { Id = id; }
 
         // ISdmSerializable
-        public override sealed void Load(Stream s, ProtocolId ptype)
+        public void Load(Stream s, ProtocolId ptype)
         {
             try
             {
@@ -42,7 +46,7 @@ namespace Sdm.Core.Messages
             throw new NotSupportedException("Unsupported protocol");
         }
 
-        public override sealed void Save(Stream s, ProtocolId ptype)
+        public void Save(Stream s, ProtocolId ptype)
         {
             switch (ptype)
             {
@@ -53,13 +57,16 @@ namespace Sdm.Core.Messages
         }
         // ~ISdmSerializable
 
+        public MessageId Id { get; private set; }
+        public virtual bool AuthRequired { get { return true; } }
+
         protected abstract void LoadJson(Stream s);
         protected abstract void SaveJson(Stream s);
         protected abstract void LoadBin(Stream s);
         protected abstract void SaveBin(Stream s);
     }
 
-    public class SvPublicKeyChallenge : MultiprotocolMessage<SvPublicKeyChallenge>
+    public class SvPublicKeyChallenge : MultiprotocolMessage
     {
         public int KeySize;
 
@@ -104,7 +111,7 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class ClPublicKeyRespond : MultiprotocolMessage<ClPublicKeyRespond>
+    public class ClPublicKeyRespond : MultiprotocolMessage
     {
         public string Key;
 
@@ -150,7 +157,7 @@ namespace Sdm.Core.Messages
     }
 
     // encrypted session key
-    public class SvAuthChallenge : MultiprotocolMessage<SvAuthChallenge>
+    public class SvAuthChallenge : MultiprotocolMessage
     {
         /// <summary>Encrypted session key</summary>
         public byte[] SessionKey;
@@ -207,7 +214,7 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class ClAuthRespond : MultiprotocolMessage<ClAuthRespond>
+    public class ClAuthRespond : MultiprotocolMessage
     {
         public string Login, Password;
 
@@ -257,7 +264,7 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class SvAuthResult : MultiprotocolMessage<SvAuthResult>
+    public class SvAuthResult : MultiprotocolMessage
     {
         public AuthResult Result;
         public string Message;
@@ -324,12 +331,12 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class ClDisconnect : DummyMessage<ClDisconnect>
+    public class ClDisconnect : DummyMessage
     {
         public ClDisconnect() : base(MessageId.ClDisconnect) {}
     }
 
-    public class SvDisconnect : MultiprotocolMessage<SvDisconnect>
+    public class SvDisconnect : MultiprotocolMessage
     {
         public DisconnectReason Reason;
         public string Message;
@@ -396,12 +403,12 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class ClUserlistRequest : DummyMessage<ClUserlistRequest>
+    public class ClUserlistRequest : DummyMessage
     {
         public ClUserlistRequest() : base(MessageId.ClUserlistRequest) {}
     }
 
-    public class SvUserlistRespond : MultiprotocolMessage<SvUserlistRespond>
+    public class SvUserlistRespond : MultiprotocolMessage
     {
         public string[] Usernames;
 

@@ -62,7 +62,6 @@
     <Compile Include="Common\IMessage.cs" />
     <Compile Include="Common\ProtocolId.cs" />
     <Compile Include="Common\MessageId.cs" />
-    <Compile Include="Common\MessageIdChecker.cs" />
     <Compile Include="Logger\ClientLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="SdmCore.cs" />

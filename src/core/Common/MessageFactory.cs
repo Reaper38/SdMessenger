@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Sdm.Core.Messages;
 
 namespace Sdm.Core
 {
@@ -9,7 +10,21 @@ namespace Sdm.Core
         private static Dictionary<Type, MessageId> rdict = new Dictionary<Type, MessageId>();
         private static object sync = new object();
 
-        internal static void Register(MessageId newMsgId, Type newType)
+        static MessageFactory()
+        {
+            Register(MessageId.SvPublicKeyChallenge, typeof(SvPublicKeyChallenge));
+            Register(MessageId.ClPublicKeyRespond, typeof(ClPublicKeyRespond));
+            Register(MessageId.SvAuthChallenge, typeof(SvAuthChallenge));
+            Register(MessageId.ClAuthRespond, typeof(ClAuthRespond));
+            Register(MessageId.SvAuthResult, typeof(SvAuthResult));
+            Register(MessageId.ClDisconnect, typeof(ClDisconnect));
+            Register(MessageId.SvDisconnect, typeof(SvDisconnect));
+            Register(MessageId.ClUserlistRequest, typeof(ClUserlistRequest));
+            Register(MessageId.SvUserlistRespond, typeof(SvUserlistRespond));
+            // register all messages here
+        }
+
+        private static void Register(MessageId newMsgId, Type newType)
         {
             lock (sync)
             {
@@ -39,7 +54,7 @@ namespace Sdm.Core
                     rdict.Add(newType, newMsgId);
             }
         }
-
+        
         public static IMessage CreateMessage(MessageId id)
         {
             Type type;
