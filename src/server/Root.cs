@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using Sdm.Core;
 
 namespace Sdm.Server
@@ -16,7 +18,15 @@ namespace Sdm.Server
         private static int Main(string[] args)
         {
             SdmCore.Initialize(AppType.Server);
-            // XXX: initialize server here
+            using (var srv = new Server())
+            {
+                srv.Connect(IPAddress.Any, 5477); // load from config
+                while (srv.Connected)
+                {
+                    Thread.Sleep(50); // XXX: load from config
+                    srv.Update();
+                }
+            }
             SdmCore.Destroy();
             return 0;
         }
