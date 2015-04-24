@@ -13,7 +13,7 @@ namespace Sdm.Client
         private Socket clSocket;
         private NetworkStream rawNetStream;
         private Stream netStream; // unclosable
-        private ConnectionState connectionState;
+        private ConnectionState connectionState = ConnectionState.Disconnected;
         private byte[] sessionKey; // null == no session key has been received yet
         private string login, password;
         private bool authenticated;
