@@ -6,6 +6,14 @@ namespace Sdm.Client
 {
     internal partial class LoginDialog : Form
     {
+        internal enum Error
+        {
+            Host,
+            Login,
+            Password,
+            Generic
+        }
+
         private const int TooltipDuration = 2000;
 
         public LoginDialog()
@@ -49,18 +57,20 @@ namespace Sdm.Client
             btnConnect.Enabled = enable;
         }
 
-        public void ShowError(ConnectionResult cr, string msg)
+        public void ShowError(Error err, string msg)
         {
-            switch (cr)
+            switch (err)
             {
-            // XXX: arrange
-            // case ConnectionResult.InvalidHost:
-            //     ShowError(msg, tbHost);
-            //     break;
-            // case ConnectionResult.InvalidLogin:
-            //     ShowError(msg, tbLogin);
-            //     break;
-            case ConnectionResult.Rejected:
+            case Error.Host:
+                ShowError(msg, tbHost);
+                break;
+            case Error.Login:
+                ShowError(msg, tbLogin);
+                break;
+            case Error.Password:
+                ShowError(msg, tbPassword);
+                break;
+            default:
                 ShowError(msg, btnConnect);
                 break;
             }
