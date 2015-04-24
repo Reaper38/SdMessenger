@@ -65,9 +65,7 @@ namespace Sdm.Client
                 break;
             }
         }
-
-        public event Action ConnectClick;
-
+        
         private void ShowError(string msg, Control c)
         {
             if (ttAlert.Active)
@@ -77,8 +75,7 @@ namespace Sdm.Client
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            if (ConnectClick != null)
-                ConnectClick();
+            // XXX: handle connect click
         }
     }
 }
