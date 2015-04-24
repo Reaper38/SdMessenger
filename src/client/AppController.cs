@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using Sdm.Core;
+using Sdm.Core.Util;
 
 namespace Sdm.Client
 {
@@ -33,24 +34,6 @@ namespace Sdm.Client
             }
         }
         
-        private IPAddress GetHostByName(string hname, AddressFamily af)
-        {
-            try
-            {
-                var hostEntry = Dns.GetHostEntry(hname); // XXX: call asynchronously
-                foreach (var entry in hostEntry.AddressList)
-                {
-                    if (entry.AddressFamily == af)
-                        return entry;
-                }
-                return IPAddress.None;
-            }
-            catch (SocketException)
-            {
-                return IPAddress.None;
-            }
-        }
-
         public static bool ValidateLogin(ref string login, out string msg)
         {
             var tmpLogin = login.Trim().ToLower();
@@ -166,7 +149,7 @@ namespace Sdm.Client
                     errMsg = "Enter valid port";
                     break;
                 }
-                address = GetHostByName(spl[0], AddressFamily.InterNetwork);
+                address = NetUtil.GetHostByName(spl[0], AddressFamily.InterNetwork);
                 if (address.Equals(IPAddress.None))
                 {
                     errType = LoginDialog.Error.Host;

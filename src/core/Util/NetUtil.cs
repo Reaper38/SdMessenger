@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
@@ -172,6 +173,24 @@ namespace Sdm.Core.Util
         {
             var se = e.GetBaseException() as SocketException;
             return se != null && se.SocketErrorCode == SocketError.ConnectionReset;
+        }
+
+        public static IPAddress GetHostByName(string hname, AddressFamily af)
+        {
+            try
+            {
+                var hostEntry = Dns.GetHostEntry(hname); // XXX: call asynchronously
+                foreach (var entry in hostEntry.AddressList)
+                {
+                    if (entry.AddressFamily == af)
+                        return entry;
+                }
+                return IPAddress.None;
+            }
+            catch (SocketException)
+            {
+                return IPAddress.None;
+            }
         }
     }
 }
