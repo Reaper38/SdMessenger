@@ -9,6 +9,7 @@ namespace Sdm.Core.IO
         private Stream stream;
         private BinaryReader r;
         private bool own;
+        private bool hasLenPos = false;
         private bool disposed = false;
 
         public UnbufferedStreamReader(Stream stream, Encoding encoding, bool own)
@@ -16,6 +17,14 @@ namespace Sdm.Core.IO
             this.stream = stream;
             this.own = own;
             r = new BinaryReader(stream, encoding);
+            try
+            {
+                var l = stream.Length;
+                var p = stream.Position;
+                hasLenPos = true;
+            }
+            catch // ignore exception and leave hasLenPos unset
+            {}
         }
 
         public UnbufferedStreamReader(Stream stream) :
@@ -29,7 +38,7 @@ namespace Sdm.Core.IO
                 if (disposed)
                     throw new ObjectDisposedException("stream");
                 // todo: check if there's async task in progress (see StreamReader impl)
-                return stream.Position >= stream.Length;
+                return hasLenPos && stream.Position >= stream.Length;
             }
         }
 
