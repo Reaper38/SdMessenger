@@ -173,7 +173,7 @@ namespace Sdm.Client
                     OnServerConnectionReset();
                 else
                 {
-                    Log(LogLevel.Warning, "Client: bad message header received from server ({1})", e.Message);
+                    Log(LogLevel.Warning, "Client: bad message header received from server ({0})", e.Message);
                     Disconnect();
                 }
                 return false;
