@@ -69,7 +69,7 @@ namespace Sdm.Client
             connectionState = ConnectionState.Waiting;
             Log(LogLevel.Info, "Client: connecting to {0}:{1} ...", address, port);
             // XXX: get socket params from config
-            clSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            clSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {
                 SendTimeout = 1000,
                 SendBufferSize = 0x8000,
