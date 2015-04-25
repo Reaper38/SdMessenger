@@ -1,6 +1,6 @@
 [submodule "src/lib/Newtonsoft.Json"]
 	path = src/lib/Newtonsoft.Json
 	url = https://github.com/nitrocaster/Newtonsoft.Json.git
-[submodule "src/lib/bc-csharp"]
-	path = src/lib/bc-csharp
-	url = https://github.com/bcgit/bc-csharp.git
+[submodule "Crypto.NET"]
+	path = Crypto.NET
+	url = https://github.com/Reaper38/Crypto.NET.git
