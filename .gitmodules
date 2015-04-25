@@ -7,3 +7,6 @@
 [submodule "src/lib/Crypto.NET"]
 	path = src/lib/Crypto.NET
 	url = https://github.com/Reaper38/Crypto.NET.git
+[submodule "src/lib/Nunit"]
+	path = src/lib/Nunit
+	url = https://github.com/nunit/nunit.git
