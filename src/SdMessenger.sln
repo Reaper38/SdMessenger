@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{1D336912-9CA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newtonsoft.Json.Net40", "lib\Newtonsoft.Json\Src\Newtonsoft.Json\Newtonsoft.Json.Net40.csproj", "{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoNet", "lib\Crypto.NET\Crypto.Net\CryptoNet.csproj", "{C99FD931-AC03-465A-B8A9-C4A665BBAA0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,11 +37,16 @@ Global
 		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D} = {1D336912-9CA2-4D4D-9A1D-45B3219099FF}
+		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E} = {1D336912-9CA2-4D4D-9A1D-45B3219099FF}
 	EndGlobalSection
 EndGlobal
