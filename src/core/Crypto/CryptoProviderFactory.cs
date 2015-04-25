@@ -1,6 +1,7 @@
 ﻿using System;
+using Sdm.Core.Crypto.Detail;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto
 {
     public sealed class CryptoProviderFactory
     {

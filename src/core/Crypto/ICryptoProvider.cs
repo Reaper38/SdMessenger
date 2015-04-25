@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto
 {
     public interface ICryptoProvider : IDisposable
     {

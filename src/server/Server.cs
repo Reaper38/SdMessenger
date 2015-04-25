@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Sdm.Core;
+using Sdm.Core.Crypto;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
 

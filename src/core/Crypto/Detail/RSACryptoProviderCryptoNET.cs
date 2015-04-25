@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using Sdm.Core.Util;
 using CryptoNet;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto.Detail
 {
-    public class RSACryptoProviderCryptoNET : IAsymmetricCryptoProvider
+    internal class RSACryptoProviderCryptoNET : IAsymmetricCryptoProvider
     {
         private RSAManaged rsa = new RSAManaged();
         private List<int> validKeySizes = null;

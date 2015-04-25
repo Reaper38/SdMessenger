@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Sdm.Core;
+using Sdm.Core.Crypto;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
 

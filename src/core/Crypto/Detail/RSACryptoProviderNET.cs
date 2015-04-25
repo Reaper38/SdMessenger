@@ -4,9 +4,9 @@ using System.IO;
 using System.Security.Cryptography;
 using Sdm.Core.Util;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto.Detail
 {
-    public class RSACryptoProviderNET : IAsymmetricCryptoProvider
+    internal class RSACryptoProviderNET : IAsymmetricCryptoProvider
     {
         private RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
         private List<int> validKeySizes = null;

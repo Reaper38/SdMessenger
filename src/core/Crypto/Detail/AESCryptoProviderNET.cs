@@ -4,9 +4,9 @@ using System.IO;
 using System.Security.Cryptography;
 using Sdm.Core.Util;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto.Detail
 {
-    public class AESCryptoProviderNET : ISymmetricCryptoProvider
+    internal class AESCryptoProviderNET : ISymmetricCryptoProvider
     {
         private RijndaelManaged rij = new RijndaelManaged { BlockSize = 128, Mode = CipherMode.CBC };
         private List<int> validKeySizes = null;

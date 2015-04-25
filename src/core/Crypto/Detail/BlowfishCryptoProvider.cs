@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using Sdm.Core.Util;
 using CryptoNet;
 
-namespace Sdm.Core
+namespace Sdm.Core.Crypto.Detail
 {
-    public class BlowfishCryptoProvider : ISymmetricCryptoProvider
+    internal class BlowfishCryptoProvider : ISymmetricCryptoProvider
     {
         private Blowfish blow = new Blowfish { BlockSize = 128, Mode = CipherMode.CBC };
         private List<int> validKeySizes = null;

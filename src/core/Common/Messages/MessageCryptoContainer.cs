@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using Sdm.Core.Crypto;
 using Sdm.Core.Json;
 using Sdm.Core.Util;
 
