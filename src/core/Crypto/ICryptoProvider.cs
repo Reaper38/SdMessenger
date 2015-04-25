@@ -29,11 +29,13 @@ namespace Sdm.Core
     public enum SdmSymmetricAlgorithm
     {
         AES,
+        Blowfish,
     }
 
     public enum SdmAsymmetricAlgorithm
     {
         RSA,
+        RSACrypto,
     }
 
     public interface ISymmetricCryptoProvider : ICryptoProvider

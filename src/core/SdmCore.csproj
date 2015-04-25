@@ -53,7 +53,9 @@
     <Compile Include="Common\NetCommon.cs" />
     <Compile Include="Common\IPureServer.cs" />
     <Compile Include="Crypto\AESCryptoProviderNET.cs" />
+    <Compile Include="Crypto\BlowfishCryptoProvider.cs" />
     <Compile Include="Crypto\CryptoProviderFactory.cs" />
+    <Compile Include="Crypto\RSACryptoProviderCryptoNET.cs" />
     <Compile Include="Crypto\RSACryptoProviderNET.cs" />
     <Compile Include="IO\UnbufferedStreamReader.cs" />
     <Compile Include="Json\JsonUtil.cs" />
@@ -75,6 +77,10 @@
     <Compile Include="Util\DisposeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\Crypto.NET\Crypto.Net\CryptoNet.csproj">
+      <Project>{c99fd931-ac03-465a-b8a9-c4a665bbaa0e}</Project>
+      <Name>CryptoNet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\Newtonsoft.Json\Src\Newtonsoft.Json\Newtonsoft.Json.Net40.csproj">
       <Project>{a9ae40ff-1a21-414a-9fe7-3be13644cc6d}</Project>
       <Name>Newtonsoft.Json.Net40</Name>
