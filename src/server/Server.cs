@@ -73,6 +73,7 @@ namespace Sdm.Server
     internal class Server : PureServerBase
     {
         private ServerConfig cfg;
+        private UserList users;
         private Socket svSocket;
         private Thread acceptingThread;
         private readonly SortedList<ClientId, SocketClientBase> clients;
@@ -91,6 +92,8 @@ namespace Sdm.Server
         public Server(ServerConfig cfg)
         {
             this.cfg = cfg;
+            users = new UserList();
+            users.Load("sdm_server_users.ini");
             clients = new SortedList<ClientId, SocketClientBase>();
             newClients = new ConcurrentQueue<SocketClientBase>();
             delClients = new ConcurrentQueue<SocketClientBase>();
@@ -391,11 +394,12 @@ namespace Sdm.Server
 
         private AuthResult AuthenticateClient(string login, string password, ref ClientAccessFlags accessFlags)
         {
-            // XXX: implement account verification
-            // 1] check if user with specified login exists in account db
-            // 2] calculate password hash
-            // 3] check if calculated hash matches one in account db
-            // 4] get access flags
+            var user = users.FindUser(login);
+            if (user == null)
+                return AuthResult.InvalidLogin;
+            if (!user.VerifyPassword(password))
+                return AuthResult.InvalidLogin;
+            accessFlags = user.Access;
             return AuthResult.Accepted;
         }
 
