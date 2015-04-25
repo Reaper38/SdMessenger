@@ -16,7 +16,7 @@ namespace Sdm.Core
         {
             switch (algorithm)
             {
-            case SdmSymmetricAlgorithm.AES: return new AESCryptoProvider();
+            case SdmSymmetricAlgorithm.AES: return new AESCryptoProviderNET();
             default: throw new NotSupportedException(algorithm + " is not supported.");
             }
         }
@@ -25,7 +25,7 @@ namespace Sdm.Core
         {
             switch (algorithm)
             {
-            case SdmAsymmetricAlgorithm.RSA: return new RSACryptoProvider();
+            case SdmAsymmetricAlgorithm.RSA: return new RSACryptoProviderNET();
             default: throw new NotSupportedException(algorithm + " is not supported.");
             }
         }
