@@ -8,6 +8,12 @@ namespace Sdm.Server
 {
     internal sealed class UserList
     {
+        /* userlist entry format:           
+           [user_0]
+             login = john.doe
+             password = NmU0ZTMzZjc0NDE5N2ZlZmE4Yjc2Y2U3NDJmOGUyM2M=
+             access = 3           
+         */
         private SortedList<string, UserAccount> users;
 
         public UserList()
