@@ -37,6 +37,8 @@ namespace Sdm.Server
 
         public void Load(string filename)
         {
+            if (!File.Exists(filename))
+                return;
             var cfg = new IniFile(filename, Encoding.UTF8);
             var userCount = cfg.GetSectionCount();
             users.Capacity = userCount;
