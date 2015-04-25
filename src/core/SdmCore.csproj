@@ -52,11 +52,11 @@
     <Compile Include="Common\IPureClient.cs" />
     <Compile Include="Common\NetCommon.cs" />
     <Compile Include="Common\IPureServer.cs" />
-    <Compile Include="Crypto\AESCryptoProviderNET.cs" />
-    <Compile Include="Crypto\BlowfishCryptoProvider.cs" />
+    <Compile Include="Crypto\Detail\AESCryptoProviderNET.cs" />
+    <Compile Include="Crypto\Detail\BlowfishCryptoProvider.cs" />
     <Compile Include="Crypto\CryptoProviderFactory.cs" />
-    <Compile Include="Crypto\RSACryptoProviderCryptoNET.cs" />
-    <Compile Include="Crypto\RSACryptoProviderNET.cs" />
+    <Compile Include="Crypto\Detail\RSACryptoProviderCryptoNET.cs" />
+    <Compile Include="Crypto\Detail\RSACryptoProviderNET.cs" />
     <Compile Include="IO\UnbufferedStreamReader.cs" />
     <Compile Include="Json\JsonUtil.cs" />
     <Compile Include="Crypto\ICryptoProvider.cs" />
