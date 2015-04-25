@@ -93,7 +93,7 @@ namespace Sdm.Server
         {
             this.cfg = cfg;
             users = new UserList();
-            users.Load("sdm_server_users.ini");
+            users.Load();
             clients = new SortedList<ClientId, SocketClientBase>();
             newClients = new ConcurrentQueue<SocketClientBase>();
             delClients = new ConcurrentQueue<SocketClientBase>();

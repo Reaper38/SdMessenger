@@ -15,6 +15,7 @@ namespace Sdm.Server
              access = 3           
          */
         private SortedList<string, UserAccount> users;
+        public const string FileName = "sdm_server_users.ini";
 
         public UserList()
         { users = new SortedList<string, UserAccount>(); }
@@ -41,11 +42,11 @@ namespace Sdm.Server
             return true;
         }
 
-        public void Load(string filename)
+        public void Load()
         {
-            if (!File.Exists(filename))
+            if (!File.Exists(FileName))
                 return;
-            var cfg = new IniFile(filename, Encoding.UTF8);
+            var cfg = new IniFile(FileName, Encoding.UTF8);
             var userCount = cfg.GetSectionCount();
             users.Capacity = userCount;
             for (int i = 0; i < userCount; i++)
@@ -60,9 +61,9 @@ namespace Sdm.Server
             }
         }
 
-        public void Save(string filename)
+        public void Save()
         {
-            using (var w = new StreamWriter(filename, false, Encoding.UTF8))
+            using (var w = new StreamWriter(FileName, false, Encoding.UTF8))
             {
                 int i = 0;
                 foreach (var kv in users)
