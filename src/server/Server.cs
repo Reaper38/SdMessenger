@@ -81,6 +81,7 @@ namespace Sdm.Server
         private readonly ConcurrentQueue<SocketClientBase> newClients, delClients;
         private readonly List<IClient> iclients;
         private readonly ReadOnlyCollection<IClient> roClients;
+        private readonly ConcurrentQueue<IMessage> svcMessages;
         private readonly SemaphoreSlim semAcceptingThread;
         private volatile bool disconnecting = false;
         private IAsymmetricCryptoProvider asymCp;
@@ -100,6 +101,7 @@ namespace Sdm.Server
             delClients = new ConcurrentQueue<SocketClientBase>();
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
+            svcMessages = new ConcurrentQueue<IMessage>();
             semAcceptingThread = new SemaphoreSlim(0, 1);
             Protocol = cfg.Protocol;
             asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(cfg.AsymAlgorithm);
@@ -207,6 +209,13 @@ namespace Sdm.Server
                 RemoveClient(cl);
         }
         
+        private void ProcessSvcMessages()
+        {
+            IMessage msg;
+            while (svcMessages.TryDequeue(out msg))
+                OnMessage(msg, ClientId.Server);
+        }
+
         public override void Update()
         {
             var hdr = new MsgHeader();
@@ -237,6 +246,7 @@ namespace Sdm.Server
             }
             ProcessDisconnectedClients();
             ProcessNewClients();
+            ProcessSvcMessages();
         }
 
         private bool ReceiveMessageHeader(MsgHeader hdr, SocketClientBase cl)
@@ -353,6 +363,12 @@ namespace Sdm.Server
         protected override void OnNewClient(IClientParams clParams, ref bool allow) {}
 
         public override void Disconnect()
+        {
+            var msg = new ClDisconnect();
+            svcMessages.Enqueue(msg);
+        }
+
+        private void InternalDisconnect()
         {
             disconnecting = true;
             Root.Log(LogLevel.Info, "Server: disconnecting");
@@ -482,6 +498,11 @@ namespace Sdm.Server
 
         private void OnClDisconnect(ClDisconnect msg, ClientId id)
         {
+            if (id == ClientId.Server)
+            {
+                InternalDisconnect();
+                return;
+            }
             var cl = clients[id];
             Root.Log(LogLevel.Info, "Client {0} : disconnect", cl.Login);
             DisconnectClient(cl);

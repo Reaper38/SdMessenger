@@ -4,7 +4,8 @@ namespace Sdm.Core
 {
     public struct ClientId : IComparable<ClientId>
     {
-        private static int lastId;
+        public static readonly ClientId Server = new ClientId(0);
+        private static int lastId = 1;
         public readonly int Value;
 
         public ClientId(IClientParams clParams)
