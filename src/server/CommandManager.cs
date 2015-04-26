@@ -10,6 +10,7 @@ namespace Sdm.Server
     {
         public abstract string Name { get; }
         public abstract string Format { get; }
+        public abstract string Info { get; }
         
         public void PrintUsage(PipeConsole console)
         { console.WriteLine("usage: {0} {1} {2}", Root.AppName, Name, Format); }
@@ -58,6 +59,7 @@ namespace Sdm.Server
         {
             public override string Name { get { return "help"; } }
             public override string Format { get { return "[command]"; } }
+            public override string Info { get { return "print help"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -68,7 +70,7 @@ namespace Sdm.Server
                     while (i.MoveNext())
                     {
                         var cmd = i.Current;
-                        console.WriteLine("    {0,-16} {1}", cmd.Name, ""); // XXX: add command info
+                        console.WriteLine("    {0,-16} {1}", cmd.Name, cmd.Info);
                     }
                 }
                 else
@@ -80,6 +82,7 @@ namespace Sdm.Server
                         console.WriteLine("{0}: unknown command: '{1}'", Root.AppName, cmdName);
                         return;
                     }
+                    console.WriteLine("{0}: {1}", cmd.Name, cmd.Info);
                     cmd.PrintUsage(console);
                 }
             }
@@ -89,6 +92,7 @@ namespace Sdm.Server
         {
             public override string Name { get { return "user.add"; } }
             public override string Format { get { return "<login> <pass> <access>"; } }
+            public override string Info { get { return "create user account"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -124,6 +128,7 @@ namespace Sdm.Server
         {
             public override string Name { get { return "user.st"; } }
             public override string Format { get { return "[login]"; } }
+            public override string Info { get { return "show user account info"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -152,6 +157,7 @@ namespace Sdm.Server
         {
             public override string Name { get { return "user.del"; } }
             public override string Format { get { return "{<login>|--all}"; } }
+            public override string Info { get { return "delete user account"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
