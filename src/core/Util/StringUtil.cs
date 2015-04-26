@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Sdm.Core.Util
 {
@@ -9,36 +10,60 @@ namespace Sdm.Core.Util
         public static IEnumerable<string> SplitCommandLine(string commandLine)
         {
             var inQuotes = false;
-            var quoted = commandLine.Split(c =>
+            var quoted = commandLine.Split((prev, c) =>
             {
-                if (c == '\"')
+                if (c == '\"' && prev != '\\')
                     inQuotes = !inQuotes;
                 return !inQuotes && c == ' ';
             });
-            return quoted.Select(arg => arg.Trim().TrimMatchingQuotes('\"'))
+            return quoted.Select(arg => StringUtil.EscapeCmdString(arg.Trim(), false))
                 .Where(arg => !String.IsNullOrEmpty(arg));
         }
 
-        public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
+        public static IEnumerable<string> Split(this string str, Func<char, char, bool> controller)
         {
             int nextPiece = 0;
+            char prevChar = '\0';
             for (int c = 0; c < str.Length; c++)
             {
-                if (controller(str[c]))
+                if (controller(prevChar, str[c]))
                 {
                     yield return str.Substring(nextPiece, c - nextPiece);
                     nextPiece = c + 1;
                 }
+                prevChar = str[c];
             }
             yield return str.Substring(nextPiece);
         }
 
-        public static string TrimMatchingQuotes(this string input, char quote)
+        public static string EscapeCmdString(string s, bool escape)
         {
-            if ((input.Length >= 2) &&
-                (input[0] == quote) && (input[input.Length - 1] == quote))
-                return input.Substring(1, input.Length - 2);
-            return input;
+            StringBuilder sb;
+            if (escape)
+            {
+                var hasSpaces = s.IndexOf(' ') >= 0;
+                sb = new StringBuilder(2 * s.Length);
+                if (hasSpaces)
+                    sb.Append(' ');
+                sb.Append(s);
+                sb.Replace("\"", "\\\""); // " -> \"
+                if (hasSpaces)
+                {
+                    sb[0] = '"';
+                    sb.Append('"');
+                }
+            }
+            else
+            {
+                sb = new StringBuilder(s.Length);
+                var trim = s.Length >= 2 && s[0] == '"' && s[s.Length - 1] == '"';
+                if (trim)
+                    sb.Append(s, 1, s.Length - 2);
+                else
+                    sb.Append(s);
+                sb.Replace("\\\"", "\""); // \" -> "
+            }
+            return sb.ToString();
         }
     }
 }
