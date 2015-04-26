@@ -73,6 +73,7 @@
     <Compile Include="Util\IniFile.cs" />
     <Compile Include="Util\NetUtil.cs" />
     <Compile Include="Util\StreamUtil.cs" />
+    <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\UnclosableStreamWrapper.cs" />
     <Compile Include="Util\DisposeHelper.cs" />
   </ItemGroup>
