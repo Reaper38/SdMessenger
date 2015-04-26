@@ -510,7 +510,12 @@ namespace Sdm.Server
             var cl = clients[id];
             Root.Log(LogLevel.Info, "Client {0} : disconnect", cl.Login);
             DisconnectClient(cl);
-            // XXX: broadcast event
+            if (cl.Authenticated)
+            {
+                var respond = new SvClientDisconnected();
+                respond.Login = cl.Login;
+                SendBroadcast(id, respond);
+            }
         }
 
         private void OnClUserlistRequest(ClUserlistRequest msg, ClientId id)

@@ -460,4 +460,49 @@ namespace Sdm.Core.Messages
             }
         }
     }
+
+    public class SvClientDisconnected : MultiprotocolMessage
+    {
+        public string Login;
+
+        public SvClientDisconnected() : base(MessageId.SvClientDisconnected) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                Login = obj.GetString("login");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("login");
+                w.WriteValue(Login);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                Login = r.ReadString();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(Login);
+                w.Flush();
+            }
+        }
+    }
 }
