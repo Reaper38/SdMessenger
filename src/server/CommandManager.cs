@@ -181,7 +181,7 @@ namespace Sdm.Server
             }
         }
 
-        private SortedDictionary<string, Command> commands = new SortedDictionary<string, Command>();
+        private readonly SortedDictionary<string, Command> commands = new SortedDictionary<string, Command>();
         private readonly Command cmdHelp;
         private readonly string[] emptyHelpArgs;
 
