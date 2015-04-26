@@ -134,8 +134,7 @@ namespace Sdm.Server
             {
                 if (args.Length == 1)
                 {
-                    // XXX: show overall userlist info
-                    console.WriteLine("no info");
+                    console.WriteLine("user count: " + Root.Server.Users.Count);
                     return;
                 }
                 if (args.Length >= 2)
