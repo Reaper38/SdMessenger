@@ -181,6 +181,20 @@ namespace Sdm.Server
             }
         }
 
+        private sealed class CmdStop : Command
+        {
+            public override string Name { get { return "stop"; } }
+            public override string Format { get { return ""; } }
+            public override string Info { get { return "disconnect and stop server"; } }
+
+            public override void Run(string[] args, PipeConsole console)
+            {
+                if (!Root.Server.Connected)
+                    console.WriteLine("already disconnected");
+                Root.Server.Disconnect();
+            }
+        }
+
         private readonly SortedDictionary<string, Command> commands = new SortedDictionary<string, Command>();
         private readonly Command cmdHelp;
         private readonly string[] emptyHelpArgs;
@@ -193,6 +207,7 @@ namespace Sdm.Server
             RegisterCommand(new CmdUserAdd());
             RegisterCommand(new CmdUserSt());
             RegisterCommand(new CmdUserDel());
+            RegisterCommand(new CmdStop());
         }
 
         private void PrintHelp(PipeConsole console)
