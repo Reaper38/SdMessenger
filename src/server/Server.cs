@@ -108,7 +108,9 @@ namespace Sdm.Server
             symCp.KeySize = cfg.SymAlgorithmKeySize;
             rng = new RNGCryptoServiceProvider();
         }
-        
+
+        public UserList Users { get { return users; } }
+
         #region PureServerBase Members
 
         public override bool Connected
