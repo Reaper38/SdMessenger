@@ -30,7 +30,10 @@ namespace Sdm.Server
         
         private void OnConnection(IAsyncResult ar)
         {
-            svPipe.EndWaitForConnection(ar);
+            try
+            { svPipe.EndWaitForConnection(ar); }
+            catch (ObjectDisposedException)
+            { return; }
             if (!svPipe.IsConnected)
                 return;
             var thread = new Thread(ClientServiceLoop);
@@ -95,8 +98,7 @@ namespace Sdm.Server
             {
                 if (disposing)
                 {
-                    svPipe.Disconnect();
-                    svPipeWriter.Dispose();
+                    svPipe.Dispose();
                 }
                 DisposeHelper.OnDispose<PipeConsoleServer>(disposing);
                 disposed = true;
