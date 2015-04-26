@@ -22,7 +22,7 @@ namespace Sdm.Server
         { users = new SortedList<string, UserAccount>(); }
 
         public int Count { get { return users.Count; } }
-
+        
         public UserAccount Find(string login)
         {
             lock (sync)
@@ -54,13 +54,19 @@ namespace Sdm.Server
             }
         }
 
+        public void Clear()
+        {
+            lock (sync)
+            { users.Clear(); }
+        }
+
         public void Load()
         {
             if (!File.Exists(FileName))
                 return;
             lock (sync)
             {
-                users.Clear();
+                Clear();
                 var cfg = new IniFile(FileName, Encoding.UTF8);
                 var userCount = cfg.GetSectionCount();
                 users.Capacity = userCount;

@@ -134,8 +134,7 @@ namespace Sdm.Server
                 var login = args[1];
                 if (login == "--all")
                 {
-                    // XXX: delete all users
-                    console.WriteLine("not implemented yet");
+                    users.Clear();
                     return;
                 }
                 if (users.Remove(login))
