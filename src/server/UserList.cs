@@ -60,6 +60,7 @@ namespace Sdm.Server
                 return;
             lock (sync)
             {
+                users.Clear();
                 var cfg = new IniFile(FileName, Encoding.UTF8);
                 var userCount = cfg.GetSectionCount();
                 users.Capacity = userCount;
