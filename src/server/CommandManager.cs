@@ -180,6 +180,26 @@ namespace Sdm.Server
             }
         }
 
+        private sealed class CmdUserLoad : Command
+        {
+            public override string Name { get { return "user.load"; } }
+            public override string Format { get { return ""; } }
+            public override string Info { get { return "load user account list"; } }
+
+            public override void Run(string[] args, PipeConsole console)
+            { Root.Server.Users.Load(); }
+        }
+
+        private sealed class CmdUserSave : Command
+        {
+            public override string Name { get { return "user.save"; } }
+            public override string Format { get { return ""; } }
+            public override string Info { get { return "save current user account list"; } }
+
+            public override void Run(string[] args, PipeConsole console)
+            { Root.Server.Users.Save(); }
+        }
+
         private sealed class CmdStop : Command
         {
             public override string Name { get { return "stop"; } }
@@ -206,6 +226,8 @@ namespace Sdm.Server
             RegisterCommand(new CmdUserAdd());
             RegisterCommand(new CmdUserSt());
             RegisterCommand(new CmdUserDel());
+            RegisterCommand(new CmdUserLoad());
+            RegisterCommand(new CmdUserSave());
             RegisterCommand(new CmdStop());
         }
 
