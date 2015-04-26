@@ -21,6 +21,8 @@ namespace Sdm.Server
         public UserList()
         { users = new SortedList<string, UserAccount>(); }
 
+        public int Count { get { return users.Count; } }
+
         public UserAccount FindUser(string login)
         {
             lock (sync)
@@ -92,7 +94,7 @@ namespace Sdm.Server
                         w.Write("password = ");
                         w.WriteLine(acc.Password);
                         w.Write("access = ");
-                        w.WriteLine((int) acc.Access);
+                        w.WriteLine((int)acc.Access);
                         i++;
                     }
                 }
