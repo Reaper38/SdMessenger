@@ -327,14 +327,14 @@ namespace Sdm.Server
 
         private void AcceptLoopProc()
         {
-            while (svSocket.IsBound && !disconnecting)
+            while (svSocket != null && svSocket.IsBound && !disconnecting)
             {
                 Socket clSocket;
                 try
                 {
                     clSocket = svSocket.Accept();
                 }
-                catch (ObjectDisposedException) // Disconnect() called
+                catch (SocketException) // Disconnect() called
                 {
                     break;
                 }
@@ -379,8 +379,10 @@ namespace Sdm.Server
             ProcessDisconnectedClients();
             if (svSocket != null)
             {
-                svSocket.Shutdown(SocketShutdown.Both);
+                if (svSocket.Connected)
+                    svSocket.Shutdown(SocketShutdown.Both);
                 svSocket.Close();
+                svSocket = null;
             }
             semAcceptingThread.Wait();
             disconnecting = false;
@@ -597,7 +599,8 @@ namespace Sdm.Server
             {
                 if (disposing)
                 {
-                    svSocket.Dispose();
+                    if (svSocket != null)
+                        svSocket.Dispose();
                     asymCp.Dispose();
                     symCp.Dispose();
                     rng.Dispose();
