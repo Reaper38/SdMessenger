@@ -20,41 +20,6 @@ namespace Sdm.Server
     
     internal sealed class CommandManager
     {
-        private static bool ParseAccessFlags(string s, out ClientAccessFlags flags)
-        {
-            // 0=none r=read w=write x=admin a=all
-            flags = ClientAccessFlags.Default;
-            foreach (char f in s)
-            {
-                switch (f)
-                {
-                case '0': continue;
-                case 'r': flags |= ClientAccessFlags.Receive; continue;
-                case 'w': flags |= ClientAccessFlags.Send; continue;
-                case 'x': flags |= ClientAccessFlags.Admin; continue;
-                case 'a': flags |= ClientAccessFlags.Max; continue;
-                default: return false;
-                }
-            }
-            return true;
-        }
-
-        private static string FormatAccessFlags(ClientAccessFlags flags)
-        {
-            if (flags == ClientAccessFlags.Default)
-                return "0";
-            if (flags == ClientAccessFlags.Max)
-                return "a";
-            var sb = new StringBuilder(16);
-            if ((flags & ClientAccessFlags.Receive) == ClientAccessFlags.Receive)
-                sb.Append('r');
-            if ((flags & ClientAccessFlags.Send) == ClientAccessFlags.Send)
-                sb.Append('w');
-            if ((flags & ClientAccessFlags.Admin) == ClientAccessFlags.Admin)
-                sb.Append('x');
-            return sb.ToString();
-        }
-
         private sealed class CmdHelp : Command
         {
             public override string Name { get { return "help"; } }
@@ -104,7 +69,7 @@ namespace Sdm.Server
                 var login = args[1]; // XXX: validate login
                 var pass = args[2]; // XXX: validate password
                 ClientAccessFlags access;
-                if (!ParseAccessFlags(args[3], out access))
+                if (!ClientAccessFlagsUtil.FromShortString(out access, args[3]))
                 {
                     console.WriteLine(Root.AppName + ": invalid user access flags.");
                     console.WriteLine("valid flags:\r\n" +
@@ -147,7 +112,7 @@ namespace Sdm.Server
                         console.WriteLine("user not found");
                         return;
                     }
-                    console.WriteLine("user {0} : {1}", user.Login, FormatAccessFlags(user.Access));
+                    console.WriteLine("user {0} : {1}", user.Login, ClientAccessFlagsUtil.ToShortString(user.Access));
                 }
             }
         }

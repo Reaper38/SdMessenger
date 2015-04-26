@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Sdm.Core
 {
@@ -84,6 +85,44 @@ namespace Sdm.Core
         Receive = 2, // can receive messages from clients
         Admin = 4, // can manage server (change settings, disconnect players, etc)
         Max = 0xffffffff
+    }
+
+    public static class ClientAccessFlagsUtil
+    {
+        public static bool FromShortString(out ClientAccessFlags flags, string s)
+        {
+            // 0=none r=read w=write x=admin a=all
+            flags = ClientAccessFlags.Default;
+            foreach (char f in s)
+            {
+                switch (f)
+                {
+                case '0': continue;
+                case 'r': flags |= ClientAccessFlags.Receive; continue;
+                case 'w': flags |= ClientAccessFlags.Send; continue;
+                case 'x': flags |= ClientAccessFlags.Admin; continue;
+                case 'a': flags |= ClientAccessFlags.Max; continue;
+                default: return false;
+                }
+            }
+            return true;
+        }
+        
+        public static string ToShortString(ClientAccessFlags flags)
+        {
+            if (flags == ClientAccessFlags.Default)
+                return "0";
+            if (flags == ClientAccessFlags.Max)
+                return "a";
+            var sb = new StringBuilder(16);
+            if ((flags & ClientAccessFlags.Receive) == ClientAccessFlags.Receive)
+                sb.Append('r');
+            if ((flags & ClientAccessFlags.Send) == ClientAccessFlags.Send)
+                sb.Append('w');
+            if ((flags & ClientAccessFlags.Admin) == ClientAccessFlags.Admin)
+                sb.Append('x');
+            return sb.ToString();
+        }
     }
 
     public class NetStats : INetStatistics
