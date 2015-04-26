@@ -6,6 +6,17 @@ using Sdm.Core.Util;
 
 namespace Sdm.Server
 {
+    internal abstract class Command
+    {
+        public abstract string Name { get; }
+        public abstract string Usage { get; }
+        
+        public void PrintUsage(PipeConsole console)
+        { console.WriteLine("usage: {0} {1} {2}", Root.AppName, Name, Usage); }
+
+        public abstract void Run(string[] args, PipeConsole console);
+    }
+    
     internal sealed class CommandManager
     {
         private static bool ParseAccessFlags(string s, out ClientAccessFlags flags)
@@ -43,17 +54,37 @@ namespace Sdm.Server
             return sb.ToString();
         }
 
-        private abstract class Command
+        private sealed class CmdHelp : Command
         {
-            public abstract string Name { get; }
-            public abstract string Usage { get; }
-            
-            public void PrintUsage(PipeConsole console)
-            { console.WriteLine("usage: {0} {1} {2}\r\n", Root.AppName, Name, Usage); }
+            public override string Name { get { return "help"; } }
+            public override string Usage { get { return "[command]"; } }
 
-            public abstract void Run(string[] args, PipeConsole console);
+            public override void Run(string[] args, PipeConsole console)
+            {
+                if (args.Length == 1)
+                {
+                    console.WriteLine("usage: {0} <command> [<args>]\r\n", Root.AppName);
+                    var i = Root.CmdMgr.GetEnumerator();
+                    while (i.MoveNext())
+                    {
+                        var cmd = i.Current;
+                        console.WriteLine("    {0,-16} {1}", cmd.Name, ""); // XXX: add command info
+                    }
+                }
+                else
+                {
+                    var cmdName = args[1];
+                    var cmd = Root.CmdMgr.GetCommand(cmdName);
+                    if (cmd == null)
+                    {
+                        console.WriteLine("{0}: unknown command: '{1}'", Root.AppName, cmdName);
+                        return;
+                    }
+                    cmd.PrintUsage(console);
+                }
+            }
         }
-        
+
         private sealed class CmdUserAdd : Command
         {
             public override string Name { get { return "user.add"; } }
@@ -145,30 +176,47 @@ namespace Sdm.Server
         }
 
         private SortedDictionary<string, Command> commands = new SortedDictionary<string, Command>();
+        private readonly Command cmdHelp;
+        private readonly string[] emptyHelpArgs;
 
         public CommandManager()
         {
+            cmdHelp = new CmdHelp();
+            emptyHelpArgs = new[] {cmdHelp.Name};
+            RegisterCommand(cmdHelp);
             RegisterCommand(new CmdUserAdd());
             RegisterCommand(new CmdUserSt());
             RegisterCommand(new CmdUserDel());
         }
 
+        private void PrintHelp(PipeConsole console)
+        { cmdHelp.Run(emptyHelpArgs, console); }
+
         private void RegisterCommand(Command cmd)
         { commands.Add(cmd.Name, cmd); }
         
+        public Command GetCommand(string name)
+        {
+            Command cmd = null;
+            commands.TryGetValue(name, out cmd);
+            return cmd;
+        }
+
+        public IEnumerator<Command> GetEnumerator()
+        { return commands.Values.GetEnumerator(); }
+
         public void HandleCommand(string cmdLine, PipeConsole console)
         {
-            // XXX: add users/change settings/etc
             var args = StringUtil.SplitCommandLine(cmdLine).ToArray();
             if (args.Length == 0)
             {
-                // XXX: print help
+                PrintHelp(console);
                 return;
             }
-            Command cmd;
-            if (!commands.TryGetValue(args[0], out cmd))
+            var cmd = GetCommand(args[0]);
+            if (cmd == null)
             {
-                // XXX: print help
+                PrintHelp(console);
                 return;
             }
             cmd.Run(args, console);
