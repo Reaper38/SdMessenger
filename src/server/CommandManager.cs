@@ -117,7 +117,7 @@ namespace Sdm.Server
                 }
                 var pswHash = UserAccount.TransformPassword(pass);
                 var acc = new UserAccount(login, pswHash, access);
-                if (Root.Server.Users.AddUser(acc))
+                if (Root.Server.Users.Add(acc))
                     console.WriteLine("created user " + login);
                 else
                     console.WriteLine("user already exists");
@@ -142,7 +142,7 @@ namespace Sdm.Server
                 {
                     var users = Root.Server.Users;
                     var login = args[1];
-                    var user = users.FindUser(login);
+                    var user = users.Find(login);
                     if (user == null)
                     {
                         console.WriteLine("user not found");
@@ -174,7 +174,7 @@ namespace Sdm.Server
                     console.WriteLine("not implemented yet");
                     return;
                 }
-                if (users.RemoveUser(login))
+                if (users.Remove(login))
                     console.WriteLine("deleted user " + login);
                 else
                     console.WriteLine("user not found");

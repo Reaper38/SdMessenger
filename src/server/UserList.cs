@@ -23,7 +23,7 @@ namespace Sdm.Server
 
         public int Count { get { return users.Count; } }
 
-        public UserAccount FindUser(string login)
+        public UserAccount Find(string login)
         {
             lock (sync)
             {
@@ -32,7 +32,7 @@ namespace Sdm.Server
             }
         }
 
-        public bool AddUser(UserAccount acc)
+        public bool Add(UserAccount acc)
         {
             lock (sync)
             {
@@ -43,7 +43,7 @@ namespace Sdm.Server
             }
         }
 
-        public bool RemoveUser(string name)
+        public bool Remove(string name)
         {
             lock (sync)
             {

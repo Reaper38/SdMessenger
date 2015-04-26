@@ -417,7 +417,7 @@ namespace Sdm.Server
 
         private AuthResult AuthenticateClient(string login, string password, ref ClientAccessFlags accessFlags)
         {
-            var user = users.FindUser(login);
+            var user = users.Find(login);
             if (user == null)
                 return AuthResult.InvalidLogin;
             if (!user.VerifyPassword(password))
