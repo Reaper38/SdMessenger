@@ -9,10 +9,10 @@ namespace Sdm.Server
     internal abstract class Command
     {
         public abstract string Name { get; }
-        public abstract string Usage { get; }
+        public abstract string Format { get; }
         
         public void PrintUsage(PipeConsole console)
-        { console.WriteLine("usage: {0} {1} {2}", Root.AppName, Name, Usage); }
+        { console.WriteLine("usage: {0} {1} {2}", Root.AppName, Name, Format); }
 
         public abstract void Run(string[] args, PipeConsole console);
     }
@@ -57,7 +57,7 @@ namespace Sdm.Server
         private sealed class CmdHelp : Command
         {
             public override string Name { get { return "help"; } }
-            public override string Usage { get { return "[command]"; } }
+            public override string Format { get { return "[command]"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -88,7 +88,7 @@ namespace Sdm.Server
         private sealed class CmdUserAdd : Command
         {
             public override string Name { get { return "user.add"; } }
-            public override string Usage { get { return "<login> <pass> <access>"; } }
+            public override string Format { get { return "<login> <pass> <access>"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -123,7 +123,7 @@ namespace Sdm.Server
         private sealed class CmdUserSt : Command
         {
             public override string Name { get { return "user.st"; } }
-            public override string Usage { get { return "[login]"; } }
+            public override string Format { get { return "[login]"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
@@ -151,7 +151,7 @@ namespace Sdm.Server
         private sealed class CmdUserDel : Command
         {
             public override string Name { get { return "user.del"; } }
-            public override string Usage { get { return "{<login>|--all}"; } }
+            public override string Format { get { return "{<login>|--all}"; } }
 
             public override void Run(string[] args, PipeConsole console)
             {
