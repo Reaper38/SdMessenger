@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandManager.cs" />
     <Compile Include="PipeConsoleServer.cs" />
     <Compile Include="UserAccount.cs" />
     <Compile Include="Server.cs" />

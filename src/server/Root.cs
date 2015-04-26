@@ -3,13 +3,19 @@ using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 using Sdm.Core;
+using Sdm.Core.Util;
 
 namespace Sdm.Server
 {
     internal static class Root
     {
+        public const string AppName = "SdmServer";
         private static readonly Mutex mutex = new Mutex(false, "sdm_server_mutex");
+        public static Server Server { get; private set; }
+        public static CommandManager CmdMgr { get; private set; }
 
         public static void Log(LogLevel lvl, string msg) { SdmCore.Logger.Log(lvl, msg); }
 
@@ -18,13 +24,24 @@ namespace Sdm.Server
 
         private static int SendCommand(string[] args)
         {
+            if (args.Length == 0)
+                return 0;
+            var sb = new StringBuilder(1024);
+            sb.Append(StringUtil.EscapeCmdString(args[0], true));
+            for (int i = 1; i < args.Length; i++)
+                sb.Append(' ').Append(StringUtil.EscapeCmdString(args[i], true));
+            var cmd = sb.ToString();
+            return SendCommand(cmd);
+        }
+
+        private static int SendCommand(string command)
+        {
             if (mutex.WaitOne(TimeSpan.Zero, true))
             {
                 mutex.ReleaseMutex();
                 Console.WriteLine("error: server is not running");
                 return -1;
             }
-            var command = args[0];
             string tmpPipeName = null;
             using (var pipe = new NamedPipeClientStream(".", PipeConsoleServer.PipeName, PipeDirection.InOut))
             {
@@ -64,31 +81,26 @@ namespace Sdm.Server
             }
             return 0;
         }
-
-        private static void OnConsoleCommand(string command, PipeConsole console)
-        {
-            // XXX: add users/change settings/etc
-            console.WriteLine("not supported yet");
-        }
-        
+                
         private static int RunServer(string[] args)
         {
             if (!mutex.WaitOne(TimeSpan.Zero, true))
             {
-                Console.WriteLine("Already running");
+                Console.WriteLine(AppName + ": already running");
                 return -1;
             }
             SdmCore.Initialize(AppType.Server);
-            using (var pcs = new PipeConsoleServer(OnConsoleCommand))
+            var cfg = new ServerConfig();
+            CmdMgr = new CommandManager();
+            using (Server = new Server(cfg))
             {
-                var cfg = new ServerConfig();
-                using (var srv = new Server(cfg))
+                using (var pcs = new PipeConsoleServer(CmdMgr.HandleCommand))
                 {
-                    srv.Connect(cfg.Address, cfg.Port);
-                    while (srv.Connected)
+                    Server.Connect(cfg.Address, cfg.Port);
+                    while (Server.Connected)
                     {
                         Thread.Sleep(cfg.UpdateSleep);
-                        srv.Update();
+                        Server.Update();
                     }
                 }
             }
@@ -110,7 +122,7 @@ namespace Sdm.Server
             switch (args[0])
             {
             case "run": return RunServer(args);
-            case "help": return PrintUsage(args);
+            case "help": return PrintUsage(args); // XXX: implement as command
             default: return SendCommand(args);
             }
         }
