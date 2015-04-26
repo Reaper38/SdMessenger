@@ -108,21 +108,14 @@ namespace Sdm.Server
             mutex.ReleaseMutex();
             return 0;
         }
-
-        private static int PrintUsage(string[] args)
-        {
-            Console.WriteLine("Usage: <to be documented>");
-            return 0;
-        }
-
+        
         private static int Main(string[] args)
         {
             if (args.Length == 0)
-                return PrintUsage(args);
+                args = new[] {"help"};
             switch (args[0])
             {
             case "run": return RunServer(args);
-            case "help": return PrintUsage(args); // XXX: implement as command
             default: return SendCommand(args);
             }
         }
