@@ -364,6 +364,8 @@ namespace Sdm.Server
 
         public override void Disconnect()
         {
+            if (disconnecting || !Connected)
+                return;
             var msg = new ClDisconnect();
             svcMessages.Enqueue(msg);
         }
