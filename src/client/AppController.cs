@@ -34,53 +34,6 @@ namespace Sdm.Client
             }
         }
         
-        public static bool ValidateLogin(ref string login, out string msg)
-        {
-            var tmpLogin = login.Trim().ToLower();
-            if (tmpLogin.Length == 0)
-            {
-                msg = "Login can't be empty";
-                return false;
-            }
-            if (tmpLogin.Length < 2 || tmpLogin.Length > 30)
-            {
-                msg = "Login should be 2-30 characters long";
-                return false;
-            }
-            foreach (char c in tmpLogin)
-            {
-                if ('a' <= c && c <= 'z')
-                    continue;
-                if (Char.IsDigit(c))
-                    continue;
-                if (c == '.')
-                    continue;
-                msg = "Login must consist of letters (a-z), numbers and periods";
-                return false;
-            }
-            login = tmpLogin;
-            msg = "";
-            return true;
-        }
-
-        public static bool ValidatePassword(ref string password, out string msg)
-        {
-            var tmpPass = password.Trim();
-            if (tmpPass.Length < 6)
-            {
-                msg = "Password must have at least 6 characters";
-                return false;
-            }
-            if (tmpPass.Length > 100)
-            {
-                msg = "Password must have at most 100 characters";
-                return false;
-            }
-            password = tmpPass;
-            msg = "";
-            return true;
-        }
-
         private void OnClientConnectionResult(ConnectionResult cr, string msg)
         {
             if (cr == ConnectionResult.Rejected)
@@ -110,7 +63,10 @@ namespace Sdm.Client
                 if (ar != AuthResult.Accepted)
                     loginDialog.ShowError(LoginDialog.Error.Generic, msg);
                 else
+                {
                     loginDialog.Hide();
+                    // XXX: send client list request
+                }
             };
             if (loginDialog.InvokeRequired)
                 loginDialog.Invoke(cb);
@@ -156,12 +112,12 @@ namespace Sdm.Client
                     errMsg = "Can't resolve host name";
                     break;
                 }
-                if (!ValidateLogin(ref login, out errMsg))
+                if (!NetUtil.ValidateLogin(ref login, out errMsg))
                 {
                     errType = LoginDialog.Error.Login;
                     break;
                 }
-                if (!ValidatePassword(ref pass, out errMsg))
+                if (!NetUtil.ValidatePassword(ref pass, out errMsg))
                 {
                     errType = LoginDialog.Error.Password;
                     break;
