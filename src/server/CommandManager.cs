@@ -66,8 +66,19 @@ namespace Sdm.Server
                     PrintUsage(console);
                     return;
                 }
-                var login = args[1]; // XXX: validate login
-                var pass = args[2]; // XXX: validate password
+                var login = args[1];
+                var pass = args[2];
+                string errMsg;
+                if (!NetUtil.ValidateLogin(ref login, out errMsg))
+                {
+                    console.WriteLine("{0}: invalid login.\r\n{1}", Root.AppName, errMsg);
+                    return;
+                }
+                if (!NetUtil.ValidatePassword(ref pass, out errMsg))
+                {
+                    console.WriteLine("{0}: invalid password.\r\n{1}", Root.AppName, errMsg);
+                    return;
+                }
                 ClientAccessFlags access;
                 if (!ClientAccessFlagsUtil.FromShortString(out access, args[3]))
                 {
