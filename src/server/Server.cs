@@ -183,6 +183,7 @@ namespace Sdm.Server
             SocketClientBase cl;
             while (newClients.TryDequeue(out cl))
             {
+                Root.Log(LogLevel.Info, "Server: new client {0} ({1})", GetClientName(cl), cl.Address);
                 AddClient(cl);
                 var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
                 try
@@ -463,14 +464,15 @@ namespace Sdm.Server
                     cl.Authenticated = true;
                     respond.Message = "All ok";
                     SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client {0} : authentication succeeded", cl.Login);
+                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication succeeded", cl.Id, cl.Login);
                 }
                 else
                 {
                     // XXX: add extra details here
                     respond.Message = "";
                     SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client {0} : authentication failed", GetClientName(cl));
+                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication failed <{3}>",
+                        cl.Id, msg.Login, result);
                     DisconnectClient(cl);
                 }
             }
@@ -511,7 +513,7 @@ namespace Sdm.Server
                 return;
             }
             var cl = clients[id];
-            Root.Log(LogLevel.Info, "Client {0} : disconnect", cl.Login);
+            Root.Log(LogLevel.Info, "Client {0} : disconnect", GetClientName(cl));
             DisconnectClient(cl);
             if (cl.Authenticated)
             {
