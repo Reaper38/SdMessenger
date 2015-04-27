@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using Sdm.Core;
 using Sdm.Core.Messages;
@@ -77,7 +78,8 @@ namespace Sdm.Client
                 loginDialog.EnableControls(true);
                 if (ar != AuthResult.Accepted)
                 {
-                    // XXX: format auth result
+                    var desc = ar.GetDescription();
+                    msg = msg == "" ? desc : String.Format("{0}: {1}", desc, msg);
                     loginDialog.ShowError(LoginDialog.Error.Generic, msg);
                 }
                 else

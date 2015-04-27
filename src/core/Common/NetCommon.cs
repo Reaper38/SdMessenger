@@ -70,6 +70,20 @@ namespace Sdm.Core
         Banned = 2,
     }
 
+    public static class AuthResultUtil
+    {
+        public static string GetDescription(this AuthResult ar)
+        {
+            switch (ar)
+            {
+            case AuthResult.Accepted: return "Login successful";
+            case AuthResult.InvalidLogin: return "Invalid login/password";
+            case AuthResult.Banned: return "You have been banned";
+            default: return "Unknown result";
+            }
+        }
+    }
+
     public enum DisconnectReason : byte
     {
         Unknown = 0,
