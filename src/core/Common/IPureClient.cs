@@ -9,6 +9,7 @@ namespace Sdm.Core
         public event Action<ConnectionResult, string> ConnectionResult;
         public event Action<AuthResult, string> AuthResult;
         public event Action ConnectionStateChanged;
+        public event Action<IMessage> UserMessage;
 
         private ConnectionState connectionState = ConnectionState.Disconnected;
 
@@ -53,6 +54,12 @@ namespace Sdm.Core
         {
             if (ConnectionStateChanged != null)
                 ConnectionStateChanged();
+        }
+
+        protected void OnUserMessage(IMessage msg)
+        {
+            if (UserMessage != null)
+                UserMessage(msg);
         }
 
         #region IDisposable Members

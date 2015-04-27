@@ -22,8 +22,9 @@ namespace Sdm.Client
         private AppController()
         {
             Application.Idle += OnIdle;
-            client = new Client(OnMessage);
+            client = new Client();
             client.ConnectionStateChanged += ClientConnectionStateChanged;
+            client.UserMessage += OnMessage;
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             MainForm = mainDialog;
