@@ -26,6 +26,16 @@ namespace Sdm.Core
 #endif
         }
 
+        private static string GetConfigFileName(AppType app)
+        {
+            switch (app)
+            {
+            case AppType.Client: return "sdm_client.ini";
+            case AppType.Server: return "sdm_server.ini";
+            default: throw new NotSupportedException(app + " is not supported.");
+            }
+        }
+
         public static void Initialize(AppType app)
         {
             lock (sync)
@@ -35,7 +45,7 @@ namespace Sdm.Core
                 var lvl = LogLevel.Info;
                 try
                 {
-                    Config = new IniFile("sdm_config.ini", Encoding.UTF8);
+                    Config = new IniFile(GetConfigFileName(app), Encoding.UTF8);
                 }
                 catch (IOException)
                 {
