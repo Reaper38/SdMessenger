@@ -61,8 +61,8 @@ namespace Sdm.Client
         
         public override void Connect(IPAddress address, ushort port, string login, string password)
         {
-            if (Connected)
-                throw new InvalidOperationException("Already connected");
+            if (ConnectionState != ConnectionState.Disconnected)
+                throw new InvalidOperationException("Already connected or waiting");
             this.login = login;
             this.password = password;
             ConnectionState = ConnectionState.Waiting;
