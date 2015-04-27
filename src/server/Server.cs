@@ -213,6 +213,12 @@ namespace Sdm.Server
                 OnMessage(msg, ClientId.Server);
         }
 
+        private bool CheckClientConnection(SocketClientBase cl)
+        {
+            var s = cl.Params.Socket;
+            return s.Connected && !(s.Poll(1, SelectMode.SelectRead) && s.Available == 0);
+        }
+
         public override void Update()
         {
             var hdr = new MsgHeader();
@@ -220,7 +226,7 @@ namespace Sdm.Server
             foreach (var pair in clients)
             {
                 var cl = pair.Value;
-                if (!cl.Params.Socket.Connected)
+                if (!CheckClientConnection(cl))
                 {
                     OnClientConnectionReset(cl);
                     continue;
@@ -559,6 +565,8 @@ namespace Sdm.Server
                     msg.Save(buf, Protocol);
                     header.Size = (int)buf.Length;
                 }
+                // XXX: handle exceptions
+                // exception will be thrown here if client was disconnected ungracefully
                 header.Save(cl.NetStream, Protocol);
                 rawBuf.WriteTo(cl.NetStream);
             }
