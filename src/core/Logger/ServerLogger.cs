@@ -21,6 +21,8 @@ namespace Sdm.Core
             fs = new FileStream(logFileName, FileMode.Append);
             fsw = new StreamWriter(fs, Encoding.Default);
             fsw.AutoFlush = true;
+            var separator = new string('=', 80);
+            fsw.WriteLine(separator);
         }
 
         public override int LineCount { get { return lineCount; } }
