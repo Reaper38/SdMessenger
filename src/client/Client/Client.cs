@@ -58,7 +58,7 @@ namespace Sdm.Client
         }
 
         public override INetStatistics Stats { get { return null; } }
-
+        
         public override void Connect(IPAddress address, ushort port, string login, string password)
         {
             if (Connected)
@@ -342,9 +342,6 @@ namespace Sdm.Client
                 rawBuf.WriteTo(netStream);
             }
         }
-
-        private bool Connected
-        { get { return ConnectionState == ConnectionState.Connected; } }
 
         protected override void Dispose(bool disposing)
         {

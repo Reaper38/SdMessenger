@@ -24,6 +24,9 @@ namespace Sdm.Core
             }
         }
 
+        public bool Connected
+        { get { return ConnectionState == ConnectionState.Connected; } }
+
         public abstract IPAddress ServerAddress { get; }
         public abstract ushort ServerPort { get; }
         public abstract INetStatistics Stats { get; }
