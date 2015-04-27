@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Sdm.Core;
 using Sdm.Core.Messages;
 
 namespace Sdm.Client
 {
     internal partial class MainDialog : Form
     {
+        private AppController Controller { get { return AppController.Instance; } }
+
         public MainDialog()
         {
             InitializeComponent();
+            ApplyConnectionState(ConnectionState.Disconnected);
         }
 
         private void TrySendMessage()
         {
+            if (Controller.State != ConnectionState.Connected)
+                return;
             if (tbNewMsg.TextLength == 0)
                 return;
             // XXX: send message
@@ -48,26 +54,48 @@ namespace Sdm.Client
 
         private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
         {
+            // XXX: skip if shift+return
             if (e.KeyCode == Keys.Return)
                 TrySendMessage();
         }
-
-        private void cmConnection_Popup(object sender, EventArgs e)
-        {
-            // XXX: show login/logout according to connection state
-        }
-
+        
         private void cmiLogin_Click(object sender, EventArgs e)
         {
             // XXX: show login window or logout
-            AppController.Instance.ShowLoginDialog();
+            if (Controller.State == ConnectionState.Disconnected)
+                Controller.ShowLoginDialog();
+            else
+                Controller.Disconnect();
         }
+
+        private void ClearUserList()
+        { lvUsers.Items.Clear(); }
 
         public void UpdateUserList(SvUserlistRespond msg)
         {
-            lvUsers.Items.Clear();
+            ClearUserList();
             foreach (var username in msg.Usernames)
                 lvUsers.Items.Add(username);
+        }
+
+        public void ApplyConnectionState(ConnectionState newState)
+        {
+            switch (newState)
+            {
+            case ConnectionState.Disconnected:
+                tbHost.Text = "Disconnected";
+                cmiLogin.Text = "Connect";
+                ClearUserList();
+                break;
+            case ConnectionState.Waiting:
+                tbHost.Text = "Waiting...";
+                cmiLogin.Text = "Disconnect";
+                break;
+            case ConnectionState.Connected:
+                tbHost.Text = String.Format("{0}:{1}", Controller.Host, Controller.Port);
+                cmiLogin.Text = "Disconnect";
+                break;
+            }
         }
     }
 }

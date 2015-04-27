@@ -191,7 +191,6 @@
             // 
             this.cmConnection.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.cmiLogin});
-            this.cmConnection.Popup += new System.EventHandler(this.cmConnection_Popup);
             // 
             // cmiLogin
             // 

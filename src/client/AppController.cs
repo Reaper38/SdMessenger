@@ -11,16 +11,19 @@ namespace Sdm.Client
     internal sealed class AppController : ApplicationContext
     {
         private static readonly AppController instance = new AppController();
+        private Client client;
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
-
+        public string Host { get; private set; }
+        public ushort Port { get; private set; }
+        public ConnectionState State { get { return client.ConnectionState; } }
         public static AppController Instance { get { return instance; } }
-        public Client Client { get; private set; }
         
         private AppController()
         {
             Application.Idle += OnIdle;
-            Client = new Client(OnMessage);
+            client = new Client(OnMessage);
+            client.ConnectionStateChanged += ClientConnectionStateChanged;
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             MainForm = mainDialog;
@@ -39,9 +42,9 @@ namespace Sdm.Client
 
         private void OnIdle(object sender, EventArgs e)
         {
-            if (Client.ConnectionState != ConnectionState.Disconnected)
+            if (client.ConnectionState != ConnectionState.Disconnected)
             {
-                Client.Update();
+                client.Update();
             }
         }
         
@@ -49,8 +52,8 @@ namespace Sdm.Client
         {
             if (cr == ConnectionResult.Rejected)
             {
-                Client.ConnectionResult -= OnClientConnectionResult;
-                Client.AuthResult -= OnClientAuthResult;
+                client.ConnectionResult -= OnClientConnectionResult;
+                client.AuthResult -= OnClientAuthResult;
                 Action cb = () =>
                 {
                     loginDialog.EnableControls(true);
@@ -65,8 +68,8 @@ namespace Sdm.Client
 
         private void OnClientAuthResult(AuthResult ar, string msg)
         {
-            Client.ConnectionResult -= OnClientConnectionResult;
-            Client.AuthResult -= OnClientAuthResult;
+            client.ConnectionResult -= OnClientConnectionResult;
+            client.AuthResult -= OnClientAuthResult;
             // XXX: implement InvokeAsync and use it here
             Action cb = () =>
             {
@@ -77,13 +80,18 @@ namespace Sdm.Client
                 {
                     loginDialog.Hide();
                     var request = new ClUserlistRequest();
-                    Client.Send(request);
+                    client.Send(request);
                 }
             };
             if (loginDialog.InvokeRequired)
                 loginDialog.Invoke(cb);
             else
                 cb();
+        }
+
+        private void ClientConnectionStateChanged()
+        {
+            mainDialog.ApplyConnectionState(client.ConnectionState);
         }
 
         public void Login()
@@ -135,9 +143,11 @@ namespace Sdm.Client
                     break;
                 }
                 loginDialog.EnableControls(false);
-                Client.ConnectionResult += OnClientConnectionResult;
-                Client.AuthResult += OnClientAuthResult;
-                Client.Connect(address, port, login, pass);
+                Host = spl[0];
+                Port = port;
+                client.ConnectionResult += OnClientConnectionResult;
+                client.AuthResult += OnClientAuthResult;
+                client.Connect(address, port, login, pass);
                 return;
             } while (false);
             loginDialog.ShowError(errType, errMsg);
@@ -146,6 +156,11 @@ namespace Sdm.Client
         public void ShowLoginDialog()
         {
             loginDialog.ShowDialog();
+        }
+
+        public void Disconnect()
+        {
+            client.Disconnect();
         }
     }
 }
