@@ -33,7 +33,8 @@ namespace Sdm.Core
                 return;
             lock (sync)
             {
-                var fstr = String.Format("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat), logLevel, message);
+                var fstr = String.Format("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat),
+                    FormatLogLevel(logLevel), message);
 #if LOG_TO_CONSOLE
                 Console.WriteLine(fstr);
 #endif

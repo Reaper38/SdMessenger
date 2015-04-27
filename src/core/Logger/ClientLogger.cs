@@ -35,7 +35,8 @@ namespace Sdm.Core
                 return;
             lock (sync)
             {
-                msw.WriteLine("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat), logLevel, message);
+                msw.WriteLine("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat),
+                    FormatLogLevel(logLevel), message);
                 lineCount++;
             }
             OnMessageLogged(message);

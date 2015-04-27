@@ -19,6 +19,9 @@ namespace Sdm.Core
                 LogCleared();
         }
 
+        protected static string FormatLogLevel(LogLevel l)
+        { return l.ToString().ToLower(); }
+
         protected static readonly string DateTimeFormat = "dd.MM.yy-HH:mm:ss";
         protected LogLevel MinLogLevel;
 
