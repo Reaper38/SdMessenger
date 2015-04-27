@@ -366,7 +366,7 @@ namespace Sdm.Core.Messages
             using (var w = new JsonStreamWriter(s))
             {
                 w.WriteStartObject();
-                w.WritePropertyName("result");
+                w.WritePropertyName("reason");
                 w.WriteValue((int)Reason);
                 w.WritePropertyName("msg");
                 w.WriteValue(Message);
