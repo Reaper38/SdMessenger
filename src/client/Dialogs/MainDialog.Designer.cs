@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lvUsers = new System.Windows.Forms.ListView();
+            this.lvUsers = new Controls.ListViewEx();
             this.scRoot = new System.Windows.Forms.SplitContainer();
             this.btnSrv = new System.Windows.Forms.Button();
             this.tbHost = new System.Windows.Forms.TextBox();
@@ -225,7 +225,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ListView lvUsers;
+        private Controls.ListViewEx lvUsers;
         private System.Windows.Forms.SplitContainer scRoot;
         private System.Windows.Forms.TextBox tbHost;
         private System.Windows.Forms.SplitContainer scChat;
