@@ -26,9 +26,7 @@ namespace Sdm.Core
         protected LogLevel MinLogLevel;
 
         protected SdmLoggerBase(LogLevel minLogLevel)
-        {
-            MinLogLevel = minLogLevel;
-        }
+        { MinLogLevel = minLogLevel; }
 
         public abstract int LineCount { get; }
         public abstract void Log(LogLevel logLevel, string message);
