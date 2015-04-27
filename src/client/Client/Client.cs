@@ -22,14 +22,16 @@ namespace Sdm.Client
         private IAsymmetricCryptoProvider asymCp;
         private ISymmetricCryptoProvider symCp;
         private const ProtocolId Protocol = ProtocolId.Json;
+        private Action<IMessage> externalMsgHandler;
         private bool disposed = false;
 
-        public Client()
+        public Client(Action<IMessage> externalMsgHandler)
         {
             asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(SdmAsymmetricAlgorithm.RSA);
             symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
+            this.externalMsgHandler = externalMsgHandler;
         }
-
+        
         private static void Log(LogLevel l, string msg)
         { SdmCore.Logger.Log(l, msg); }
 
@@ -247,7 +249,7 @@ namespace Sdm.Client
                 OnDisconnect(msg as SvDisconnect);
                 break;
             default:
-                // log unknown message
+                OnUnknownMessage(msg);
                 break;
             }
         }
@@ -300,6 +302,13 @@ namespace Sdm.Client
             Log(LogLevel.Info, "Client: disconnect received: {0}{1}", info, infoEx);
             disconnectReceived = true;
             Disconnect();
+        }
+
+        private void OnUnknownMessage(IMessage msg)
+        {
+            if (externalMsgHandler != null)
+                externalMsgHandler(msg);
+            // XXX: else log
         }
 
         // XXX: write generalized version (both for server and client) and move to core

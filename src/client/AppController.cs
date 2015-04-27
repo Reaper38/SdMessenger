@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using Sdm.Core;
+using Sdm.Core.Messages;
 using Sdm.Core.Util;
 
 namespace Sdm.Client
@@ -19,11 +20,16 @@ namespace Sdm.Client
         private AppController()
         {
             Application.Idle += OnIdle;
-            Client = new Client();
+            Client = new Client(OnMessage);
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             MainForm = mainDialog;
             MainForm.Show();
+        }
+
+        private void OnMessage(IMessage msg)
+        {
+            // XXX: handle messages
         }
 
         private void OnIdle(object sender, EventArgs e)
@@ -65,7 +71,8 @@ namespace Sdm.Client
                 else
                 {
                     loginDialog.Hide();
-                    // XXX: send client list request
+                    var request = new ClUserlistRequest();
+                    Client.Send(request);
                 }
             };
             if (loginDialog.InvokeRequired)
