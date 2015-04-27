@@ -76,7 +76,10 @@ namespace Sdm.Client
             {
                 loginDialog.EnableControls(true);
                 if (ar != AuthResult.Accepted)
+                {
+                    // XXX: format auth result
                     loginDialog.ShowError(LoginDialog.Error.Generic, msg);
+                }
                 else
                 {
                     loginDialog.Hide();
@@ -92,7 +95,11 @@ namespace Sdm.Client
 
         private void ClientConnectionStateChanged()
         {
-            mainDialog.ApplyConnectionState(client.ConnectionState);
+            Action cb = () => mainDialog.ApplyConnectionState(client.ConnectionState);
+            if (mainDialog.InvokeRequired)
+                mainDialog.Invoke(cb);
+            else
+                cb();
         }
 
         public void Login()
