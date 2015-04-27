@@ -49,9 +49,9 @@
     <Compile Include="Common\DiagNetStream.cs" />
     <Compile Include="Common\ISdmSerializable.cs" />
     <Compile Include="Common\IClient.cs" />
-    <Compile Include="Common\IPureClient.cs" />
+    <Compile Include="Common\PureClientBase.cs" />
     <Compile Include="Common\NetCommon.cs" />
-    <Compile Include="Common\IPureServer.cs" />
+    <Compile Include="Common\PureServerBase.cs" />
     <Compile Include="Crypto\Detail\AESCryptoProviderNET.cs" />
     <Compile Include="Crypto\Detail\BlowfishCryptoProvider.cs" />
     <Compile Include="Crypto\CryptoProviderFactory.cs" />
