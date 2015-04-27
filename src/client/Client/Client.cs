@@ -29,12 +29,6 @@ namespace Sdm.Client
             symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
         }
         
-        private static void Log(LogLevel l, string msg)
-        { SdmCore.Logger.Log(l, msg); }
-
-        private static void Log(LogLevel l, string msg, params object[] args)
-        { SdmCore.Logger.Log(l, String.Format(msg, args)); }
-        
         public override IPAddress ServerAddress
         {
             get
@@ -64,7 +58,7 @@ namespace Sdm.Client
             this.login = login;
             this.password = password;
             ConnectionState = ConnectionState.Waiting;
-            Log(LogLevel.Info, "Client: connecting to {0}:{1} ...", address, port);
+            Root.Log(LogLevel.Info, "Client: connecting to {0}:{1} ...", address, port);
             // XXX: get socket params from config
             clSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
             {
@@ -99,7 +93,7 @@ namespace Sdm.Client
                 clSocket = null;
             }
             if (prevState == ConnectionState.Connected)
-                Log(LogLevel.Info, "Client: disconnected");
+                Root.Log(LogLevel.Info, "Client: disconnected");
         }
 
         private void EndConnect(object sender, SocketAsyncEventArgs e)
@@ -112,14 +106,14 @@ namespace Sdm.Client
             {
                 cr = Core.ConnectionResult.Rejected;
                 msg = NetUtil.GetSocketErrorDesc(err);
-                Log(LogLevel.Error, "Client: connection failed: " + msg);
+                Root.Log(LogLevel.Error, "Client: connection failed: " + msg);
                 Reset();
             }
             else
             {
                 cr = Core.ConnectionResult.Accepted;
                 msg = "Connection established";
-                Log(LogLevel.Info, "Client: connection established");
+                Root.Log(LogLevel.Info, "Client: connection established");
                 ConnectionState = ConnectionState.Connected;
                 rawNetStream = new NetworkStream(clSocket);
                 netStream = rawNetStream.AsUnclosable();
@@ -129,7 +123,7 @@ namespace Sdm.Client
 
         public override void Disconnect()
         {
-            Log(LogLevel.Info, "Client: disconnect");
+            Root.Log(LogLevel.Info, "Client: disconnect");
             if (!disconnectReceived)
             {
                 var msg = new ClDisconnect();
@@ -154,7 +148,7 @@ namespace Sdm.Client
 
         private void OnServerConnectionReset()
         {
-            Log(LogLevel.Info, "Client: connection lost");
+            Root.Log(LogLevel.Info, "Client: connection lost");
             Reset();
         }
 
@@ -170,7 +164,7 @@ namespace Sdm.Client
                     OnServerConnectionReset();
                 else
                 {
-                    Log(LogLevel.Warning, "Client: bad message header received from server ({0})", e.Message);
+                    Root.Log(LogLevel.Warning, "Client: bad message header received from server ({0})", e.Message);
                     Disconnect();
                 }
                 return false;
@@ -217,7 +211,7 @@ namespace Sdm.Client
                     }
                     catch (MessageLoadException e)
                     {
-                        Log(LogLevel.Warning, "Client: bad message received from server ({0})", e.Message);
+                        Root.Log(LogLevel.Warning, "Client: bad message received from server ({0})", e.Message);
                         Disconnect();
                         return false;
                     }
@@ -267,11 +261,11 @@ namespace Sdm.Client
             if (msg.Result == Core.AuthResult.Accepted)
             {
                 authenticated = true;
-                Log(LogLevel.Info, "Server: authentication succeeded <{0}>", msg.Message);
+                Root.Log(LogLevel.Info, "Server: authentication succeeded <{0}>", msg.Message);
             }
             else
             {
-                Log(LogLevel.Error, "Server: authentication failed <{0}>", msg.Message);
+                Root.Log(LogLevel.Error, "Server: authentication failed <{0}>", msg.Message);
                 Reset(); // server closes connection after rejection
             }
             OnAuthResult(msg.Result, msg.Message);
@@ -293,7 +287,7 @@ namespace Sdm.Client
                 break;
             }
             var infoEx = msg.Message == "" ? "" : String.Format(" <{0}>", msg.Message);
-            Log(LogLevel.Info, "Client: disconnect received: {0}{1}", info, infoEx);
+            Root.Log(LogLevel.Info, "Client: disconnect received: {0}{1}", info, infoEx);
             disconnectReceived = true;
             Disconnect();
         }
@@ -303,7 +297,7 @@ namespace Sdm.Client
         {
             if (!Connected)
             {
-                Log(LogLevel.Debug, "Client: attempt to send message with no connection");
+                Root.Log(LogLevel.Debug, "Client: attempt to send message with no connection");
                 return;
             }
             using (var rawBuf = new MemoryStream())
