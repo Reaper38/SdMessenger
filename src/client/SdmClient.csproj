@@ -51,6 +51,9 @@
   <ItemGroup>
     <Compile Include="AppController.cs" />
     <Compile Include="Client\Client.cs" />
+    <Compile Include="Controls\FormEx.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Controls\ListViewEx.cs">
       <SubType>Component</SubType>
     </Compile>
