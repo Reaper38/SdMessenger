@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
+using Sdm.Client.Controls;
 using Sdm.Core;
 
 namespace Sdm.Client
 {
-    internal partial class LoginDialog : Form
+    internal partial class LoginDialog : FormEx
     {
         internal enum Error
         {

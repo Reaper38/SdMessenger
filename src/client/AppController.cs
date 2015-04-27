@@ -57,15 +57,11 @@ namespace Sdm.Client
             {
                 client.ConnectionResult -= OnClientConnectionResult;
                 client.AuthResult -= OnClientAuthResult;
-                Action cb = () =>
+                loginDialog.InvokeAsync(() =>
                 {
                     loginDialog.EnableControls(true);
                     loginDialog.ShowError(LoginDialog.Error.Generic, msg);
-                };
-                if (loginDialog.InvokeRequired)
-                    loginDialog.Invoke(cb);
-                else
-                    cb();
+                });
             }
         }
 
@@ -73,8 +69,7 @@ namespace Sdm.Client
         {
             client.ConnectionResult -= OnClientConnectionResult;
             client.AuthResult -= OnClientAuthResult;
-            // XXX: implement InvokeAsync and use it here
-            Action cb = () =>
+            loginDialog.InvokeAsync(() =>
             {
                 loginDialog.EnableControls(true);
                 if (ar != AuthResult.Accepted)
@@ -89,20 +84,12 @@ namespace Sdm.Client
                     var request = new ClUserlistRequest();
                     client.Send(request);
                 }
-            };
-            if (loginDialog.InvokeRequired)
-                loginDialog.Invoke(cb);
-            else
-                cb();
+            });
         }
 
         private void ClientConnectionStateChanged()
         {
-            Action cb = () => mainDialog.ApplyConnectionState(client.ConnectionState);
-            if (mainDialog.InvokeRequired)
-                mainDialog.Invoke(cb);
-            else
-                cb();
+            mainDialog.InvokeAsync(() => mainDialog.ApplyConnectionState(client.ConnectionState));
         }
 
         public void Login()

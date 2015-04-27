@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Sdm.Client.Controls;
 using Sdm.Core;
 using Sdm.Core.Messages;
 
 namespace Sdm.Client
 {
-    internal partial class MainDialog : Form
+    internal partial class MainDialog : FormEx
     {
         private AppController Controller { get { return AppController.Instance; } }
 
