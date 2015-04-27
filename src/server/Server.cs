@@ -61,9 +61,7 @@ namespace Sdm.Server
     {
         public Client(Server srv, ClientId id, SocketClientParams clParams, byte[] sessionKey) :
             base(srv, id, clParams, sessionKey)
-        {
-            AccessFlags = ClientAccessFlags.Default;
-        }
+        { AccessFlags = ClientAccessFlags.Default; }
 
         public override INetStatistics Stats { get { return null; } }
     }
@@ -161,9 +159,7 @@ namespace Sdm.Server
             catch (SocketException se)
             {
                 if (se.SocketErrorCode == SocketError.AddressAlreadyInUse)
-                {
                     Root.Log(LogLevel.Error, "Server: port {0} is busy!", port);
-                }
                 Root.Log(LogLevel.Error, "Server: connection failed ({0})",
                     NetUtil.GetSocketErrorDesc(se.SocketErrorCode));
                 throw;
@@ -185,11 +181,9 @@ namespace Sdm.Server
             {
                 Root.Log(LogLevel.Info, "Server: new client {0} ({1})", GetClientName(cl), cl.Address);
                 AddClient(cl);
-                var challenge = new SvPublicKeyChallenge { KeySize = asymCp.KeySize };
+                var challenge = new SvPublicKeyChallenge {KeySize = asymCp.KeySize};
                 try
-                {
-                    SendTo(cl.Id, challenge);
-                }
+                { SendTo(cl.Id, challenge); }
                 catch (IOException e)
                 {
                     if (NetUtil.CheckConnectionReset(e))
@@ -256,9 +250,7 @@ namespace Sdm.Server
         private bool ReceiveMessageHeader(MsgHeader hdr, SocketClientBase cl)
         {
             try
-            {
-                hdr.Load(cl.NetStream, Protocol);
-            }
+            { hdr.Load(cl.NetStream, Protocol); }
             catch (MessageLoadException e)
             {
                 if (NetUtil.CheckConnectionReset(e))
@@ -280,9 +272,7 @@ namespace Sdm.Server
             // XXX: could be optimized - use one large buffer + unclosable MemoryStream
             var buf = new byte[hdr.Size];
             try
-            {
-                cl.NetStream.Read(buf, 0, buf.Length);
-            }
+            { cl.NetStream.Read(buf, 0, buf.Length); }
             catch (IOException e)
             {
                 if (NetUtil.CheckConnectionReset(e))
@@ -308,9 +298,7 @@ namespace Sdm.Server
                 {
                     msg = MessageFactory.CreateMessage(hdr.Id);
                     try
-                    {
-                        msg.Load(msWrap, Protocol);
-                    }
+                    { msg.Load(msWrap, Protocol); }
                     catch (MessageLoadException e)
                     {
                         Root.Log(LogLevel.Warning, "Client {0} : bad message ({1})",
@@ -325,7 +313,7 @@ namespace Sdm.Server
 
         private void StartAcceptLoop()
         {
-            acceptingThread = new Thread(AcceptLoopProc) { IsBackground = true };
+            acceptingThread = new Thread(AcceptLoopProc) {IsBackground = true};
             acceptingThread.Start();
         }
 
@@ -335,13 +323,9 @@ namespace Sdm.Server
             {
                 Socket clSocket;
                 try
-                {
-                    clSocket = svSocket.Accept();
-                }
+                { clSocket = svSocket.Accept(); }
                 catch (SocketException) // Disconnect() called
-                {
-                    break;
-                }
+                { break; }
                 if (disconnecting)
                     break;
                 var rawStream = new NetworkStream(clSocket, false);
@@ -404,7 +388,7 @@ namespace Sdm.Server
 
         public override void DisconnectClient(IClient cl, DisconnectReason reason, string message = "")
         {
-            var msg = new SvDisconnect { Message = message, Reason = reason };
+            var msg = new SvDisconnect {Message = message, Reason = reason};
             SendTo(cl.Id, msg);
             var scl = clients[cl.Id];
             DisconnectClient(scl);
@@ -490,11 +474,9 @@ namespace Sdm.Server
             var cl = clients[id];
             asymCp.SetKey(msg.Key);
             var encryptedKey = asymCp.Encrypt(cl.SessionKey);
-            var challenge = new SvAuthChallenge { SessionKey = encryptedKey };
+            var challenge = new SvAuthChallenge {SessionKey = encryptedKey};
             try
-            {
-                SendTo(id, challenge);
-            }
+            { SendTo(id, challenge); }
             catch (IOException e)
             {
                 if (NetUtil.CheckConnectionReset(e))
@@ -517,8 +499,7 @@ namespace Sdm.Server
             DisconnectClient(cl);
             if (cl.Authenticated)
             {
-                var respond = new SvClientDisconnected();
-                respond.Login = cl.Login;
+                var respond = new SvClientDisconnected {Login = cl.Login};
                 SendBroadcast(id, respond);
             }
         }
@@ -528,8 +509,7 @@ namespace Sdm.Server
             var unames = new string[clients.Count];
             for (int i = 0; i < clients.Count; i++)
                 unames[i] = clients.Values[i].Login;
-            var respond = new SvUserlistRespond();
-            respond.Usernames = unames;
+            var respond = new SvUserlistRespond {Usernames = unames};
             SendTo(id, respond);
         }
 
@@ -547,9 +527,7 @@ namespace Sdm.Server
             using (var rawBuf = new MemoryStream())
             {
                 var buf = rawBuf.AsUnclosable();
-                var header = new MsgHeader();
-                header.Id = msg.Id;
-                header.Flags = MessageFlags.None;
+                var header = new MsgHeader {Id = msg.Id, Flags = MessageFlags.None};
                 if (cl.Secure)
                 {
                     using (var container = new MessageCryptoContainer())
