@@ -61,6 +61,7 @@
             this.lvUsers.Size = new System.Drawing.Size(174, 322);
             this.lvUsers.TabIndex = 0;
             this.lvUsers.UseCompatibleStateImageBehavior = false;
+            this.lvUsers.View = System.Windows.Forms.View.List;
             this.lvUsers.DoubleClick += new System.EventHandler(this.lvUsers_DoubleClick);
             // 
             // scRoot
