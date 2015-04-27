@@ -44,6 +44,7 @@ namespace Sdm.Client
 
         private void OnIdle(object sender, EventArgs e)
         {
+            // XXX: detect connection loss and change connection state
             if (client.ConnectionState != ConnectionState.Disconnected)
             {
                 client.Update();
