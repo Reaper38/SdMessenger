@@ -3,8 +3,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-using System.Linq;
 using Sdm.Core;
 using Sdm.Core.Util;
 

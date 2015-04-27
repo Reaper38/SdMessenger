@@ -75,7 +75,6 @@ namespace Sdm.Server
                 var clReader = new StreamReader(pipe, true);
                 var clWriter = new StreamWriter(pipe, Encoding.UTF8);
                 var proxy = new PipeConsole(clReader, clWriter);
-                // fetch command from pipe while connected
                 var cmd = clReader.ReadLine();
                 if (cmd != null)
                     handler(cmd, proxy);
