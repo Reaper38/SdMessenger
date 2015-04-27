@@ -464,7 +464,7 @@ namespace Sdm.Server
                     // XXX: add extra details here
                     respond.Message = "";
                     SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client {0} : authentication failed", cl.Login);
+                    Root.Log(LogLevel.Info, "Client {0} : authentication failed", GetClientName(cl));
                     DisconnectClient(cl);
                 }
             }
