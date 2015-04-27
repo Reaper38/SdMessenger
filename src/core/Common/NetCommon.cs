@@ -40,6 +40,8 @@ namespace Sdm.Core
         }
 
         public override int GetHashCode() { return Value.GetHashCode(); }
+
+        public override string ToString() { return Value.ToString(); }
     }
 
     public interface INetStatistics
