@@ -8,8 +8,22 @@ namespace Sdm.Core
     {
         public event Action<ConnectionResult, string> ConnectionResult;
         public event Action<AuthResult, string> AuthResult;
+        public event Action ConnectionStateChanged;
 
-        public abstract ConnectionState ConnectionState { get; }
+        private ConnectionState connectionState = ConnectionState.Disconnected;
+
+        public virtual ConnectionState ConnectionState
+        {
+            get { return connectionState; }
+            set
+            {
+                if (connectionState == value)
+                    return;
+                connectionState = value;
+                OnConnectionStateChanged();
+            }
+        }
+
         public abstract IPAddress ServerAddress { get; }
         public abstract ushort ServerPort { get; }
         public abstract INetStatistics Stats { get; }
@@ -30,6 +44,12 @@ namespace Sdm.Core
         {
             if (AuthResult != null)
                 AuthResult(ar, msg);
+        }
+
+        protected void OnConnectionStateChanged()
+        {
+            if (ConnectionStateChanged != null)
+                ConnectionStateChanged();
         }
 
         #region IDisposable Members

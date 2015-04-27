@@ -14,7 +14,6 @@ namespace Sdm.Client
         private Socket clSocket;
         private NetworkStream rawNetStream;
         private Stream netStream; // unclosable
-        private ConnectionState connectionState = ConnectionState.Disconnected;
         private byte[] sessionKey; // null == no session key has been received yet
         private string login, password;
         private bool authenticated;
@@ -37,9 +36,6 @@ namespace Sdm.Client
 
         private static void Log(LogLevel l, string msg, params object[] args)
         { SdmCore.Logger.Log(l, String.Format(msg, args)); }
-
-        public override ConnectionState ConnectionState
-        { get { return connectionState; } }
         
         public override IPAddress ServerAddress
         {
@@ -69,7 +65,7 @@ namespace Sdm.Client
                 throw new InvalidOperationException("Already connected");
             this.login = login;
             this.password = password;
-            connectionState = ConnectionState.Waiting;
+            ConnectionState = ConnectionState.Waiting;
             Log(LogLevel.Info, "Client: connecting to {0}:{1} ...", address, port);
             // XXX: get socket params from config
             clSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
@@ -88,8 +84,8 @@ namespace Sdm.Client
 
         private void Reset()
         {
-            var prevState = connectionState;
-            connectionState = ConnectionState.Disconnected;
+            var prevState = ConnectionState;
+            ConnectionState = ConnectionState.Disconnected;
             authenticated = false;
             disconnectReceived = false;
             sessionKey = null;
@@ -124,9 +120,9 @@ namespace Sdm.Client
             else
             {
                 cr = Core.ConnectionResult.Accepted;
-                connectionState = ConnectionState.Connected;
                 msg = "Connection established";
                 Log(LogLevel.Info, "Client: connection established");
+                ConnectionState = ConnectionState.Connected;
                 rawNetStream = new NetworkStream(clSocket);
                 netStream = rawNetStream.AsUnclosable();
             }
