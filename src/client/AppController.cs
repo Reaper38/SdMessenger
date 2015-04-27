@@ -29,7 +29,12 @@ namespace Sdm.Client
 
         private void OnMessage(IMessage msg)
         {
-            // XXX: handle messages
+            switch (msg.Id)
+            {
+            case MessageId.SvUserlistRespond:
+                mainDialog.UpdateUserList(msg as SvUserlistRespond);
+                break;
+            }
         }
 
         private void OnIdle(object sender, EventArgs e)

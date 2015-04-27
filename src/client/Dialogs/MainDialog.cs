@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Sdm.Core.Messages;
 
 namespace Sdm.Client
 {
@@ -65,6 +66,13 @@ namespace Sdm.Client
         {
             // XXX: show login window or logout
             AppController.Instance.ShowLoginDialog();
+        }
+
+        public void UpdateUserList(SvUserlistRespond msg)
+        {
+            lvUsers.Items.Clear();
+            foreach (var username in msg.Usernames)
+                lvUsers.Items.Add(username);
         }
     }
 }
