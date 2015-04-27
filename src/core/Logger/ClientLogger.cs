@@ -13,6 +13,7 @@ namespace Sdm.Core
         private DateTime startTime;
         private volatile int lineCount;
         private string fDir, fBaseName, fExt;
+        private volatile bool flushRequired = false;
         private bool disposed = false;
 
         public ClientLogger(string dir, string baseName, string ext, LogLevel minLogLevel) :
@@ -38,6 +39,7 @@ namespace Sdm.Core
                 msw.WriteLine("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat),
                     FormatLogLevel(logLevel), message);
                 lineCount++;
+                flushRequired = true;
             }
             OnMessageLogged(message);
         }
@@ -54,13 +56,18 @@ namespace Sdm.Core
 
         public override void Flush()
         {
-            var startTimeStr = startTime.ToString(DateTimeFormat);
-            var currentTimeStr = DateTime.Now.ToString(DateTimeFormat);
-            var fName = String.Format("{0}/{1}_{2}_{3}{4}", fDir, fBaseName, startTimeStr, currentTimeStr, fExt);
-            using (var fs = new FileStream(fName, FileMode.Create))
+            const string fsDateTimeFormat = "dd.MM.yy-HH.mm.ss";
+            lock (sync)
             {
-                ms.WriteTo(fs);
-                fs.Flush();
+                var startTimeStr = startTime.ToString(fsDateTimeFormat);
+                var currentTimeStr = DateTime.Now.ToString(fsDateTimeFormat);
+                var fName = String.Format("{0}/{1}_{2}_{3}{4}", fDir, fBaseName, startTimeStr, currentTimeStr, fExt);
+                using (var fs = new FileStream(fName, FileMode.Create))
+                {
+                    ms.WriteTo(fs);
+                    fs.Flush();
+                }
+                flushRequired = false;
             }
         }
 
@@ -75,7 +82,11 @@ namespace Sdm.Core
             if (!disposed)
             {
                 if (disposing)
+                {
+                    if (flushRequired)
+                        Flush();
                     msw.Close();
+                }
                 DisposeHelper.OnDispose<ClientLogger>(disposing);
                 disposed = true;
             }
