@@ -69,9 +69,11 @@ namespace Sdm.Client
 
         private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
         {
-            // XXX: skip if shift+return
-            if (e.KeyCode == Keys.Return)
+            if (e.KeyCode == Keys.Return && !e.Shift)
+            {
                 TrySendMessage();
+                e.SuppressKeyPress = true;
+            }
         }
         
         private void cmiLogin_Click(object sender, EventArgs e)
