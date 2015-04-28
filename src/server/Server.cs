@@ -455,7 +455,7 @@ namespace Sdm.Server
                     // XXX: add extra details here
                     respond.Message = "";
                     SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication failed <{3}>",
+                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication failed <{2}>",
                         cl.Id, msg.Login, result);
                     DisconnectClient(cl);
                 }
