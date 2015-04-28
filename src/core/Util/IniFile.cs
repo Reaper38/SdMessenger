@@ -45,7 +45,7 @@ namespace Sdm.Core
         public static KeyValuePair<string, string> ExtractKeyValuePair(string line, bool trimComment)
         {
             string key = null;
-            string value = null;
+            string value = "";
             var buf = line.Trim();
             if (trimComment)
             {
