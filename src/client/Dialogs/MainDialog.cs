@@ -11,7 +11,6 @@ namespace Sdm.Client
     internal partial class MainDialog : FormEx
     {
         private AppController Controller { get { return AppController.Instance; } }
-        //private class ConvTab
         private Dictionary<string, ConversationTab> convs;
 
         public MainDialog()
@@ -52,10 +51,7 @@ namespace Sdm.Client
         }
 
         private void btnSrv_Click(object sender, EventArgs e)
-        {
-            // XXX: show context menu (connect/disconnect)
-            cmConnection.Show(btnSrv, new Point(0, btnSrv.Height));
-        }
+        { cmConnection.Show(btnSrv, new Point(0, btnSrv.Height)); }
 
         private void lvUsers_DoubleClick(object sender, EventArgs e)
         {
