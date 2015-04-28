@@ -262,11 +262,17 @@ namespace Sdm.Client
             if (msg.Result == Core.AuthResult.Accepted)
             {
                 authenticated = true;
-                Root.Log(LogLevel.Info, "Server: authentication succeeded <{0}>", msg.Message);
+                var statusMsg = msg.Message;
+                if (statusMsg == "")
+                    statusMsg = "All ok";
+                Root.Log(LogLevel.Info, "Server: authentication succeeded <{0}>", statusMsg);
             }
             else
             {
-                Root.Log(LogLevel.Error, "Server: authentication failed <{0}>", msg.Message);
+                var statusMsg = msg.Result.ToString();
+                if (msg.Message != "")
+                    statusMsg = String.Format("{0}: {1}", statusMsg, msg.Message);
+                Root.Log(LogLevel.Error, "Server: authentication failed <{0}>", statusMsg);
                 Reset(); // server closes connection after rejection
             }
             OnAuthResult(msg.Result, msg.Message);
