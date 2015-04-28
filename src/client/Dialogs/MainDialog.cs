@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Sdm.Client.Controls;
@@ -10,10 +11,13 @@ namespace Sdm.Client
     internal partial class MainDialog : FormEx
     {
         private AppController Controller { get { return AppController.Instance; } }
+        //private class ConvTab
+        private Dictionary<string, ConversationTab> convs;
 
         public MainDialog()
         {
             InitializeComponent();
+            convs = new Dictionary<string, ConversationTab>();
             ApplyConnectionState(ConnectionState.Disconnected);
         }
 
@@ -29,9 +33,14 @@ namespace Sdm.Client
 
         private void OpenConversation(string username)
         {
-            // XXX: ensure that corresponding tab exists
-            // load history if needed
-            // select tab
+            if (!convs.ContainsKey(username))
+            {
+                var tab = new ConversationTab(username);
+                convs.Add(username, tab);
+                tabConversations.TabPages.Add(convs[username]);
+                return;
+            }
+            tabConversations.SelectTab(convs[username]);
         }
 
         private void btnSend_Click(object sender, EventArgs e)
@@ -50,7 +59,12 @@ namespace Sdm.Client
 
         private void lvUsers_DoubleClick(object sender, EventArgs e)
         {
-            // XXX: get selected user and show conversation tab
+            if (Controller.State != ConnectionState.Connected)
+                return;
+            var username = lvUsers.SelectedItems[0].SubItems[0].Text;
+            if (username == Controller.Config.Login)
+                return;
+            OpenConversation(username);
         }
 
         private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)

@@ -28,13 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lvUsers = new Controls.ListViewEx();
+            this.lvUsers = new Sdm.Client.Controls.ListViewEx();
             this.scRoot = new System.Windows.Forms.SplitContainer();
             this.btnSrv = new System.Windows.Forms.Button();
             this.tbHost = new System.Windows.Forms.TextBox();
             this.scChat = new System.Windows.Forms.SplitContainer();
             this.tabConversations = new System.Windows.Forms.TabControl();
-            this.tpDummy = new System.Windows.Forms.TabPage();
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.tbNewMsg = new System.Windows.Forms.TextBox();
@@ -48,7 +47,6 @@
             this.scChat.Panel1.SuspendLayout();
             this.scChat.Panel2.SuspendLayout();
             this.scChat.SuspendLayout();
-            this.tabConversations.SuspendLayout();
             this.SuspendLayout();
             // 
             // lvUsers
@@ -135,22 +133,11 @@
             this.tabConversations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabConversations.Controls.Add(this.tpDummy);
             this.tabConversations.Location = new System.Drawing.Point(4, 4);
             this.tabConversations.Name = "tabConversations";
             this.tabConversations.SelectedIndex = 0;
             this.tabConversations.Size = new System.Drawing.Size(450, 235);
             this.tabConversations.TabIndex = 0;
-            // 
-            // tpDummy
-            // 
-            this.tpDummy.Location = new System.Drawing.Point(4, 22);
-            this.tpDummy.Name = "tpDummy";
-            this.tpDummy.Padding = new System.Windows.Forms.Padding(3);
-            this.tpDummy.Size = new System.Drawing.Size(442, 209);
-            this.tpDummy.TabIndex = 0;
-            this.tpDummy.Text = "username";
-            this.tpDummy.UseVisualStyleBackColor = true;
             // 
             // btnSendFile
             // 
@@ -218,7 +205,6 @@
             this.scChat.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scChat)).EndInit();
             this.scChat.ResumeLayout(false);
-            this.tabConversations.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -233,7 +219,6 @@
         private System.Windows.Forms.TextBox tbNewMsg;
         private System.Windows.Forms.Button btnSendFile;
         private System.Windows.Forms.TabControl tabConversations;
-        private System.Windows.Forms.TabPage tpDummy;
         private System.Windows.Forms.Button btnSrv;
         private System.Windows.Forms.ContextMenu cmConnection;
         private System.Windows.Forms.MenuItem cmiLogin;
