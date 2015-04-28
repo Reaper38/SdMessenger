@@ -64,6 +64,9 @@
     <Compile Include="Controls\RichTextBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\TextBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Dialogs\MainDialog.cs">
       <SubType>Form</SubType>
     </Compile>

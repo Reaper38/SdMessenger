@@ -36,7 +36,7 @@
             this.tabConversations = new System.Windows.Forms.TabControl();
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
-            this.tbNewMsg = new System.Windows.Forms.TextBox();
+            this.tbNewMsg = new Controls.TextBoxEx();
             this.cmConnection = new System.Windows.Forms.ContextMenu();
             this.cmiLogin = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
@@ -216,7 +216,7 @@
         private System.Windows.Forms.TextBox tbHost;
         private System.Windows.Forms.SplitContainer scChat;
         private System.Windows.Forms.Button btnSend;
-        private System.Windows.Forms.TextBox tbNewMsg;
+        private Controls.TextBoxEx tbNewMsg;
         private System.Windows.Forms.Button btnSendFile;
         private System.Windows.Forms.TabControl tabConversations;
         private System.Windows.Forms.Button btnSrv;
