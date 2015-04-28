@@ -15,15 +15,15 @@ namespace Sdm.Client
         private Client client;
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
-        public string Host { get; private set; }
-        public ushort Port { get; private set; }
+        public ClientConfig Config { get; private set; }
         public ConnectionState State { get { return client.ConnectionState; } }
         public static AppController Instance { get { return instance; } }
         
         private AppController()
         {
             Application.Idle += OnIdle;
-            client = new Client();
+            Config = new ClientConfig();
+            client = new Client(Config);
             client.ConnectionStateChanged += ClientConnectionStateChanged;
             client.UserMessage += OnMessage;
             mainDialog = new MainDialog();
@@ -99,7 +99,6 @@ namespace Sdm.Client
             ushort port = 0;
             var login = loginDialog.Login.Trim();
             var pass = loginDialog.Password.Trim();
-            var savePass = loginDialog.SavePassword; // XXX: save pass
             var errMsg = "";
             LoginDialog.Error errType;
             do
@@ -141,8 +140,14 @@ namespace Sdm.Client
                     break;
                 }
                 loginDialog.EnableControls(false);
-                Host = spl[0];
-                Port = port;
+                Config.Host = spl[0];
+                Config.Port = port;
+                Config.Remember = loginDialog.SavePassword;
+                if (Config.Remember)
+                {
+                    Config.Login = login;
+                    Config.Password = pass;
+                }
                 client.ConnectionResult += OnClientConnectionResult;
                 client.AuthResult += OnClientAuthResult;
                 client.Connect(address, port, login, pass);
@@ -153,6 +158,14 @@ namespace Sdm.Client
 
         public void ShowLoginDialog()
         {
+            if (Config.Host != "")
+                loginDialog.Host = String.Format("{0}:{1}", Config.Host, Config.Port);
+            loginDialog.SavePassword = Config.Remember;
+            if (Config.Remember)
+            {
+                loginDialog.Login = Config.Login;
+                loginDialog.Password = Config.Password;
+            }
             loginDialog.ShowDialog();
         }
 

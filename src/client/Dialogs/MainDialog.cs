@@ -93,7 +93,7 @@ namespace Sdm.Client
                 cmiLogin.Text = "Disconnect";
                 break;
             case ConnectionState.Connected:
-                tbHost.Text = String.Format("{0}:{1}", Controller.Host, Controller.Port);
+                tbHost.Text = String.Format("{0}:{1}", Controller.Config.Host, Controller.Config.Port);
                 cmiLogin.Text = "Disconnect";
                 break;
             }

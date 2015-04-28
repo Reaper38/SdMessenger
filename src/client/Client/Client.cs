@@ -18,15 +18,16 @@ namespace Sdm.Client
         private string login, password;
         private bool authenticated;
         private bool disconnectReceived;
+        private readonly ClientConfig cfg;
         private IAsymmetricCryptoProvider asymCp;
         private ISymmetricCryptoProvider symCp;
-        private const ProtocolId Protocol = ProtocolId.Json;
         private bool disposed = false;
 
-        public Client()
+        public Client(ClientConfig cfg)
         {
-            asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(SdmAsymmetricAlgorithm.RSA);
-            symCp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES);
+            this.cfg = cfg;
+            asymCp = CryptoProviderFactory.Instance.CreateAsymmetric(cfg.AsymAlgorithm);
+            symCp = CryptoProviderFactory.Instance.CreateSymmetric(cfg.SymAlgorithm);
         }
         
         public override IPAddress ServerAddress
@@ -59,12 +60,12 @@ namespace Sdm.Client
             this.password = password;
             ConnectionState = ConnectionState.Waiting;
             Root.Log(LogLevel.Info, "Client: connecting to {0}:{1} ...", address, port);
-            // XXX: get socket params from config
-            clSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            var af = cfg.UseIPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            clSocket = new Socket(af, SocketType.Stream, ProtocolType.Tcp)
             {
-                SendTimeout = 1000,
-                SendBufferSize = 0x8000,
-                ReceiveBufferSize = 0x8000
+                SendTimeout = cfg.SocketSendTimeout,
+                SendBufferSize = cfg.SocketSendBufferSize,
+                ReceiveBufferSize = cfg.SocketReceiveBufferSize
             };
             var args = new SocketAsyncEventArgs();
             args.RemoteEndPoint = new IPEndPoint(address, port);
@@ -156,7 +157,7 @@ namespace Sdm.Client
         {
             try
             {
-                hdr.Load(netStream, Protocol);
+                hdr.Load(netStream, cfg.Protocol);
             }
             catch (MessageLoadException e)
             {
@@ -197,9 +198,9 @@ namespace Sdm.Client
                 {
                     using (var container = new MessageCryptoContainer())
                     {
-                        container.Load(msWrap, Protocol);
+                        container.Load(msWrap, cfg.Protocol);
                         symCp.Key = sessionKey;
-                        msg = container.Extract(hdr.Id, symCp, Protocol);
+                        msg = container.Extract(hdr.Id, symCp, cfg.Protocol);
                     }
                 }
                 else
@@ -207,7 +208,7 @@ namespace Sdm.Client
                     msg = MessageFactory.CreateMessage(hdr.Id);
                     try
                     {
-                        msg.Load(msWrap, Protocol);
+                        msg.Load(msWrap, cfg.Protocol);
                     }
                     catch (MessageLoadException e)
                     {
@@ -312,18 +313,18 @@ namespace Sdm.Client
                     {
                         symCp.Key = sessionKey;
                         // XXX: generate new symCp.IV
-                        container.Store(msg, symCp, Protocol);
-                        container.Save(buf, Protocol);
+                        container.Store(msg, symCp, cfg.Protocol);
+                        container.Save(buf, cfg.Protocol);
                         header.Size = (int)buf.Length;
                         header.Flags |= MessageFlags.Secure;
                     }
                 }
                 else
                 {
-                    msg.Save(buf, Protocol);
+                    msg.Save(buf, cfg.Protocol);
                     header.Size = (int)buf.Length;
                 }
-                header.Save(netStream, Protocol);
+                header.Save(netStream, cfg.Protocol);
                 rawBuf.WriteTo(netStream);
             }
         }

@@ -20,6 +20,7 @@ namespace Sdm.Client
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(AppController.Instance);
+            AppController.Instance.Config.Save();
             SdmCore.Destroy();
         }
     }
