@@ -458,18 +458,20 @@ namespace Sdm.Core.Messages
         }
     }
 
-    public class SvClientDisconnected : MultiprotocolMessage
+    public class SvUserlistUpdate : MultiprotocolMessage
     {
-        public string Login;
+        public string[] Connected = {};
+        public string[] Disconnected = {};
 
-        public SvClientDisconnected() : base(MessageId.SvClientDisconnected) {}
+        public SvUserlistUpdate() : base(MessageId.SvUserlistUpdate) {}
 
         protected override void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
-                Login = obj.GetString("login");
+                Connected = obj.GetArray<string>("add");
+                Disconnected = obj.GetArray<string>("del");
             }
         }
 
@@ -478,8 +480,16 @@ namespace Sdm.Core.Messages
             using (var w = new JsonStreamWriter(s))
             {
                 w.WriteStartObject();
-                w.WritePropertyName("login");
-                w.WriteValue(Login);
+                w.WritePropertyName("add");
+                w.WriteStartArray();
+                foreach (var uname in Connected)
+                    w.WriteValue(uname);
+                w.WriteEndArray();
+                w.WritePropertyName("del");
+                w.WriteStartArray();
+                foreach (var uname in Disconnected)
+                    w.WriteValue(uname);
+                w.WriteEndArray();
                 w.WriteEndObject();
                 w.Flush();
             }
@@ -489,7 +499,14 @@ namespace Sdm.Core.Messages
         {
             using (var r = new BinaryReader(s))
             {
-                Login = r.ReadString();
+                var len = r.ReadInt32();
+                Connected = new string[len];
+                for (int i = 0; i < len; i++)
+                    Connected[i] = r.ReadString();
+                len = r.ReadInt32();
+                Disconnected = new string[len];
+                for (int i = 0; i < len; i++)
+                    Disconnected[i] = r.ReadString();
             }
         }
 
@@ -497,7 +514,12 @@ namespace Sdm.Core.Messages
         {
             using (var w = new BinaryWriter(s))
             {
-                w.Write(Login);
+                w.Write(Connected.Length);
+                foreach (var uname in Connected)
+                    w.Write(uname);
+                w.Write(Disconnected.Length);
+                foreach (var uname in Disconnected)
+                    w.Write(uname);
                 w.Flush();
             }
         }

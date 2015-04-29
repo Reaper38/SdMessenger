@@ -16,7 +16,7 @@ namespace Sdm.Core
         SvDisconnect = 6,
         ClUserlistRequest = 7,
         SvUserlistRespond = 8,
-        SvClientDisconnected = 9,
+        SvUserlistUpdate = 9,
         CsChatMessage = 10,
         Max // add new ids above
     }

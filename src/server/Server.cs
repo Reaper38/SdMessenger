@@ -403,6 +403,12 @@ namespace Sdm.Server
             delClients.Enqueue(cl);
             cl.Params.Socket.Shutdown(SocketShutdown.Both);
             cl.Params.Socket.Close();
+            if (cl.Authenticated)
+            {
+                var msg = new SvUserlistUpdate();
+                msg.Disconnected = new[] {cl.Login};
+                SendBroadcast(cl.Id, msg);
+            }
         }
 
         private AuthResult AuthenticateClient(string login, string password, ref ClientAccessFlags accessFlags)
@@ -455,7 +461,7 @@ namespace Sdm.Server
                     respond.Message = "All ok";
                     SendTo(id, respond);
                     Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication succeeded", cl.Id, cl.Login);
-                    // XXX: broadcast notification
+                    OnClientAuthSuccess(id);
                 }
                 else
                 {
@@ -474,6 +480,15 @@ namespace Sdm.Server
                 else
                     throw;
             }
+        }
+
+        private void OnClientAuthSuccess(ClientId id)
+        {
+            // XXX: could be optimized: collect all userlist updates and broadcast merged
+            // update once all clients are updated
+            var msg = new SvUserlistUpdate();
+            msg.Connected = new[] {clients[id].Login};
+            SendBroadcast(id, msg);
         }
 
         private void OnClPublicKeyRespond(ClPublicKeyRespond msg, ClientId id)
@@ -504,11 +519,6 @@ namespace Sdm.Server
             var cl = clients[id];
             Root.Log(LogLevel.Info, "Client {0} : disconnect", GetClientName(cl));
             DisconnectClient(cl);
-            if (cl.Authenticated)
-            {
-                var respond = new SvClientDisconnected {Login = cl.Login};
-                SendBroadcast(id, respond);
-            }
         }
 
         private void OnClUserlistRequest(ClUserlistRequest msg, ClientId id)

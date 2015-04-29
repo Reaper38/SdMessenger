@@ -40,6 +40,9 @@ namespace Sdm.Client
             case MessageId.SvUserlistRespond:
                 mainDialog.UpdateUserList(msg as SvUserlistRespond);
                 break;
+            case MessageId.SvUserlistUpdate:
+                mainDialog.UpdateUserList(msg as SvUserlistUpdate);
+                break;
             case MessageId.CsChatMessage:
                 OnCsChatMessage(msg as CsChatMessage);
                 break;

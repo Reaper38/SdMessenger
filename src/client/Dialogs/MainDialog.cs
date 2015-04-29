@@ -91,11 +91,22 @@ namespace Sdm.Client
         private void ClearUserList()
         { lvUsers.Items.Clear(); }
 
+        private ListViewItem CreateUserlistItem(string username)
+        { return new ListViewItem { Name = username, Text = username }; }
+
         public void UpdateUserList(SvUserlistRespond msg)
         {
             ClearUserList();
             foreach (var username in msg.Usernames)
-                lvUsers.Items.Add(username);
+                lvUsers.Items.Add(CreateUserlistItem(username));
+        }
+
+        public void UpdateUserList(SvUserlistUpdate msg)
+        {
+            foreach (var username in msg.Disconnected)
+                lvUsers.Items.RemoveByKey(username);
+            foreach (var username in msg.Connected)
+                lvUsers.Items.Add(CreateUserlistItem(username));
         }
 
         public void AddMessage(string username, string message, MsgType type)
