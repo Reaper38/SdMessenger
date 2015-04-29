@@ -50,7 +50,7 @@ namespace Sdm.Client
         }
 
         private void OnCsChatMessage(CsChatMessage msg)
-        { mainDialog.AddMessage(msg.Username, msg.Message, MsgType.Incoming); }
+        { mainDialog.AddMessage(msg.Username, msg.Username, msg.Message); }
 
         // XXX: update client in separate thread (one can't control OnIdle call frequency)
         private void OnIdle(object sender, EventArgs e)
@@ -184,7 +184,7 @@ namespace Sdm.Client
         {
             var msg = new CsChatMessage {Username = username, Message = message};
             client.Send(msg);
-            mainDialog.AddMessage(Config.Login, message, MsgType.Outcoming);
+            mainDialog.AddMessage(username, Config.Login, message);
             return true;
         }
 

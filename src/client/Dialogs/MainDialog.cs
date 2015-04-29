@@ -108,11 +108,12 @@ namespace Sdm.Client
             foreach (var username in msg.Connected)
                 lvUsers.Items.Add(CreateUserlistItem(username));
         }
-
-        public void AddMessage(string username, string message, MsgType type)
+        
+        public void AddMessage(string convWith, string sender, string message)
         {
-            var conv = GetConversation(username);
-            conv.AddMessage(DateTime.Now, type, username, message);
+            var conv = GetConversation(convWith);
+            var type = convWith == sender ? MsgType.Incoming : MsgType.Outcoming;
+            conv.AddMessage(DateTime.Now, type, sender, message);
         }
 
         public void ApplyConnectionState(ConnectionState newState)
