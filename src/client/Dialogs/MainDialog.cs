@@ -10,13 +10,27 @@ namespace Sdm.Client
 {
     internal partial class MainDialog : FormEx
     {
+        private sealed class ConversationDesc
+        {
+            public TabPage Container { get; private set; }
+            public ConversationTab Content { get; private set; }
+
+            public ConversationDesc(string username)
+            {
+                Container = new TabPage {Text = username, Name = username};
+                Content = new ConversationTab();
+                Container.Controls.Add(Content);
+            }
+        }
+
         private AppController Controller { get { return AppController.Instance; } }
-        private Dictionary<string, ConversationTab> convs;
+
+        private Dictionary<string, ConversationDesc> convs;
 
         public MainDialog()
         {
             InitializeComponent();
-            convs = new Dictionary<string, ConversationTab>();
+            convs = new Dictionary<string, ConversationDesc>();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -29,21 +43,28 @@ namespace Sdm.Client
         {
             if (Controller.State != ConnectionState.Connected)
                 return;
-            if (tbNewMsg.TextLength == 0)
+            var tab = tabConvs.SelectedTab;
+            if (tab == null)
                 return;
-            var username = tabConversations.SelectedTab.Text;
-            if (Controller.SendMessage(username, tbNewMsg.Text))
-                tbNewMsg.Clear();
+            var username = tab.Text;
+            var conv = convs[username].Content;
+            if (conv.MessageLength == 0)
+                return;
+            if (Controller.SendMessage(username, conv.MessageText))
+                conv.ClearMessage();
         }
 
-        private ConversationTab GetConversation(string username)
+        private ConversationDesc GetConversation(string username)
         {
             if (!convs.ContainsKey(username))
             {
-                var tab = new ConversationTab(username);
-                convs.Add(username, tab);
-                tabConversations.TabPages.Add(convs[username]);
-                return tab;
+                var conv = new ConversationDesc(username);
+                convs.Add(username, conv);
+                tabConvs.TabPages.Add(conv.Container);
+                conv.Content.SendMessage += TrySendMessage;
+                // XXX: implement file transfer
+                //conv.Content.SendFile += 
+                return conv;
             }
             return convs[username];
         }
@@ -51,17 +72,9 @@ namespace Sdm.Client
         private void OpenConversation(string username)
         {
             var conv = GetConversation(username);
-            tabConversations.SelectTab(conv);
+            tabConvs.SelectTab(conv.Container);
         }
-
-        private void btnSend_Click(object sender, EventArgs e)
-        { TrySendMessage(); }
-
-        private void btnSendFile_Click(object sender, EventArgs e)
-        {
-            // XXX: show OpenFile dialog
-        }
-
+        
         private void btnSrv_Click(object sender, EventArgs e)
         { cmConnection.Show(btnSrv, new Point(0, btnSrv.Height)); }
 
@@ -73,15 +86,6 @@ namespace Sdm.Client
             if (username == Controller.Config.Login)
                 return;
             OpenConversation(username);
-        }
-
-        private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Return && !e.Shift)
-            {
-                TrySendMessage();
-                e.SuppressKeyPress = true;
-            }
         }
         
         private void cmiLogin_Click(object sender, EventArgs e)
@@ -118,7 +122,7 @@ namespace Sdm.Client
         {
             var conv = GetConversation(convWith);
             var type = convWith == sender ? MsgType.Incoming : MsgType.Outcoming;
-            conv.AddMessage(DateTime.Now, type, sender, message);
+            conv.Content.AddMessage(DateTime.Now, type, sender, message);
         }
 
         private void UpdateHeader(ConnectionState state)

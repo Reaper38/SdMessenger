@@ -1,37 +1,28 @@
 ﻿using System;
-using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Sdm.Client.Util;
 
 namespace Sdm.Client.Controls
 {
-    internal enum MsgType
+    internal partial class ConversationTab : UserControl
     {
-        Outcoming,
-        Incoming,
-        System,
-    }
+        public ConversationTab()
+        { InitializeComponent(); }
 
-    internal sealed class ConversationTab : TabPage
-    {
-        private RichTextBoxEx rtbHistory;
+        public event SendMessageHandler SendMessage;
+        public event SendMessageHandler SendFile;
 
-        public ConversationTab(string username)
+        private void OnSendMessage()
         {
-            rtbHistory = new RichTextBoxEx();
-            rtbHistory.SuspendLayout();
-            SuspendLayout();
-            rtbHistory.HideSelection = false;
-            rtbHistory.ReadOnly = true;
-            rtbHistory.BorderStyle = BorderStyle.None;
-            rtbHistory.BackColor = SystemColors.Window;
-            rtbHistory.Dock = DockStyle.Fill;
-            rtbHistory.ScrollBars = RichTextBoxScrollBars.Vertical;
-            Text = username;
-            Controls.Add(rtbHistory);
-            rtbHistory.ResumeLayout(false);
-            ResumeLayout(false);
+            if (SendMessage != null)
+                SendMessage();
+        }
+
+        private void OnSendFile()
+        {
+            if (SendFile != null)
+                SendFile();
         }
         
         public void AddMessage(DateTime dt, MsgType type, string from, string msg)
@@ -71,5 +62,39 @@ namespace Sdm.Client.Controls
             sb.Append(@"\line\line}");
             rtbHistory.AppendRtf(sb.ToString());
         }
+        
+        public void ClearHistory()
+        { rtbHistory.Clear(); }
+
+        public void ClearMessage()
+        { tbNewMsg.Clear(); }
+        
+        public int MessageLength { get { return tbNewMsg.TextLength; } }
+
+        public string MessageText { get { return tbNewMsg.Text; } }
+
+        private void btnSendFile_Click(object sender, EventArgs e)
+        { OnSendFile(); }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        { OnSendMessage(); }
+
+        private void tbNewMsg_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return && !e.Shift)
+            {
+                OnSendMessage();
+                e.SuppressKeyPress = true;
+            }
+        }
+    }
+
+    internal delegate void SendMessageHandler();
+
+    internal enum MsgType
+    {
+        Outcoming,
+        Incoming,
+        System
     }
 }
