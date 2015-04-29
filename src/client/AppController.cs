@@ -18,6 +18,7 @@ namespace Sdm.Client
         private LoginDialog loginDialog;
         public ClientConfig Config { get; private set; }
         public ConnectionState State { get { return client.ConnectionState; } }
+        public string Login { get { return Config.Login; } }
         public static AppController Instance { get { return instance; } }
         
         private AppController()
@@ -30,7 +31,6 @@ namespace Sdm.Client
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             MainForm = mainDialog;
-            MainForm.Show();
         }
 
         private void OnMessage(IMessage msg)
@@ -103,7 +103,7 @@ namespace Sdm.Client
             mainDialog.InvokeAsync(() => mainDialog.ApplyConnectionState(client.ConnectionState));
         }
 
-        public void Login()
+        public void Connect()
         {
             var hostPort = loginDialog.Host.Trim();
             var address = IPAddress.None;

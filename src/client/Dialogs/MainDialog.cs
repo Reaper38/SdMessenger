@@ -17,6 +17,11 @@ namespace Sdm.Client
         {
             InitializeComponent();
             convs = new Dictionary<string, ConversationTab>();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
             ApplyConnectionState(ConnectionState.Disconnected);
         }
 
@@ -116,6 +121,14 @@ namespace Sdm.Client
             conv.AddMessage(DateTime.Now, type, sender, message);
         }
 
+        private void UpdateHeader(ConnectionState state)
+        {
+            const string appName = "SdmClient";
+            var login = state == ConnectionState.Connected ? Controller.Login : "";
+            var s = login == "" ? "" : " - ";
+            Text = String.Format("{0}{1}{2}", appName, s, login);
+        }
+
         public void ApplyConnectionState(ConnectionState newState)
         {
             switch (newState)
@@ -124,6 +137,7 @@ namespace Sdm.Client
                 tbHost.Text = "Disconnected";
                 cmiLogin.Text = "Connect";
                 ClearUserList();
+                UpdateHeader(newState);
                 break;
             case ConnectionState.Waiting:
                 tbHost.Text = "Waiting...";
@@ -132,6 +146,7 @@ namespace Sdm.Client
             case ConnectionState.Connected:
                 tbHost.Text = String.Format("{0}:{1}", Controller.Config.Host, Controller.Config.Port);
                 cmiLogin.Text = "Disconnect";
+                UpdateHeader(newState);
                 break;
             }
         }
