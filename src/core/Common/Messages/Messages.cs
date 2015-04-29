@@ -502,4 +502,55 @@ namespace Sdm.Core.Messages
             }
         }
     }
+
+    public class CsChatMessage : MultiprotocolMessage
+    {
+        // XXX: add timestamp
+        public string Username, Message;
+
+        public CsChatMessage() : base(MessageId.CsChatMessage) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                Username = obj.GetString("usr");
+                Message = obj.GetString("msg");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("usr");
+                w.WriteValue(Username);
+                w.WritePropertyName("msg");
+                w.WriteValue(Message);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                Username = r.ReadString();
+                Message = r.ReadString();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(Username);
+                w.Write(Message);
+                w.Flush();
+            }
+        }
+    }
 }

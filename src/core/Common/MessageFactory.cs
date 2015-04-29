@@ -22,6 +22,7 @@ namespace Sdm.Core
             Register(MessageId.ClUserlistRequest, typeof(ClUserlistRequest));
             Register(MessageId.SvUserlistRespond, typeof(SvUserlistRespond));
             Register(MessageId.SvClientDisconnected, typeof(SvClientDisconnected));
+            Register(MessageId.CsChatMessage, typeof(CsChatMessage));
             // register all messages here
         }
 

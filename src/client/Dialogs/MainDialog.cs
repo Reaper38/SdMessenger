@@ -26,20 +26,27 @@ namespace Sdm.Client
                 return;
             if (tbNewMsg.TextLength == 0)
                 return;
-            // XXX: send message
-            tbNewMsg.Clear();
+            var username = tabConversations.SelectedTab.Text;
+            if (Controller.SendMessage(username, tbNewMsg.Text))
+                tbNewMsg.Clear();
         }
 
-        private void OpenConversation(string username)
+        private ConversationTab GetConversation(string username)
         {
             if (!convs.ContainsKey(username))
             {
                 var tab = new ConversationTab(username);
                 convs.Add(username, tab);
                 tabConversations.TabPages.Add(convs[username]);
-                return;
+                return tab;
             }
-            tabConversations.SelectTab(convs[username]);
+            return convs[username];
+        }
+
+        private void OpenConversation(string username)
+        {
+            var conv = GetConversation(username);
+            tabConversations.SelectTab(conv);
         }
 
         private void btnSend_Click(object sender, EventArgs e)
@@ -89,6 +96,12 @@ namespace Sdm.Client
             ClearUserList();
             foreach (var username in msg.Usernames)
                 lvUsers.Items.Add(username);
+        }
+
+        public void AddMessage(string username, string message, MsgType type)
+        {
+            var conv = GetConversation(username);
+            conv.AddMessage(DateTime.Now, type, username, message);
         }
 
         public void ApplyConnectionState(ConnectionState newState)

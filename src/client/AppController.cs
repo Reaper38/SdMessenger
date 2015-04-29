@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Windows.Forms;
+using Sdm.Client.Controls;
 using Sdm.Core;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
@@ -39,9 +40,16 @@ namespace Sdm.Client
             case MessageId.SvUserlistRespond:
                 mainDialog.UpdateUserList(msg as SvUserlistRespond);
                 break;
+            case MessageId.CsChatMessage:
+                OnCsChatMessage(msg as CsChatMessage);
+                break;
             }
         }
 
+        private void OnCsChatMessage(CsChatMessage msg)
+        { mainDialog.AddMessage(msg.Username, msg.Message, MsgType.Incoming); }
+
+        // XXX: update client in separate thread (one can't control OnIdle call frequency)
         private void OnIdle(object sender, EventArgs e)
         {
             // XXX: detect connection loss and change connection state
@@ -167,6 +175,14 @@ namespace Sdm.Client
                 loginDialog.Password = Config.Password;
             }
             loginDialog.ShowDialog();
+        }
+
+        public bool SendMessage(string username, string message)
+        {
+            var msg = new CsChatMessage {Username = username, Message = message};
+            client.Send(msg);
+            mainDialog.AddMessage(Config.Login, message, MsgType.Outcoming);
+            return true;
         }
 
         public void Disconnect()

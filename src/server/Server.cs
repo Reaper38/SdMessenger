@@ -76,6 +76,7 @@ namespace Sdm.Server
         private readonly ConcurrentQueue<SocketClientBase> newClients, delClients;
         private readonly List<IClient> iclients;
         private readonly ReadOnlyCollection<IClient> roClients;
+        private readonly Dictionary<string, SocketClientBase> nameToClient;
         private readonly ConcurrentQueue<IMessage> svcMessages;
         private readonly SemaphoreSlim semAcceptingThread;
         private volatile bool disconnecting = false;
@@ -96,6 +97,7 @@ namespace Sdm.Server
             delClients = new ConcurrentQueue<SocketClientBase>();
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
+            nameToClient = new Dictionary<string, SocketClientBase>();
             svcMessages = new ConcurrentQueue<IMessage>();
             semAcceptingThread = new SemaphoreSlim(0, 1);
             Protocol = cfg.Protocol;
@@ -430,6 +432,9 @@ namespace Sdm.Server
             case MessageId.ClUserlistRequest:
                 OnClUserlistRequest(msg as ClUserlistRequest, cl);
                 break;
+            case MessageId.CsChatMessage:
+                OnCsChatMessage(msg as CsChatMessage, cl);
+                break;
             }
         }
 
@@ -446,9 +451,11 @@ namespace Sdm.Server
                     cl.Login = msg.Login;
                     cl.Password = msg.Password;
                     cl.Authenticated = true;
+                    nameToClient.Add(cl.Login, cl);
                     respond.Message = "All ok";
                     SendTo(id, respond);
                     Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication succeeded", cl.Id, cl.Login);
+                    // XXX: broadcast notification
                 }
                 else
                 {
@@ -513,6 +520,17 @@ namespace Sdm.Server
             SendTo(id, respond);
         }
 
+        private void OnCsChatMessage(CsChatMessage msg, ClientId id)
+        {
+            var sender = clients[id];
+            SocketClientBase receiver;
+            if (nameToClient.TryGetValue(msg.Username, out receiver))
+            {
+                msg.Username = sender.Login;
+                SendTo(receiver.Id, msg);
+            }
+        }
+
         public override IClient IdToClient(ClientId id)
         { return clients[id]; }
         
@@ -573,6 +591,7 @@ namespace Sdm.Server
         {
             clients.Remove(cl.Id);
             iclients.Remove(cl);
+            nameToClient.Remove(cl.Login);
         }
 
         private byte[] GenerateSessionKey()

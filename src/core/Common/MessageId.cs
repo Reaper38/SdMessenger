@@ -4,6 +4,7 @@ namespace Sdm.Core
 {
     // Cl : client to server
     // Sv : server to client
+    // Cs : both directions
     public enum MessageId : ushort
     {
         SvPublicKeyChallenge = 0,
@@ -16,6 +17,7 @@ namespace Sdm.Core
         ClUserlistRequest = 7,
         SvUserlistRespond = 8,
         SvClientDisconnected = 9,
+        CsChatMessage = 10,
         Max // add new ids above
     }
 

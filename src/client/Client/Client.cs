@@ -330,6 +330,7 @@ namespace Sdm.Client
                     msg.Save(buf, cfg.Protocol);
                     header.Size = (int)buf.Length;
                 }
+                // XXX: handle exceptions (connection loss)
                 header.Save(netStream, cfg.Protocol);
                 rawBuf.WriteTo(netStream);
             }
