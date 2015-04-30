@@ -8,7 +8,7 @@ namespace Sdm.Core.Crypto.Detail
 {
     internal class AESCryptoProviderNET : ISymmetricCryptoProvider
     {
-        private RijndaelManaged rij = new RijndaelManaged { BlockSize = 128, Mode = CipherMode.CBC };
+        private Aes aes = Aes.Create();
         private List<int> validKeySizes = null;
         private bool disposed = false;
         
@@ -18,14 +18,14 @@ namespace Sdm.Core.Crypto.Detail
 
         public byte[] Key
         {
-            get { return rij.Key; }
-            set { rij.Key = value; }
+            get { return aes.Key; }
+            set { aes.Key = value; }
         }
 
         public byte[] IV
         {
-            get { return rij.IV; }
-            set { rij.IV = value; }
+            get { return aes.IV; }
+            set { aes.IV = value; }
         }
 
         private static void Transform(ICryptoTransform transform, Stream dst, Stream src, int srcByteCount)
@@ -38,7 +38,7 @@ namespace Sdm.Core.Crypto.Detail
 
         public void Encrypt(Stream dst, Stream src, int srcByteCount)
         {
-            using (var transform = rij.CreateEncryptor())
+            using (var transform = aes.CreateEncryptor())
             {
                 Transform(transform, dst, src, srcByteCount);
             }
@@ -46,7 +46,7 @@ namespace Sdm.Core.Crypto.Detail
 
         public void Decrypt(Stream dst, Stream src, int srcByteCount)
         {
-            using (var transform = rij.CreateDecryptor())
+            using (var transform = aes.CreateDecryptor())
             {
                 Transform(transform, dst, src, srcByteCount);
             }
@@ -63,7 +63,7 @@ namespace Sdm.Core.Crypto.Detail
                 if (validKeySizes == null)
                 {
                     validKeySizes = new List<int>();
-                    var keySizes = rij.LegalKeySizes;
+                    var keySizes = aes.LegalKeySizes;
                     for (int i = 0; i < keySizes.Length; i++)
                     {
                         if (keySizes[i].SkipSize == 0)
@@ -85,13 +85,13 @@ namespace Sdm.Core.Crypto.Detail
 
         public int KeySize
         {
-            set { rij.KeySize = value; }
-            get { return rij.KeySize; }
+            set { aes.KeySize = value; }
+            get { return aes.KeySize; }
         }
 
         public int ComputeEncryptedSize(int noncryptedSize)
         {
-            var blockSize = rij.BlockSize / 8;
+            var blockSize = aes.BlockSize / 8;
             var blocks = noncryptedSize / blockSize;
             if (noncryptedSize % blockSize != 0)
                 blocks++;
@@ -116,7 +116,7 @@ namespace Sdm.Core.Crypto.Detail
             if (!disposed)
             {
                 if (disposing)
-                    rij.Dispose();
+                    aes.Dispose();
                 DisposeHelper.OnDispose<AESCryptoProviderNET>(disposing);
                 disposed = true;
             }
