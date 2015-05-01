@@ -17,7 +17,7 @@ namespace Sdm.Core.Crypto
         {
             switch (algorithm)
             {
-            case SdmSymmetricAlgorithm.AES: return new AESCryptoProviderNET();
+            case SdmSymmetricAlgorithm.AES: return new AESCryptoProvider();
             case SdmSymmetricAlgorithm.Blowfish: return new BlowfishCryptoProvider();
             default: throw new NotSupportedException(algorithm + " is not supported.");
             }

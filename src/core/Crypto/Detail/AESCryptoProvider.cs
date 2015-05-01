@@ -6,7 +6,7 @@ using Sdm.Core.Util;
 
 namespace Sdm.Core.Crypto.Detail
 {
-    public class AESCryptoProviderNET : ISymmetricCryptoProvider
+    public class AESCryptoProvider : ISymmetricCryptoProvider
     {
         private Aes aes = Aes.Create();
         private List<int> validKeySizes = null;
@@ -117,12 +117,12 @@ namespace Sdm.Core.Crypto.Detail
             {
                 if (disposing)
                     aes.Dispose();
-                DisposeHelper.OnDispose<AESCryptoProviderNET>(disposing);
+                DisposeHelper.OnDispose<AESCryptoProvider>(disposing);
                 disposed = true;
             }
         }
 
-        ~AESCryptoProviderNET() { Dispose(false); }
+        ~AESCryptoProvider() { Dispose(false); }
 
         #endregion
     }
