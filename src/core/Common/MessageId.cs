@@ -24,10 +24,12 @@ namespace Sdm.Core
     public static class MessageIdProps
     {
         private static readonly bool[] flags;
+        private static readonly UserAccess[] reqAccess;
 
         static MessageIdProps()
         {
-            flags = new bool[(int)MessageId.Max];
+            const int idCount = (int)MessageId.Max;
+            flags = new bool[idCount];
             // auth is required by default
             for (int i = 0; i < flags.Length; i++)
                 flags[i] = true;
@@ -40,9 +42,14 @@ namespace Sdm.Core
             setFlag(MessageId.SvAuthResult, false);
             setFlag(MessageId.ClDisconnect, false);
             setFlag(MessageId.SvDisconnect, false);
+            // set required access
+            reqAccess = new UserAccess[idCount];
         }
 
         public static bool IsAuthRequired(this MessageId msgId)
         { return flags[(int)msgId]; }
+
+        public static UserAccess GetRequiredAccess(this MessageId msgId)
+        { return reqAccess[(int)msgId]; }
     }
 }

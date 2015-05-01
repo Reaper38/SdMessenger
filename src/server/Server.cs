@@ -239,6 +239,15 @@ namespace Sdm.Server
                     DisconnectClient(cl, DisconnectReason.Unknown, "Can't process message without authentication");
                     continue;
                 }
+                var reqAccess = hdr.Id.GetRequiredAccess();
+                var clAccess = cl.AccessFlags;
+                if ((reqAccess & clAccess) != reqAccess)
+                {
+                    Root.Log(LogLevel.Error, "Discarding message [{0}] from client {1}: insufficient permissions",
+                        hdr.Id, GetClientName(cl));
+                    DisconnectClient(cl, DisconnectReason.Unknown, "Insufficient permissions");
+                    continue;
+                }
                 IMessage msg;
                 if (!ReceiveMessage(hdr, cl, out msg))
                     continue;
@@ -456,6 +465,7 @@ namespace Sdm.Server
                 {
                     cl.Login = msg.Login;
                     cl.Password = msg.Password;
+                    cl.AccessFlags = accessFlags;
                     cl.Authenticated = true;
                     nameToClient.Add(cl.Login, cl);
                     respond.Message = "All ok";
