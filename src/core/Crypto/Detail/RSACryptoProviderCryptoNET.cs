@@ -7,7 +7,7 @@ using CryptoNet;
 
 namespace Sdm.Core.Crypto.Detail
 {
-    internal class RSACryptoProviderCryptoNET : IAsymmetricCryptoProvider
+    public class RSACryptoProviderCryptoNET : IAsymmetricCryptoProvider
     {
         private RSAManaged rsa = new RSAManaged();
         private List<int> validKeySizes = null;

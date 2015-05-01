@@ -7,7 +7,7 @@ using CryptoNet;
 
 namespace Sdm.Core.Crypto.Detail
 {
-    internal class BlowfishCryptoProvider : ISymmetricCryptoProvider
+    public class BlowfishCryptoProvider : ISymmetricCryptoProvider
     {
         private SymmetricAlgorithm blow = Blowfish.Create();
         private List<int> validKeySizes = null;

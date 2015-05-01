@@ -6,7 +6,7 @@ using Sdm.Core.Util;
 
 namespace Sdm.Core.Crypto.Detail
 {
-    internal class AESCryptoProviderNET : ISymmetricCryptoProvider
+    public class AESCryptoProviderNET : ISymmetricCryptoProvider
     {
         private Aes aes = Aes.Create();
         private List<int> validKeySizes = null;

@@ -6,7 +6,7 @@ using Sdm.Core.Util;
 
 namespace Sdm.Core.Crypto.Detail
 {
-    internal class RSACryptoProviderNET : IAsymmetricCryptoProvider
+    public class RSACryptoProviderNET : IAsymmetricCryptoProvider
     {
         private RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
         private List<int> validKeySizes = null;
