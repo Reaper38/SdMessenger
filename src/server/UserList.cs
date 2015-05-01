@@ -76,8 +76,8 @@ namespace Sdm.Server
                     // XXX: handle errors
                     var login = cfg.GetString(sect, "login");
                     var password = cfg.GetString(sect, "password");
-                    ClientAccessFlags access;
-                    ClientAccessFlagsUtil.FromShortString(out access, cfg.GetString(sect, "access"));
+                    UserAccess access;
+                    UserAccessUtil.FromShortString(out access, cfg.GetString(sect, "access"));
                     var acc = new UserAccount(login, password, access);
                     users.Add(login, acc);
                 }
@@ -102,7 +102,7 @@ namespace Sdm.Server
                         w.Write("password = ");
                         w.WriteLine(acc.Password);
                         w.Write("access = ");
-                        w.WriteLine(ClientAccessFlagsUtil.ToShortString(acc.Access));
+                        w.WriteLine(UserAccessUtil.ToShortString(acc.Access));
                         i++;
                     }
                 }

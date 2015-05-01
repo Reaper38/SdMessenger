@@ -51,7 +51,7 @@ namespace Sdm.Server
         public bool Secure { get; set; }
         public bool Authenticated { get; set; }
         public bool DeferredDisconnect { get; set; }
-        public ClientAccessFlags AccessFlags { get; set; }
+        public UserAccess AccessFlags { get; set; }
         public byte[] SessionKey { get; protected set; }
         public Stream NetStream { get { return Params.NetStream; } }
         #endregion
@@ -61,7 +61,7 @@ namespace Sdm.Server
     {
         public Client(Server srv, ClientId id, SocketClientParams clParams, byte[] sessionKey) :
             base(srv, id, clParams, sessionKey)
-        { AccessFlags = ClientAccessFlags.Default; }
+        { AccessFlags = UserAccess.Default; }
 
         public override INetStatistics Stats { get { return null; } }
     }
@@ -411,7 +411,7 @@ namespace Sdm.Server
             }
         }
 
-        private AuthResult AuthenticateClient(string login, string password, ref ClientAccessFlags accessFlags)
+        private AuthResult AuthenticateClient(string login, string password, ref UserAccess accessFlags)
         {
             var user = users.Find(login);
             if (user == null)
@@ -447,7 +447,7 @@ namespace Sdm.Server
         private void OnClAuthRespond(ClAuthRespond msg, ClientId id)
         {
             var cl = clients[id];
-            var accessFlags = ClientAccessFlags.Default;
+            var accessFlags = UserAccess.Default;
             var result = AuthenticateClient(msg.Login, msg.Password, ref accessFlags);
             var respond = new SvAuthResult { Result = result };
             try

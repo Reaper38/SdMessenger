@@ -94,49 +94,44 @@ namespace Sdm.Core
     }
 
     [Flags]
-    public enum ClientAccessFlags : uint
+    public enum UserAccess : uint
     {
-        Default = 0, // can't communicate with other clients
-        Send = 1, // can send messages to clients
-        Receive = 2, // can receive messages from clients
-        Admin = 4, // can manage server (change settings, disconnect players, etc)
-        Max = 0xffffffff
+        Default = 0,
+        Banned = 1,
+        Admin = 2,
+        Max = 0xffffffff & ~Banned
     }
 
-    public static class ClientAccessFlagsUtil
+    public static class UserAccessUtil
     {
-        public static bool FromShortString(out ClientAccessFlags flags, string s)
+        public static bool FromShortString(out UserAccess flags, string s)
         {
-            // 0=none r=read w=write x=admin a=all
-            flags = ClientAccessFlags.Default;
+            flags = UserAccess.Default;
             foreach (char f in s)
             {
                 switch (f)
                 {
-                case '0': continue;
-                case 'r': flags |= ClientAccessFlags.Receive; continue;
-                case 'w': flags |= ClientAccessFlags.Send; continue;
-                case 'x': flags |= ClientAccessFlags.Admin; continue;
-                case 'a': flags |= ClientAccessFlags.Max; continue;
+                case 'd': continue;
+                case 'b': flags |= UserAccess.Banned; continue;
+                case 'a': flags |= UserAccess.Admin; continue;
+                case '~': flags |= UserAccess.Max; continue;
                 default: return false;
                 }
             }
             return true;
         }
         
-        public static string ToShortString(ClientAccessFlags flags)
+        public static string ToShortString(UserAccess flags)
         {
-            if (flags == ClientAccessFlags.Default)
-                return "0";
-            if (flags == ClientAccessFlags.Max)
-                return "a";
+            if (flags == UserAccess.Default)
+                return "d";
+            if (flags == UserAccess.Max)
+                return "~";
             var sb = new StringBuilder(16);
-            if ((flags & ClientAccessFlags.Receive) == ClientAccessFlags.Receive)
-                sb.Append('r');
-            if ((flags & ClientAccessFlags.Send) == ClientAccessFlags.Send)
-                sb.Append('w');
-            if ((flags & ClientAccessFlags.Admin) == ClientAccessFlags.Admin)
-                sb.Append('x');
+            if ((flags & UserAccess.Banned) == UserAccess.Banned)
+                sb.Append('b');
+            if ((flags & UserAccess.Admin) == UserAccess.Admin)
+                sb.Append('a');
             return sb.ToString();
         }
     }

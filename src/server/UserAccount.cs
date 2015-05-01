@@ -13,9 +13,9 @@ namespace Sdm.Server
         public string Login { get; private set; }
         /// <summary>Base64 string with SHA-256 hash of password+salt</summary>
         public string Password { get; private set; }
-        public ClientAccessFlags Access { get; set; }
+        public UserAccess Access { get; set; }
 
-        public UserAccount(string login, string passwordHash, ClientAccessFlags access)
+        public UserAccount(string login, string passwordHash, UserAccess access)
         {
             Login = login;
             Password = passwordHash;

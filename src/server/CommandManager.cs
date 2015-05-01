@@ -78,16 +78,15 @@ namespace Sdm.Server
                     console.WriteLine("{0}: invalid password.\r\n{1}", Root.AppName, errMsg);
                     return;
                 }
-                ClientAccessFlags access;
-                if (!ClientAccessFlagsUtil.FromShortString(out access, args[3]))
+                UserAccess access;
+                if (!UserAccessUtil.FromShortString(out access, args[3]))
                 {
                     console.WriteLine(Root.AppName + ": invalid user access flags.");
                     console.WriteLine("valid flags:\r\n" +
-                        "    0=none\r\n" +
-                        "    r=read\r\n" +
-                        "    w=write\r\n" +
-                        "    x=admin\r\n" +
-                        "    a=all");
+                        "    b = banned\r\n" +
+                        "    d = default\r\n" +
+                        "    a = admin\r\n" +
+                        "    ~ = max");
                     return;
                 }
                 var pswHash = UserAccount.TransformPassword(pass);
@@ -122,7 +121,7 @@ namespace Sdm.Server
                         console.WriteLine("user not found");
                         return;
                     }
-                    console.WriteLine("user {0} : {1}", user.Login, ClientAccessFlagsUtil.ToShortString(user.Access));
+                    console.WriteLine("user {0} : {1}", user.Login, UserAccessUtil.ToShortString(user.Access));
                 }
             }
         }

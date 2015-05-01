@@ -19,7 +19,7 @@ namespace Sdm.Core
         bool Secure { get; }
         bool Authenticated { get; }
         bool DeferredDisconnect { get; }
-        ClientAccessFlags AccessFlags { get; set; }
+        UserAccess AccessFlags { get; set; }
         byte[] SessionKey { get; } // AES key
         // client state could be added here
         Stream NetStream { get; }
