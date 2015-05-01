@@ -23,10 +23,10 @@ namespace Sdm.Core.Crypto.Detail
         public void SetKey(string key) { rsa.FromXmlString(key); }
 
         public byte[] Encrypt(byte[] src)
-        { return rsa.EncryptValue (src, false); }
+        { return rsa.EncryptValue(src, true); }
 
         public byte[] Decrypt(byte[] src)
-        { return rsa.DecryptValue(src, false); }
+        { return rsa.DecryptValue(src, true); }
 
         #endregion
 
