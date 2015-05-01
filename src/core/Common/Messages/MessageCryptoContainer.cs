@@ -149,7 +149,7 @@ namespace Sdm.Core.Messages
             {
                 w.Write(iv.Length);
                 w.Write(iv);
-                w.Write(cdata.Length);
+                w.Write((int)cdata.Length);
                 w.Write(cdata.GetBuffer(), 0, (int)cdata.Length);
                 w.Flush();
             }
