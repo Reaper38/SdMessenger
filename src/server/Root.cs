@@ -88,7 +88,7 @@ namespace Sdm.Server
                 return -1;
             }
             SdmCore.Initialize(AppType.Server);
-            var cfg = new ServerConfig();
+            var cfg = new ServerConfig(true);
             CmdMgr = new CommandManager();
             using (Server = new Server(cfg))
             {

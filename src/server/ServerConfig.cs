@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using Sdm.Core;
 using Sdm.Core.Crypto;
 using Sdm.Core.Util;
@@ -9,6 +11,7 @@ namespace Sdm.Server
 {
     internal sealed class ServerConfig
     {
+        private const string ConfigFileName = "sdm_server.ini";
         // [server]
         public ProtocolId Protocol = ProtocolId.Json;
         public IPAddress Address = IPAddress.Any;
@@ -27,11 +30,21 @@ namespace Sdm.Server
         // [misc]
         public int UpdateSleep = 50;
 
-        public ServerConfig() { Load(); }
+        public ServerConfig(bool saveDefault) { Load(saveDefault); }
 
-        private void Load()
+        private void Load(bool saveDefault)
         {
-            var cfg = SdmCore.Config;
+            IniFile cfg;
+            try
+            { cfg = new IniFile(ConfigFileName, Encoding.UTF8); }
+            catch (FileNotFoundException)
+            {
+                if (saveDefault)
+                    Save();
+                return;
+            }
+            catch (IOException)
+            { return; }
             string tmp = null;
             if (cfg.ContainsSection("socket"))
             {
@@ -85,6 +98,43 @@ namespace Sdm.Server
             if (cfg.ContainsSection("misc"))
             {
                 cfg.TryGetInt32("misc", "update_sleep", ref UpdateSleep);
+            }
+        }
+
+        private void Save()
+        {
+            using (var w = new StreamWriter(ConfigFileName, false, Encoding.UTF8))
+            {
+                w.WriteLine("[server]");
+                w.Write("protocol = ");
+                w.WriteLine(Protocol.ToString().ToLower());
+                w.Write("address = ");
+                w.WriteLine(Address);
+                w.Write("port = ");
+                w.WriteLine(Port);
+                w.WriteLine("[security]");
+                w.Write("sym_algorithm = ");
+                w.WriteLine(SymAlgorithm.ToString().ToLower());
+                w.Write("asym_algorithm = ");
+                w.WriteLine(AsymAlgorithm.ToString().ToLower());
+                w.Write("sym_key_size = ");
+                w.WriteLine(SymAlgorithmKeySize);
+                w.Write("asym_key_size = ");
+                w.WriteLine(AsymAlgorithmKeySize);
+                w.WriteLine("[socket]");
+                w.Write("ipv6 = ");
+                w.WriteLine(UseIPv6 ? 1 : 0);
+                w.Write("send_timeout = ");
+                w.WriteLine(SocketSendTimeout);
+                w.Write("send_buffer_size = ");
+                w.WriteLine(SocketSendBufferSize);
+                w.Write("recv_buffer_size = ");
+                w.WriteLine(SocketReceiveBufferSize);
+                w.Write("backlog = ");
+                w.WriteLine(SocketBacklog);
+                w.WriteLine("[misc]");
+                w.Write("update_sleep = ");
+                w.WriteLine(UpdateSleep);
             }
         }
     }
