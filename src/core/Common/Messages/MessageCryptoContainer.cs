@@ -30,6 +30,7 @@ namespace Sdm.Core.Messages
                 msg.Save(srcWrap, protocol);
                 srcWrap.Seek(0, SeekOrigin.Begin);
                 cdataWrap.Seek(0, SeekOrigin.Begin);
+                cdataWrap.SetLength(0);
                 cryptoProvider.Encrypt(cdataWrap, srcWrap, (int)src.Length);
                 iv = cryptoProvider.IV;
             }
