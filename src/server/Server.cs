@@ -611,7 +611,8 @@ namespace Sdm.Server
         {
             clients.Remove(cl.Id);
             iclients.Remove(cl);
-            nameToClient.Remove(cl.Login);
+            if (cl.Login != null)
+                nameToClient.Remove(cl.Login);
         }
 
         private byte[] GenerateSessionKey()
