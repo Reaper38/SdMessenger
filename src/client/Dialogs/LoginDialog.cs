@@ -64,15 +64,20 @@ namespace Sdm.Client
             {
             case Error.Host:
                 ShowError(msg, tbHost);
+                tbHost.Focus();
                 break;
             case Error.Login:
                 ShowError(msg, tbLogin);
+                tbLogin.Focus();
                 break;
             case Error.Password:
                 ShowError(msg, tbPassword);
+                tbPassword.Focus();
                 break;
+            case Error.Generic:
             default:
                 ShowError(msg, btnConnect);
+                btnConnect.Focus();
                 break;
             }
         }
@@ -88,5 +93,20 @@ namespace Sdm.Client
         {
             AppController.Instance.Connect();
         }
+
+        private void OnEnter(KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Return)
+                return;
+            e.SuppressKeyPress = true;
+            if (tbHost.TextLength > 0 && tbLogin.TextLength > 0 && tbPassword.TextLength > 0)
+                AppController.Instance.Connect();
+        }
+
+        private void tbHost_KeyDown(object sender, KeyEventArgs e) { OnEnter(e); }
+
+        private void tbLogin_KeyDown(object sender, KeyEventArgs e) { OnEnter(e); }
+
+        private void tbPassword_KeyDown(object sender, KeyEventArgs e) { OnEnter(e); }
     }
 }

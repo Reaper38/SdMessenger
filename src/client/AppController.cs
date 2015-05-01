@@ -87,7 +87,9 @@ namespace Sdm.Client
                 {
                     var desc = ar.GetDescription();
                     msg = msg == "" ? desc : String.Format("{0}: {1}", desc, msg);
-                    loginDialog.ShowError(LoginDialog.Error.Generic, msg);
+                    var err = ar == AuthResult.InvalidLogin ?
+                        LoginDialog.Error.Password : LoginDialog.Error.Generic;
+                    loginDialog.ShowError(err, msg);
                 }
                 else
                 {

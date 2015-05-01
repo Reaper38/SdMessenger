@@ -66,6 +66,7 @@
             this.tbPassword.TabIndex = 4;
             this.tbPassword.Text = "qwerty";
             this.tbPassword.UseSystemPasswordChar = true;
+            this.tbPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbPassword_KeyDown);
             // 
             // tbLogin
             // 
@@ -74,6 +75,7 @@
             this.tbLogin.Size = new System.Drawing.Size(180, 20);
             this.tbLogin.TabIndex = 3;
             this.tbLogin.Text = "admin";
+            this.tbLogin.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbLogin_KeyDown);
             // 
             // btnConnect
             // 
@@ -103,6 +105,7 @@
             this.tbHost.Name = "tbHost";
             this.tbHost.Size = new System.Drawing.Size(180, 20);
             this.tbHost.TabIndex = 2;
+            this.tbHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbHost_KeyDown);
             // 
             // chkSavePass
             // 
