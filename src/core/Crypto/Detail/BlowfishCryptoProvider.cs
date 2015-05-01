@@ -9,7 +9,7 @@ namespace Sdm.Core.Crypto.Detail
 {
     internal class BlowfishCryptoProvider : ISymmetricCryptoProvider
     {
-        private Blowfish blow = new Blowfish { BlockSize = 128, Mode = CipherMode.CBC };
+        private SymmetricAlgorithm blow = Blowfish.Create();
         private List<int> validKeySizes = null;
         private bool disposed = false;
 
