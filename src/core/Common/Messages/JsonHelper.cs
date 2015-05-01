@@ -28,7 +28,7 @@ namespace Sdm.Core.Messages
         {
             var tok = obj.GetValue(key);
             var jar = (JArray)tok;
-            return (T[])jar.ToObject(typeof(T[]));
+            return jar.ToObject<T[]>();
         }
     }
 }
