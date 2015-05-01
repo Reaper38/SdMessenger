@@ -11,7 +11,7 @@ namespace Sdm.Client
     internal sealed class ClientConfig
     {
         private static readonly ISymmetricCryptoProvider Aes; // XXX: dispose?
-        private const string ConfigFileName = "sdm_client_config_var.ini";
+        private const string ConfigFileName = "sdm_client.ini";
 
         // [client]
         public ProtocolId Protocol = ProtocolId.Json;

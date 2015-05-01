@@ -30,8 +30,8 @@ namespace Sdm.Core
         {
             switch (app)
             {
-            case AppType.Client: return "sdm_client.ini";
-            case AppType.Server: return "sdm_server.ini";
+            case AppType.Client: return "sdm_client_core.ini";
+            case AppType.Server: return "sdm_server_core.ini";
             default: throw new NotSupportedException(app + " is not supported.");
             }
         }
