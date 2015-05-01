@@ -206,14 +206,39 @@ namespace Sdm.Core.Util
                 msg = "Login should be 2-30 characters long";
                 return false;
             }
+            if (tmpLogin[0] == '.')
+            {
+                msg = "The first char should be a letter (a-z) or number";
+                return false;
+            }
+            if (tmpLogin[tmpLogin.Length - 1] == '.')
+            {
+                msg = "The last char should be a letter (a-z) or number";
+                return false;
+            }
+            var prev = '0';
             foreach (char c in tmpLogin)
             {
                 if ('a' <= c && c <= 'z')
+                {
+                    prev = c;
                     continue;
+                }
                 if (Char.IsDigit(c))
+                {
+                    prev = c;
                     continue;
+                }
                 if (c == '.')
+                {
+                    if (prev == '.')
+                    {
+                        msg = "Login shouldn't have consecutive periods";
+                        return false;
+                    }
+                    prev = c;
                     continue;
+                }
                 msg = "Login must consist of letters (a-z), numbers and periods";
                 return false;
             }
