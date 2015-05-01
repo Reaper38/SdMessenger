@@ -2,6 +2,7 @@
 using System.IO;
 using NUnit.Framework;
 using Sdm.Core;
+using Sdm.Core.Crypto;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
 
@@ -43,6 +44,33 @@ namespace SdmCore.Tests
                 Assert.AreEqual(hdr.Flags, refFlags);
                 Assert.AreEqual(hdr.Size, refSize);
             });
+        }
+        
+        [Test]
+        public void SaveLoadMessageCryptoContainer()
+        {
+            // arrange
+            const string refLogin = "username";
+            const string refPassword = "password";
+            var msg = new ClAuthRespond {Login = refLogin, Password = refPassword};
+            using (var csp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES))
+            {
+                using (var container = new MessageCryptoContainer())
+                {
+                    foreach (var p in protocols)
+                    {
+                        // act
+                        container.Store(msg, csp, p);
+                        MultiprotocolSaveLoad(container, () =>
+                        {
+                            var emsg = (ClAuthRespond)container.Extract(msg.Id, csp, p);
+                            // assert
+                            Assert.AreEqual(emsg.Login, refLogin);
+                            Assert.AreEqual(emsg.Password, refPassword);
+                        });
+                    }
+                }
+            }
         }
 
         [Test]
