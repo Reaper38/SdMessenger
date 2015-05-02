@@ -38,7 +38,7 @@ namespace Sdm.Client
             base.OnLoad(e);
             ApplyConnectionState(ConnectionState.Disconnected);
         }
-
+        
         private void TrySendMessage()
         {
             if (Controller.State != ConnectionState.Connected)
@@ -54,6 +54,22 @@ namespace Sdm.Client
                 conv.ClearMessage();
         }
 
+        private void TrySendFile()
+        {
+            if (Controller.State != ConnectionState.Connected)
+                return;
+            var tab = tabConvs.SelectedTab;
+            if (tab == null)
+                return;
+            var username = tab.Text;
+            var conv = convs[username].Content;
+            var files = conv.Attachments;
+            if (files == null)
+                return;
+            Controller.SendFiles(username, files);
+            conv.ClearAttachments();
+        }
+
         private ConversationDesc GetConversation(string username)
         {
             if (!convs.ContainsKey(username))
@@ -62,8 +78,7 @@ namespace Sdm.Client
                 convs.Add(username, conv);
                 tabConvs.TabPages.Add(conv.Container);
                 conv.Content.SendMessage += TrySendMessage;
-                // XXX: implement file transfer
-                //conv.Content.SendFile += 
+                conv.Content.SendFile += TrySendFile;
                 return conv;
             }
             return convs[username];

@@ -73,8 +73,23 @@ namespace Sdm.Client.Controls
 
         public string MessageText { get { return tbNewMsg.Text; } }
 
+        public string[] Attachments { get; private set; }
+
+        public void ClearAttachments() { Attachments = null; }
+
         private void btnSendFile_Click(object sender, EventArgs e)
-        { OnSendFile(); }
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.CheckFileExists = true;
+                ofd.Multiselect = true;
+                ofd.RestoreDirectory = true;
+                if (ofd.ShowDialog() != DialogResult.OK)
+                    return;
+                Attachments = ofd.FileNames;
+                OnSendFile();
+            }
+        }
 
         private void btnSend_Click(object sender, EventArgs e)
         { OnSendMessage(); }
@@ -86,6 +101,18 @@ namespace Sdm.Client.Controls
                 OnSendMessage();
                 e.SuppressKeyPress = true;
             }
+        }
+
+        private void tbNewMsg_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Copy;
+        }
+
+        private void tbNewMsg_DragDrop(object sender, DragEventArgs e)
+        {
+            Attachments = (string[])e.Data.GetData(DataFormats.FileDrop);
+            OnSendFile();
         }
     }
 

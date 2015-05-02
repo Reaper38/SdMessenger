@@ -206,6 +206,11 @@ namespace Sdm.Client
             return true;
         }
 
+        public void SendFiles(string username, string[] filenames)
+        {
+            // XXX: show file transfer window, send transfer requests, etc
+        }
+
         public void Disconnect()
         {
             client.Disconnect();

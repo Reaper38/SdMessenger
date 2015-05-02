@@ -99,6 +99,7 @@
             // 
             // tbNewMsg
             // 
+            this.tbNewMsg.AllowDrop = true;
             this.tbNewMsg.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -109,6 +110,8 @@
             this.tbNewMsg.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbNewMsg.Size = new System.Drawing.Size(341, 70);
             this.tbNewMsg.TabIndex = 0;
+            this.tbNewMsg.DragDrop += new System.Windows.Forms.DragEventHandler(this.tbNewMsg_DragDrop);
+            this.tbNewMsg.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbNewMsg_DragEnter);
             this.tbNewMsg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbNewMsg_KeyDown);
             // 
             // ConversationTab
@@ -127,7 +130,7 @@
             this.ResumeLayout(false);
 
         }
-
+        
         #endregion
 
         private System.Windows.Forms.SplitContainer scChat;
