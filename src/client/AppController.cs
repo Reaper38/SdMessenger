@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Windows.Forms;
 using Sdm.Client.Controls;
 using Sdm.Core;
@@ -14,6 +15,9 @@ namespace Sdm.Client
     {
         private static readonly AppController instance = new AppController();
         private Client client;
+        private Thread updaterThread;
+        private volatile bool updaterExit;
+        private ManualResetEvent evUpdaterThread;
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
         public ClientConfig Config { get; private set; }
@@ -23,7 +27,6 @@ namespace Sdm.Client
         
         private AppController()
         {
-            Application.Idle += OnIdle;
             Config = new ClientConfig();
             client = new Client(Config);
             client.ConnectionStateChanged += ClientConnectionStateChanged;
@@ -31,6 +34,9 @@ namespace Sdm.Client
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             MainForm = mainDialog;
+            evUpdaterThread = new ManualResetEvent(false);
+            updaterThread = new Thread(UpdateProc) {IsBackground = true};
+            updaterThread.Start();
         }
 
         private void OnMessage(IMessage msg)
@@ -50,15 +56,22 @@ namespace Sdm.Client
         }
 
         private void OnCsChatMessage(CsChatMessage msg)
-        { mainDialog.AddMessage(msg.Username, msg.Username, msg.Message); }
-
-        // XXX: update client in separate thread (one can't control OnIdle call frequency)
-        private void OnIdle(object sender, EventArgs e)
         {
-            // XXX: detect connection loss and change connection state
-            if (client.ConnectionState != ConnectionState.Disconnected)
+            mainDialog.InvokeAsync(() =>
             {
-                client.Update();
+                mainDialog.AddMessage(msg.Username, msg.Username, msg.Message);
+            });
+        }
+        
+        private void UpdateProc()
+        {
+            while (!updaterExit)
+            {
+                evUpdaterThread.WaitOne();
+                // XXX: detect connection loss and change connection state
+                if (client.ConnectionState != ConnectionState.Disconnected)
+                    client.Update();
+                Thread.Sleep(Config.UpdateSleep);
             }
         }
         
@@ -102,6 +115,8 @@ namespace Sdm.Client
 
         private void ClientConnectionStateChanged()
         {
+            if (client.ConnectionState == ConnectionState.Disconnected)
+                evUpdaterThread.Reset();
             mainDialog.InvokeAsync(() => mainDialog.ApplyConnectionState(client.ConnectionState));
         }
 
@@ -164,6 +179,7 @@ namespace Sdm.Client
                 client.ConnectionResult += OnClientConnectionResult;
                 client.AuthResult += OnClientAuthResult;
                 client.Connect(address, port, login, pass);
+                evUpdaterThread.Set();
                 return;
             } while (false);
             loginDialog.ShowError(errType, errMsg);
