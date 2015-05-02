@@ -28,6 +28,8 @@ namespace Sdm.Client
         public int SocketSendTimeout = 1000;
         public int SocketSendBufferSize = 0x8000;
         public int SocketReceiveBufferSize = 0x8000;
+        // [misc]
+        public int UpdateSleep = 50;
 
         static ClientConfig()
         {
@@ -114,6 +116,8 @@ namespace Sdm.Client
                         AsymAlgorithm = aa;
                 }
             }
+            if (cfg.ContainsSection("misc"))
+                cfg.TryGetInt32("misc", "update_sleep", ref UpdateSleep);
         }
 
         public void Save()
@@ -147,6 +151,9 @@ namespace Sdm.Client
                 w.WriteLine(SocketSendBufferSize);
                 w.Write("recv_buffer_size = ");
                 w.WriteLine(SocketReceiveBufferSize);
+                w.WriteLine("[misc]");
+                w.Write("update_sleep = ");
+                w.WriteLine(UpdateSleep);
             }
         }
     }
