@@ -20,26 +20,33 @@ namespace Sdm.Server
         public static void Log(LogLevel lvl, string format, params object[] args)
         { SdmCore.Logger.Log(lvl, String.Format(format, args)); }
 
-        private static int SendCommand(string[] args)
+        private static int PrintOfflineUsage(string[] args)
         {
-            if (args.Length == 0)
-                return 0;
-            var sb = new StringBuilder(1024);
-            sb.Append(StringUtil.EscapeCmdString(args[0], true));
-            for (int i = 1; i < args.Length; i++)
-                sb.Append(' ').Append(StringUtil.EscapeCmdString(args[i], true));
-            var cmd = sb.ToString();
-            return SendCommand(cmd);
+            Console.WriteLine("usage (offline): {0} {{run|help}}", AppName);
+            return 0;
         }
 
-        private static int SendCommand(string command)
+        private static int SendCommand(string[] args)
         {
             if (mutex.WaitOne(TimeSpan.Zero, true))
             {
                 mutex.ReleaseMutex();
-                Console.WriteLine("error: server is not running");
-                return -1;
+                switch (args[0]) // check special cases
+                {
+                case "run":
+                    return RunServer(args);
+                case "help":
+                    return PrintOfflineUsage(args);
+                default:
+                    Console.WriteLine("error: server is not running");
+                    return -1;
+                }
             }
+            var sb = new StringBuilder(1024);
+            sb.Append(StringUtil.EscapeCmdString(args[0], true));
+            for (int i = 1; i < args.Length; i++)
+                sb.Append(' ').Append(StringUtil.EscapeCmdString(args[i], true));
+            var command = sb.ToString();
             string tmpPipeName = null;
             using (var pipe = new NamedPipeClientStream(".", PipeConsoleServer.PipeName, PipeDirection.InOut))
             {
@@ -111,11 +118,7 @@ namespace Sdm.Server
         {
             if (args.Length == 0)
                 args = new[] {"help"};
-            switch (args[0])
-            {
-            case "run": return RunServer(args);
-            default: return SendCommand(args);
-            }
+            return SendCommand(args);
         }
     }
 }
