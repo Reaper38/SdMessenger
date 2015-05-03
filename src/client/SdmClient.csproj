@@ -71,6 +71,24 @@
     <Compile Include="Controls\ConversationTab.Designer.cs">
       <DependentUpon>ConversationTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FileTransferView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FileTransferView.Designer.cs">
+      <DependentUpon>FileTransferView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FileTransferViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FileTransferViewItem.Designer.cs">
+      <DependentUpon>FileTransferViewItem.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Controls\FileTransferView.resx">
+      <DependentUpon>FileTransferView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FileTransferViewItem.resx">
+      <DependentUpon>FileTransferViewItem.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Dialogs\MainDialog.cs">
       <SubType>Form</SubType>
     </Compile>
