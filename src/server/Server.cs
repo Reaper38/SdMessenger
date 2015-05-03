@@ -450,7 +450,29 @@ namespace Sdm.Server
             case MessageId.CsChatMessage:
                 OnCsChatMessage(msg as CsChatMessage, cl);
                 break;
+            case MessageId.ClFileTransferRequest:
+                OnCsFileTransferRequest(msg as ClFileTransferRequest);
+                break;
+            case MessageId.CsFileTransferResult:
+                OnCsFileTransferResult(msg as CsFileTransferResult);
+                break;
+            case MessageId.CsBlockTransfer:
+                OnCsBlockTransfer(msg as CsBlockTransfer);
+                break;
             }
+        }
+
+        private void OnCsFileTransferRequest(ClFileTransferRequest msg)
+        {
+            throw new NotImplementedException();
+        }
+        private void OnCsFileTransferResult(CsFileTransferResult msg)
+        {
+            throw new NotImplementedException();
+        }
+        private void OnCsBlockTransfer(CsBlockTransfer msg)
+        {
+            throw new NotImplementedException();
         }
 
         private void OnClAuthRespond(ClAuthRespond msg, ClientId id)

@@ -72,6 +72,12 @@ namespace Sdm.Core
         Banned = 2,
     }
 
+    public enum FileTrasferResult
+    {
+        Accepted = 0,
+        Rejected = 1,
+    }
+
     public static class AuthResultUtil
     {
         public static string GetDescription(this AuthResult ar)

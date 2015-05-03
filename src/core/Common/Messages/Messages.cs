@@ -575,4 +575,330 @@ namespace Sdm.Core.Messages
             }
         }
     }
+
+    public class ClFileTransferRequest : MultiprotocolMessage
+    {
+        public string Username, Filename, Hash;
+        public int Size, Limit;
+        public ClFileTransferRequest() : base(MessageId.ClFileTransferRequest) { }
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                Username = obj.GetString("usr");
+                Filename = obj.GetString("fnm");
+                Size = obj.GetInt32("fsz");
+                Hash = obj.GetString("fhs");
+                Limit = obj.GetInt32("lim");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("usr");
+                w.WriteValue(Username);
+                w.WritePropertyName("fnm");
+                w.WriteValue(Filename);
+                w.WritePropertyName("fsz");
+                w.WriteValue(Size.ToString());
+                w.WritePropertyName("fhs");
+                w.WriteValue(Hash);
+                w.WritePropertyName("lim");
+                w.WriteValue(Limit);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                Username = r.ReadString();
+                Filename = r.ReadString();
+                Size = r.ReadInt32();
+                Hash = r.ReadString();
+                Limit = r.ReadInt32();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(Username);
+                w.Write(Filename);
+                w.Write(Size);
+                w.Write(Hash);
+                w.Write(Limit);
+                w.Flush();
+            }
+        }
+    }
+
+    public class SvFileTransferRequest : MultiprotocolMessage
+    {
+        public string Username, Filename, Hash, SessionId;
+        public int Size;
+        public SvFileTransferRequest() : base(MessageId.SvFileTransferRequest) { }
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                SessionId = obj.GetString("sid");
+                Username = obj.GetString("usr");
+                Filename = obj.GetString("fnm");
+                Size = Convert.ToInt32(obj.GetString("fsz"));
+                Hash = obj.GetString("fhs");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId);
+                w.WritePropertyName("usr");
+                w.WriteValue(Username);
+                w.WritePropertyName("fnm");
+                w.WriteValue(Filename);
+                w.WritePropertyName("fsz");
+                w.WriteValue(Size.ToString());
+                w.WritePropertyName("fhs");
+                w.WriteValue(Hash);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                SessionId = r.ReadString();
+                Username = r.ReadString();
+                Filename = r.ReadString();
+                Size = r.ReadInt32();
+                Hash = r.ReadString();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(SessionId);
+                w.Write(Username);
+                w.Write(Filename);
+                w.Write(Size);
+                w.Write(Hash);
+                w.Flush();
+            }
+        }
+    }
+
+    public class CsFileTransferRespond : MultiprotocolMessage
+    {
+        public FileTrasferResult Flag;
+        public string SessionId;
+        public int Limit;
+        public CsFileTransferRespond() : base(MessageId.CsFileTransferRespond) { }
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                var tmp = obj.GetInt32("flg");
+                try
+                {
+                    Flag = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid flg: " + tmp);
+                }
+                Limit = obj.GetInt32("lim");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId);
+                w.WritePropertyName("flg");
+                w.WriteValue((int)Flag);
+                w.WritePropertyName("lim");
+                w.WriteValue(Limit);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                SessionId = r.ReadString();
+                var tmp = r.ReadByte();
+                try
+                {
+                    Flag = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid flg: " + tmp);
+                }
+                Limit = r.ReadInt32();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(SessionId);
+                w.Write((byte)Flag);
+                w.Write(Limit);
+                w.Flush();
+            }
+        }
+    }
+
+ 
+
+    public class CsFileTransferResult : MultiprotocolMessage
+    {
+        public FileTrasferResult Flag;
+        public string SessionId;
+        public CsFileTransferResult() : base(MessageId.CsFileTransferResult) { }
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                SessionId = obj.GetString("sid");
+                var tmp = obj.GetInt32("result");
+                try
+                {
+                    Flag = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid flg: " + tmp);
+                }
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId);
+                w.WritePropertyName("flg");
+                w.WriteValue((int)Flag);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                SessionId = r.ReadString();
+                var tmp = r.ReadByte();
+                try
+                {
+                    Flag = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid flg: " + tmp);
+                }
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(SessionId);
+                w.Write(Flag.ToString());
+                w.Flush();
+            }
+        }
+    }
+
+    public class CsBlockTransfer : MultiprotocolMessage
+    {
+        public byte[] Block;
+        public string SessionId;
+
+        public CsBlockTransfer() : base(MessageId.CsBlockTransfer) { }
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                SessionId = obj.GetString("sid");
+                var blk = obj.GetString("blk");
+                try
+                {
+                    Block = Convert.FromBase64String(blk);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid block format");
+                }             
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId);
+                w.WritePropertyName("blk");
+                w.WriteValue(Convert.ToBase64String(Block));
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                SessionId = r.ReadString();
+                var len = r.ReadInt32();
+                Block = r.ReadBytes(len);
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write(SessionId);
+                w.Write(Block.Length);
+                w.Write(Block);
+                w.Flush();
+            }
+        }
+    }
 }

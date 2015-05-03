@@ -18,6 +18,11 @@ namespace Sdm.Core
         SvUserlistRespond = 8,
         SvUserlistUpdate = 9,
         CsChatMessage = 10,
+        ClFileTransferRequest = 11,
+        CsFileTransferRespond = 12,
+        SvFileTransferRequest = 13,
+        CsFileTransferResult = 14,
+        CsBlockTransfer = 15,
         Max // add new ids above
     }
 
