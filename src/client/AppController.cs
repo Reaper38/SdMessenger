@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
-using Sdm.Client.Controls;
 using Sdm.Core;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
