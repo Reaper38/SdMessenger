@@ -89,6 +89,12 @@
     <EmbeddedResource Include="Controls\FileTransferViewItem.resx">
       <DependentUpon>FileTransferViewItem.cs</DependentUpon>
     </EmbeddedResource>
+    <Compile Include="Dialogs\FileTransferDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\FileTransferDialog.Designer.cs">
+      <DependentUpon>FileTransferDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\MainDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +112,9 @@
     <Compile Include="Util\RtfUtil.cs" />
     <EmbeddedResource Include="Controls\ConversationTab.resx">
       <DependentUpon>ConversationTab.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\FileTransferDialog.resx">
+      <DependentUpon>FileTransferDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\MainDialog.resx">
       <DependentUpon>MainDialog.cs</DependentUpon>
