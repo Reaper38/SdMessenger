@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\FileTransferId.cs" />
     <Compile Include="Common\MessageFactory.cs" />
     <Compile Include="Common\Messages\MessageCryptoContainer.cs" />
     <Compile Include="Common\Messages\JsonHelper.cs" />
