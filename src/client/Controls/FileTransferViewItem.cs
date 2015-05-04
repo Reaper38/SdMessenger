@@ -89,7 +89,7 @@ namespace Sdm.Client.Controls
             case FileTransferDirection.In:
                 switch (state)
                 {
-                case FileTransferState.Waiting: // [save as...] [accept]
+                case FileTransferState.Waiting: // [cancel] [save as...]
                     btn1.Visible = true;
                     btn1.Text = "Cancel";
                     btn2.Visible = true;
@@ -132,6 +132,17 @@ namespace Sdm.Client.Controls
                     btn2.Visible = false;
                     pbProgress.Visible = false;
                     lStatus.Text = ErrorMessage;
+                    lStatus.Visible = true;
+                    lDone.Visible = false;
+                    lSlash.Visible = false;
+                    lTotal.Visible = false;
+                    lSizeUnit.Visible = false;
+                    break;
+                case FileTransferState.Cancelled: // <hidden> <hidden>
+                    btn1.Visible = false;
+                    btn2.Visible = false;
+                    pbProgress.Visible = false;
+                    lStatus.Text = "Cancelled.";
                     lStatus.Visible = true;
                     lDone.Visible = false;
                     lSlash.Visible = false;
@@ -186,6 +197,17 @@ namespace Sdm.Client.Controls
                     btn2.Visible = false;
                     pbProgress.Visible = false;
                     lStatus.Text = ErrorMessage;
+                    lStatus.Visible = true;
+                    lDone.Visible = false;
+                    lSlash.Visible = false;
+                    lTotal.Visible = false;
+                    lSizeUnit.Visible = false;
+                    break;
+                case FileTransferState.Cancelled: // <hidden> <hidden>
+                    btn1.Visible = false;
+                    btn2.Visible = false;
+                    pbProgress.Visible = false;
+                    lStatus.Text = "Cancelled.";
                     lStatus.Visible = true;
                     lDone.Visible = false;
                     lSlash.Visible = false;
@@ -268,17 +290,19 @@ namespace Sdm.Client.Controls
         }
 
         /*
-         *   state  |  btn1   |  btn2  |
+         *   state    |  btn1   |  btn2  |
          * in:
-         *  waiting: [decline] [accept]
-         *  working: < hidden> [cancel]
-         *  success: [  open ] [ show ]
-         *  failure: < hidden> <hidden>
+         *  waiting:   [decline] [accept]
+         *  working:   < hidden> [cancel]
+         *  success:   [  open ] [ show ]
+         *  failure:   < hidden> <hidden>
+         *  cancelled: < hidden> <hidden>
          * out:
-         *  waiting: < hidden> [cancel]
-         *  working: < hidden> [cancel]
-         *  success: < hidden> <hidden>
-         *  failure: < hidden> <hidden>
+         *  waiting:   < hidden> [cancel]
+         *  working:   < hidden> [cancel]
+         *  success:   < hidden> <hidden>
+         *  failure:   < hidden> <hidden>
+         *  cancelled: < hidden> <hidden>
          */
 
         private void btn1_Click(object sender, EventArgs e)
@@ -344,6 +368,7 @@ namespace Sdm.Client.Controls
         Working,
         Success,
         Failure,
+        Cancelled,
     }
 
     internal struct FileSizeUnit
