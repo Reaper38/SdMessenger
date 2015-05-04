@@ -7,11 +7,10 @@ namespace Sdm.Client
     internal sealed class BlockFileReader : IDisposable
     {
         private readonly FileStream fs;
-        private readonly BufferedStream bfs;
         private long currentBlock;
         private bool disposed;
 
-        public BlockFileReader(string filename, int blockSize, int bufferSize)
+        public BlockFileReader(string filename, int blockSize, int bufferSize = 1024 * 1024)
         {
             var fi = new FileInfo(filename);
             Size = fi.Length;
@@ -20,8 +19,7 @@ namespace Sdm.Client
             Padding = (int)(Size - BlockCount * BlockSize);
             if (Padding > 0)
                 BlockCount++;
-            fs = fi.OpenRead();
-            bfs = new BufferedStream(fs, bufferSize);
+            fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize);
         }
 
         public bool Read(byte[] dst)
@@ -30,7 +28,7 @@ namespace Sdm.Client
                 throw new ArgumentException("Destination buffer length must be equal to BlockSize");
             if (currentBlock >= BlockCount)
                 return false;
-            bfs.Read(dst, 0, BlockSize);
+            fs.Read(dst, 0, BlockSize);
             currentBlock++;
             return true;
         }
@@ -51,7 +49,7 @@ namespace Sdm.Client
                 if (value > BlockCount)
                     throw new ArgumentOutOfRangeException("Block index must be less than BlockCount");
                 currentBlock = value;
-                bfs.Seek(currentBlock * BlockSize, SeekOrigin.Begin);
+                fs.Seek(currentBlock * BlockSize, SeekOrigin.Begin);
             }
         }
         
@@ -74,10 +72,7 @@ namespace Sdm.Client
             if (!disposed)
             {
                 if (disposing)
-                {
-                    bfs.Dispose();
                     fs.Dispose();
-                }
                 DisposeHelper.OnDispose<BlockFileReader>(disposing);
                 disposed = true;
             }
@@ -89,11 +84,10 @@ namespace Sdm.Client
     internal sealed class BlockFileWriter : IDisposable
     {
         private readonly FileStream fs;
-        private readonly BufferedStream bfs;
         private long currentBlock;
         private bool disposed;
 
-        public BlockFileWriter(string filename, int blockSize, int bufferSize, long fileSize)
+        public BlockFileWriter(string filename, int blockSize, long fileSize, int bufferSize = 128 * 1024)
         {
             Size = fileSize;
             BlockSize = blockSize;
@@ -101,10 +95,9 @@ namespace Sdm.Client
             Padding = (int)(Size - BlockCount * BlockSize);
             if (Padding > 0)
                 BlockCount++;
-            fs = new FileStream(filename, FileMode.OpenOrCreate);
+            fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize);
             fs.SetLength(fileSize);
             fs.Flush();
-            bfs = new BufferedStream(fs, bufferSize);
         }
 
         public bool Write(byte[] src)
@@ -113,7 +106,7 @@ namespace Sdm.Client
                 throw new ArgumentException("Source buffer length must be equal to BlockSize");
             if (currentBlock >= BlockCount)
                 return false;
-            bfs.Write(src, 0, BlockSize);
+            fs.Write(src, 0, BlockSize);
             currentBlock++;
             return true;
         }
@@ -134,7 +127,7 @@ namespace Sdm.Client
                 if (value > BlockCount)
                     throw new ArgumentOutOfRangeException("Block index must be less than BlockCount");
                 currentBlock = value;
-                bfs.Seek(currentBlock * BlockSize, SeekOrigin.Begin);
+                fs.Seek(currentBlock * BlockSize, SeekOrigin.Begin);
             }
         }
 
@@ -157,10 +150,7 @@ namespace Sdm.Client
             if (!disposed)
             {
                 if (disposing)
-                {
-                    bfs.Dispose();
                     fs.Dispose();
-                }
                 DisposeHelper.OnDispose<BlockFileWriter>(disposing);
                 disposed = true;
             }
