@@ -1,4 +1,6 @@
-﻿namespace Sdm.Core
+﻿using System;
+
+namespace Sdm.Core
 {
     /// <summary>Unique file transfer session id (provided by server).</summary>
     public struct FileTransferId
@@ -31,5 +33,11 @@
         public override int GetHashCode() { return Value.GetHashCode(); }
 
         public override string ToString() { return Value.ToString(); }
+
+        public static FileTransferId Parse(string s)
+        {
+            var value = UInt32.Parse(s);
+            return new FileTransferId(value);
+        }
     }
 }
