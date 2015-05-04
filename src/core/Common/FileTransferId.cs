@@ -3,6 +3,7 @@
     /// <summary>Unique file transfer session id (provided by server).</summary>
     public struct FileTransferId
     {
+        public static readonly FileTransferId InvalidId = new FileTransferId(0);
         public readonly uint Value;
 
         public FileTransferId(uint value)
