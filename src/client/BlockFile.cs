@@ -24,11 +24,24 @@ namespace Sdm.Client
 
         public bool Read(byte[] dst)
         {
-            if (dst.Length != BlockSize)
-                throw new ArgumentException("Destination buffer length must be equal to BlockSize");
+            var size = BlockSize;
+            if (currentBlock == BlockCount - 1)
+            {
+                size -= Padding;
+                if (dst.Length != size)
+                {
+                    throw new ArgumentException("Destination buffer length must be equal to BlockSize - Padding" +
+                        " (last block)");
+                }
+            }
+            else
+            {
+                if (dst.Length != size)
+                    throw new ArgumentException("Destination buffer length must be equal to BlockSize");
+            }
             if (currentBlock >= BlockCount)
                 return false;
-            fs.Read(dst, 0, BlockSize);
+            fs.Read(dst, 0, size);
             currentBlock++;
             return true;
         }
@@ -102,11 +115,24 @@ namespace Sdm.Client
 
         public bool Write(byte[] src)
         {
-            if (src.Length != BlockSize)
-                throw new ArgumentException("Source buffer length must be equal to BlockSize");
+            var size = BlockSize;
+            if (currentBlock == BlockCount - 1)
+            {
+                size -= Padding;
+                if (src.Length != size)
+                {
+                    throw new ArgumentException("Source buffer length must equal to BlockSize - Padding" +
+                        " (last block)");
+                }
+            }
+            else
+            {
+                if (src.Length != size)
+                    throw new ArgumentException("Source buffer length must be equal to BlockSize");
+            }
             if (currentBlock >= BlockCount)
                 return false;
-            fs.Write(src, 0, BlockSize);
+            fs.Write(src, 0, size);
             currentBlock++;
             return true;
         }
