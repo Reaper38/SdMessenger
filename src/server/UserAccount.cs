@@ -8,7 +8,7 @@ namespace Sdm.Server
     public sealed class UserAccount
     {
         private static SHA256 sha = SHA256.Create(); // XXX: dispose?
-        private const string salt = "zx$$";
+        private const string PasswordSalt = "zx$$";
 
         public string Login { get; private set; }
         /// <summary>Base64 string with SHA-256 hash of password+salt</summary>
@@ -24,7 +24,7 @@ namespace Sdm.Server
 
         public static string TransformPassword(string plainPassword)
         {
-            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(plainPassword + salt));
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(plainPassword + PasswordSalt));
             var shash = Convert.ToBase64String(hash);
             return shash;
         }
