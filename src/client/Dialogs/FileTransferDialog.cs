@@ -4,7 +4,7 @@ using Sdm.Client.Controls;
 
 namespace Sdm.Client
 {
-    internal partial class FileTransferDialog : Form
+    internal partial class FileTransferDialog : FormEx
     {
         public FileTransferDialog()
         { InitializeComponent(); }
