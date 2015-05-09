@@ -16,7 +16,7 @@ namespace Sdm.Client
             Size = fi.Length;
             BlockSize = blockSize;
             BlockCount = Size / BlockSize;
-            Padding = (int)(Size - BlockCount * BlockSize);
+            Padding = BlockSize - (int)(Size - BlockCount * BlockSize);
             if (Padding > 0)
                 BlockCount++;
             fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize);
@@ -105,7 +105,7 @@ namespace Sdm.Client
             Size = fileSize;
             BlockSize = blockSize;
             BlockCount = Size / BlockSize;
-            Padding = (int)(Size - BlockCount * BlockSize);
+            Padding = BlockSize - (int)(Size - BlockCount * BlockSize);
             if (Padding > 0)
                 BlockCount++;
             fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bufferSize);
