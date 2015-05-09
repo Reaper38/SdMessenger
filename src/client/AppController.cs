@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
+using Sdm.Client.Controls;
 using Sdm.Core;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
@@ -18,6 +22,11 @@ namespace Sdm.Client
         private ManualResetEvent evUpdaterThread;
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
+        private FileTransferDialog fileDialog;
+        // XXX: allow user to delete finished sessions
+        private readonly object syncUiProxies = 1;
+        private readonly Dictionary<IFileTransfer, FileTransferUiProxy> uiProxies;
+        private readonly FileTransferManager ftMgr;
         public ClientConfig Config { get; private set; }
         public ConnectionState State { get { return client.ConnectionState; } }
         public string Login { get { return Config.Login; } }
@@ -29,56 +38,58 @@ namespace Sdm.Client
             client = new Client(Config);
             client.ConnectionStateChanged += ClientConnectionStateChanged;
             client.UserMessage += OnMessage;
+            ftMgr = new FileTransferManager(client, 8 * 1024);
+            ftMgr.TransferRequestReceived += FileTransferRequestReceived;
+            ftMgr.TransferStateChanged += FileTransferStateChanged;
+            ftMgr.DataSent += FileTransferDataSent;
+            ftMgr.DataReceived += FileTransferDataReceived;
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
+            fileDialog = new FileTransferDialog();
+            uiProxies = new Dictionary<IFileTransfer, FileTransferUiProxy>();
             MainForm = mainDialog;
             evUpdaterThread = new ManualResetEvent(false);
             updaterThread = new Thread(UpdateProc) {IsBackground = true};
             updaterThread.Start();
         }
-
+        
         private void OnMessage(IMessage msg)
         {
             switch (msg.Id)
             {
             case MessageId.SvUserlistRespond:
-                mainDialog.UpdateUserList(msg as SvUserlistRespond);
+                OnSvUserlistRespond(msg as SvUserlistRespond);
                 break;
             case MessageId.SvUserlistUpdate:
-                mainDialog.UpdateUserList(msg as SvUserlistUpdate);
+                OnSvUserlistUpdate(msg as SvUserlistUpdate);
                 break;
             case MessageId.CsChatMessage:
                 OnCsChatMessage(msg as CsChatMessage);
                 break;
-            case MessageId.ClFileTransferRequest:
-                OnCsFileTransferRequest(msg as ClFileTransferRequest);
-                break;
             case MessageId.SvFileTransferRequest:
-                OnSvFileTransferRespond(msg as SvFileTransferRequest);
-                break;
-            case MessageId.CsFileTransferResult:
-                OnCsFileTransferResult(msg as CsFileTransferResult);
-                break;
-            case MessageId.CsBlockTransfer:
-                OnCsBlockTransfer(msg as CsBlockTransfer);
+            case MessageId.SvFileTransferResult:
+            case MessageId.CsFileTransferData:
+            case MessageId.CsFileTransferVerificationResult:
+            case MessageId.CsFileTransferInterruption:
+                ftMgr.OnMessage(msg);
                 break; 
             }
         }
-        private void OnCsFileTransferRequest(ClFileTransferRequest msg)
+
+        private void OnSvUserlistRespond(SvUserlistRespond msg)
         {
-            throw new NotImplementedException();
+            mainDialog.InvokeAsync(() =>
+            {
+                mainDialog.UpdateUserList(msg);
+            });
         }
-        private void OnSvFileTransferRespond(SvFileTransferRequest msg)
+
+        private void OnSvUserlistUpdate(SvUserlistUpdate msg)
         {
-            throw new NotImplementedException();
-        }
-        private void OnCsFileTransferResult(CsFileTransferResult msg)
-        {
-            throw new NotImplementedException();
-        }
-        private void OnCsBlockTransfer(CsBlockTransfer msg)
-        {
-            throw new NotImplementedException();
+            mainDialog.InvokeAsync(() =>
+            {
+                mainDialog.UpdateUserList(msg);
+            });
         }
 
         private void OnCsChatMessage(CsChatMessage msg)
@@ -96,7 +107,10 @@ namespace Sdm.Client
                 evUpdaterThread.WaitOne();
                 // XXX: detect connection loss and change connection state
                 if (client.ConnectionState != ConnectionState.Disconnected)
+                {
                     client.Update();
+                    ftMgr.Update();
+                }
                 Thread.Sleep(Config.UpdateSleep);
             }
         }
@@ -232,9 +246,183 @@ namespace Sdm.Client
             return true;
         }
 
+        private void FileTransferStateChanged(IFileTransfer ft)
+        {
+            FileTransferUiProxy proxy;
+            lock (syncUiProxies)
+            {
+                if (!uiProxies.TryGetValue(ft, out proxy))
+                {
+                    // XXX: log error
+                    return;
+                }
+            }
+            mainDialog.InvokeAsync(() =>
+            {
+                proxy.View.ErrorMessage = ft.ErrorMessage;
+                proxy.View.State = ft.State;
+            });
+        }
+
+        private void FileTransferRequestReceived(IIncomingFileTransfer ft)
+        {
+            mainDialog.InvokeAsync(() =>
+            {
+                var proxy = new FileTransferUiProxy(ft);
+                lock (syncUiProxies)
+                {
+                    uiProxies.Add(proxy.Desc, proxy);
+                }
+                fileDialog.View.Items.Add(proxy.View);
+                fileDialog.Show();
+            });
+        }
+
+        private void FileTransferDataSent(IOutcomingFileTransfer ft)
+        { UpdateFileTransferView(ft); }
+
+        private void FileTransferDataReceived(IIncomingFileTransfer ft)
+        { UpdateFileTransferView(ft); }
+
+        private void UpdateFileTransferView(IFileTransfer ft)
+        {
+            lock (syncUiProxies)
+            {
+                FileTransferUiProxy proxy;
+                if (!uiProxies.TryGetValue(ft, out proxy))
+                {
+                    // XXX: log error
+                    return;
+                }
+                if (proxy.ViewUpdateRequired || ft.BytesDone == ft.BytesTotal)
+                {
+                    mainDialog.InvokeAsync(() =>
+                    {
+                        proxy.UpdateView();
+                    });
+                }
+            }
+        }
+
+        private static void OpenFile(string path)
+        { Process.Start(path); }
+
+        private static void ShowFile(string path)
+        {
+            // http://stackoverflow.com/questions/13680415/how-to-open-explorer-with-a-specific-file-selected
+            Process.Start("explorer.exe", String.Format("/select,\"{0}\"", path));
+        }
+        
+        private class FileTransferUiProxy
+        {
+            public FileTransferViewItem View { get; private set; }
+            public IFileTransfer Desc { get; private set; }
+            private const long UpdateDelta = 1000; // ms
+            private DateTime lastUpdate;
+            private bool whBound = false;
+
+            public FileTransferUiProxy(IFileTransfer ft)
+            {
+                View = new FileTransferViewItem(Path.GetFileName(ft.Name), ft.BytesTotal, ft.Direction);
+                Desc = ft;
+                switch (ft.Direction)
+                {
+                case FileTransferDirection.In:
+                    // waiting
+                    View.Accept += ViewAccept;
+                    View.Decline += ViewDecline;
+                    whBound = true;
+                    // receiving
+                    View.Cancel += ViewCancel;
+                    // received
+                    View.Open += ViewOpen;
+                    View.ShowInFolder += ViewShowInFolder;
+                    break;
+                case FileTransferDirection.Out:
+                    View.Cancel += ViewCancel;
+                    break;
+                }
+                lastUpdate = DateTime.Now;
+            }
+
+            public bool ViewUpdateRequired
+            {
+                get
+                {
+                    var ts = DateTime.Now - lastUpdate;
+                    return ts.TotalMilliseconds >= UpdateDelta;
+                }
+            }
+
+            public void UpdateView()
+            {
+                if (Desc.State == FileTransferState.Working)
+                    View.BytesDone = Desc.BytesDone;
+                lastUpdate = DateTime.Now;
+            }
+
+            private void UnbindIncomingWaitHandlers()
+            {
+                if (!whBound)
+                    return;
+                whBound = false;
+                View.Accept -= ViewAccept;
+                View.Decline -= ViewDecline;
+            }
+
+            private void ViewAccept(object sender, EventArgs e)
+            {
+                var ift = Desc as IIncomingFileTransfer;
+                if (ift == null)
+                    return;
+                using (var sfd = new SaveFileDialog())
+                {
+                    sfd.OverwritePrompt = true;
+                    sfd.RestoreDirectory = true;
+                    if (sfd.ShowDialog() != DialogResult.OK)
+                        return;
+                    ift.Accept(sfd.FileName);
+                    // preemptively set new state to hide decline/accept buttons
+                    View.State = FileTransferState.Working;
+                    View.FileName = Path.GetFileName(sfd.FileName);
+                    UnbindIncomingWaitHandlers();
+                }
+            }
+
+            private void ViewDecline(object sender, EventArgs e)
+            {
+                View.State = FileTransferState.Cancelled;
+                Desc.Cancel();
+                UnbindIncomingWaitHandlers();
+            }
+
+            private void ViewCancel(object sender, EventArgs e)
+            {
+                View.State = FileTransferState.Cancelled;
+                Desc.Cancel();
+                UnbindIncomingWaitHandlers();
+            }
+
+            private void ViewOpen(object sender, EventArgs e)
+            { OpenFile(Desc.Name); }
+
+            private void ViewShowInFolder(object sender, EventArgs e)
+            { ShowFile(Desc.Name); }
+        }
+        
         public void SendFiles(string username, string[] filenames)
         {
-            // XXX: show file transfer window, send transfer requests, etc
+            foreach (var filename in filenames)
+            {
+                var ft = ftMgr.Add(username, filename);
+                var proxy = new FileTransferUiProxy(ft);
+                lock (syncUiProxies)
+                {
+                    uiProxies.Add(proxy.Desc, proxy);
+                }
+                fileDialog.View.Items.Add(proxy.View);
+            }
+            fileDialog.Show();
         }
 
         public void Disconnect()

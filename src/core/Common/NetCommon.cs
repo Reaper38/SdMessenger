@@ -71,11 +71,23 @@ namespace Sdm.Core
         InvalidLogin = 1,
         Banned = 2,
     }
-
+    // XXX: rename to FileTransferRequestResult
     public enum FileTrasferResult
     {
         Accepted = 0,
         Rejected = 1,
+    }
+
+    public enum FileTransferVerificationResult
+    {
+        Success = 0,
+        ChecksumMismatch = 1,
+        UnknownFailure = 2,
+    }
+
+    public enum FileTransferInterruption
+    {
+        Cancel = 0,
     }
 
     public static class AuthResultUtil

@@ -575,22 +575,46 @@ namespace Sdm.Core.Messages
             }
         }
     }
+    
+    // XXX: unit tests are required for all messages below
 
     public class ClFileTransferRequest : MultiprotocolMessage
     {
-        public string Username, Filename, Hash;
-        public int Size, Limit;
-        public ClFileTransferRequest() : base(MessageId.ClFileTransferRequest) { }
+        public string Username, FileName;
+        public byte[] FileHash;
+        public long FileSize;
+        public int BlockSize;
+        public ulong Token;
+
+        public ClFileTransferRequest() : base(MessageId.ClFileTransferRequest) {}
+
         protected override void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
                 Username = obj.GetString("usr");
-                Filename = obj.GetString("fnm");
-                Size = obj.GetInt32("fsz");
-                Hash = obj.GetString("fhs");
-                Limit = obj.GetInt32("lim");
+                FileName = obj.GetString("file_name");
+                FileSize = obj.GetInt32("file_size");
+                var hash = obj.GetString("file_hash");
+                try
+                {
+                    FileHash = Convert.FromBase64String(hash);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid file_hash: " + hash);
+                }
+                BlockSize = obj.GetInt32("block_size");
+                var token = obj.GetString("token");
+                try
+                {
+                    Token = UInt64.Parse(token);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid token: " + token);
+                }
             }
         }
 
@@ -601,14 +625,16 @@ namespace Sdm.Core.Messages
                 w.WriteStartObject();
                 w.WritePropertyName("usr");
                 w.WriteValue(Username);
-                w.WritePropertyName("fnm");
-                w.WriteValue(Filename);
-                w.WritePropertyName("fsz");
-                w.WriteValue(Size.ToString());
-                w.WritePropertyName("fhs");
-                w.WriteValue(Hash);
-                w.WritePropertyName("lim");
-                w.WriteValue(Limit);
+                w.WritePropertyName("file_name");
+                w.WriteValue(FileName);
+                w.WritePropertyName("file_size");
+                w.WriteValue(FileSize);
+                w.WritePropertyName("file_hash");
+                w.WriteValue(Convert.ToBase64String(FileHash));
+                w.WritePropertyName("block_size");
+                w.WriteValue(BlockSize);
+                w.WritePropertyName("token");
+                w.WriteValue(Token.ToString());
                 w.WriteEndObject();
                 w.Flush();
             }
@@ -619,10 +645,12 @@ namespace Sdm.Core.Messages
             using (var r = new BinaryReader(s))
             {
                 Username = r.ReadString();
-                Filename = r.ReadString();
-                Size = r.ReadInt32();
-                Hash = r.ReadString();
-                Limit = r.ReadInt32();
+                FileName = r.ReadString();
+                FileSize = r.ReadInt64();
+                var len = r.ReadInt32();
+                FileHash = r.ReadBytes(len);
+                BlockSize = r.ReadInt32();
+                Token = r.ReadUInt64();
             }
         }
 
@@ -631,10 +659,12 @@ namespace Sdm.Core.Messages
             using (var w = new BinaryWriter(s))
             {
                 w.Write(Username);
-                w.Write(Filename);
-                w.Write(Size);
-                w.Write(Hash);
-                w.Write(Limit);
+                w.Write(FileName);
+                w.Write(FileSize);
+                w.Write(FileHash.Length);
+                w.Write(FileHash);
+                w.Write(BlockSize);
+                w.Write(Token);
                 w.Flush();
             }
         }
@@ -642,19 +672,27 @@ namespace Sdm.Core.Messages
 
     public class SvFileTransferRequest : MultiprotocolMessage
     {
-        public string Username, Filename, Hash, SessionId;
-        public int Size;
-        public SvFileTransferRequest() : base(MessageId.SvFileTransferRequest) { }
+        public string Username, FileName;
+        public byte[] FileHash;
+        public long FileSize;
+        public int BlockSize;
+        public FileTransferId SessionId;
+        
+        public SvFileTransferRequest() : base(MessageId.SvFileTransferRequest) {}
+
         protected override void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
-                SessionId = obj.GetString("sid");
                 Username = obj.GetString("usr");
-                Filename = obj.GetString("fnm");
-                Size = Convert.ToInt32(obj.GetString("fsz"));
-                Hash = obj.GetString("fhs");
+                FileName = obj.GetString("file_name");
+                FileSize = obj.GetInt32("file_size");
+                var hash = obj.GetString("file_hash");
+                FileHash = Convert.FromBase64String(hash);
+                BlockSize = obj.GetInt32("block_size");
+                var sid = obj.GetString("sid");
+                SessionId = FileTransferId.Parse(sid);
             }
         }
 
@@ -663,82 +701,18 @@ namespace Sdm.Core.Messages
             using (var w = new JsonStreamWriter(s))
             {
                 w.WriteStartObject();
-                w.WritePropertyName("sid");
-                w.WriteValue(SessionId);
                 w.WritePropertyName("usr");
                 w.WriteValue(Username);
-                w.WritePropertyName("fnm");
-                w.WriteValue(Filename);
-                w.WritePropertyName("fsz");
-                w.WriteValue(Size.ToString());
-                w.WritePropertyName("fhs");
-                w.WriteValue(Hash);
-                w.WriteEndObject();
-                w.Flush();
-            }
-        }
-
-        protected override void LoadBin(Stream s)
-        {
-            using (var r = new BinaryReader(s))
-            {
-                SessionId = r.ReadString();
-                Username = r.ReadString();
-                Filename = r.ReadString();
-                Size = r.ReadInt32();
-                Hash = r.ReadString();
-            }
-        }
-
-        protected override void SaveBin(Stream s)
-        {
-            using (var w = new BinaryWriter(s))
-            {
-                w.Write(SessionId);
-                w.Write(Username);
-                w.Write(Filename);
-                w.Write(Size);
-                w.Write(Hash);
-                w.Flush();
-            }
-        }
-    }
-
-    public class CsFileTransferRespond : MultiprotocolMessage
-    {
-        public FileTrasferResult Flag;
-        public string SessionId;
-        public int Limit;
-        public CsFileTransferRespond() : base(MessageId.CsFileTransferRespond) { }
-        protected override void LoadJson(Stream s)
-        {
-            using (var r = new JsonStreamReader(s))
-            {
-                var obj = JObject.Load(r);
-                var tmp = obj.GetInt32("flg");
-                try
-                {
-                    Flag = (FileTrasferResult)tmp;
-                }
-                catch (FormatException)
-                {
-                    throw new MessageLoadException("Invalid flg: " + tmp);
-                }
-                Limit = obj.GetInt32("lim");
-            }
-        }
-
-        protected override void SaveJson(Stream s)
-        {
-            using (var w = new JsonStreamWriter(s))
-            {
-                w.WriteStartObject();
+                w.WritePropertyName("file_name");
+                w.WriteValue(FileName);
+                w.WritePropertyName("file_size");
+                w.WriteValue(FileSize);
+                w.WritePropertyName("file_hash");
+                w.WriteValue(Convert.ToBase64String(FileHash));
+                w.WritePropertyName("block_size");
+                w.WriteValue(BlockSize);
                 w.WritePropertyName("sid");
-                w.WriteValue(SessionId);
-                w.WritePropertyName("flg");
-                w.WriteValue((int)Flag);
-                w.WritePropertyName("lim");
-                w.WriteValue(Limit);
+                w.WriteValue(SessionId.ToString());
                 w.WriteEndObject();
                 w.Flush();
             }
@@ -748,17 +722,21 @@ namespace Sdm.Core.Messages
         {
             using (var r = new BinaryReader(s))
             {
-                SessionId = r.ReadString();
-                var tmp = r.ReadByte();
+                Username = r.ReadString();
+                FileName = r.ReadString();
+                FileSize = r.ReadInt64();
+                var len = r.ReadInt32();
+                FileHash = r.ReadBytes(len);
+                BlockSize = r.ReadInt32();
+                var sid = r.ReadString();
                 try
                 {
-                    Flag = (FileTrasferResult)tmp;
+                    SessionId = FileTransferId.Parse(sid);
                 }
                 catch (FormatException)
                 {
-                    throw new MessageLoadException("Invalid flg: " + tmp);
+                    throw new MessageLoadException("Invalid sid: " + sid);
                 }
-                Limit = r.ReadInt32();
             }
         }
 
@@ -766,36 +744,239 @@ namespace Sdm.Core.Messages
         {
             using (var w = new BinaryWriter(s))
             {
-                w.Write(SessionId);
-                w.Write((byte)Flag);
-                w.Write(Limit);
+                w.Write(Username);
+                w.Write(FileName);
+                w.Write(FileSize);
+                w.Write(FileHash.Length);
+                w.Write(FileHash);
+                w.Write(BlockSize);
+                w.Write(SessionId.ToString());
                 w.Flush();
             }
         }
     }
-
- 
-
-    public class CsFileTransferResult : MultiprotocolMessage
+    // XXX: add DstFileName field
+    public class ClFileTransferRespond : MultiprotocolMessage
     {
-        public FileTrasferResult Flag;
-        public string SessionId;
-        public CsFileTransferResult() : base(MessageId.CsFileTransferResult) { }
+        public FileTrasferResult Result;
+        public FileTransferId SessionId;
+        public int BlockSize;
+
+        public ClFileTransferRespond() : base(MessageId.ClFileTransferRespond) {}
 
         protected override void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
-                SessionId = obj.GetString("sid");
                 var tmp = obj.GetInt32("result");
                 try
                 {
-                    Flag = (FileTrasferResult)tmp;
+                    Result = (FileTrasferResult)tmp;
                 }
                 catch (FormatException)
                 {
-                    throw new MessageLoadException("Invalid flg: " + tmp);
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = obj.GetString("sid");
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + tmp);
+                }
+                BlockSize = obj.GetInt32("block_size");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("result");
+                w.WriteValue((int)Result);
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId.ToString());
+                w.WritePropertyName("block_size");
+                w.WriteValue(BlockSize);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                var tmp = r.ReadByte();
+                try
+                {
+                    Result = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = r.ReadString();
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + sid);
+                }
+                BlockSize = r.ReadInt32();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write((byte)Result);
+                w.Write(SessionId.ToString());
+                w.Write(BlockSize);
+                w.Flush();
+            }
+        }
+    }
+    
+    public class SvFileTransferResult : MultiprotocolMessage
+    {
+        public FileTrasferResult Result;
+        public FileTransferId SessionId;
+        public ulong Token;
+        public int BlockSize;
+
+        public SvFileTransferResult() : base(MessageId.SvFileTransferResult) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                var tmp = obj.GetInt32("result");
+                try
+                {
+                    Result = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = obj.GetString("sid");
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + tmp);
+                }
+                var token = obj.GetString("token");
+                try
+                {
+                    Token = UInt64.Parse(token);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid token: " + token);
+                }
+                BlockSize = obj.GetInt32("block_size");
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("result");
+                w.WriteValue((int)Result);
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId.ToString());
+                w.WritePropertyName("token");
+                w.WriteValue(Token.ToString());
+                w.WritePropertyName("block_size");
+                w.WriteValue(BlockSize);
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                var tmp = r.ReadByte();
+                try
+                {
+                    Result = (FileTrasferResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = r.ReadString();
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + sid);
+                }
+                Token = r.ReadUInt64();
+                BlockSize = r.ReadInt32();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write((byte)Result);
+                w.Write(SessionId.ToString());
+                w.Write(Token);
+                w.Write(BlockSize);
+                w.Flush();
+            }
+        }
+    }
+
+    public class CsFileTransferData : MultiprotocolMessage
+    {
+        public FileTransferId SessionId;
+        public byte[] Data;
+
+        public CsFileTransferData() : base(MessageId.CsFileTransferData) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                var sid = obj.GetString("sid");
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + sid);
+                }
+                var data = obj.GetString("data");
+                try
+                {
+                    Data = Convert.FromBase64String(data);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid data format");
                 }
             }
         }
@@ -806,9 +987,9 @@ namespace Sdm.Core.Messages
             {
                 w.WriteStartObject();
                 w.WritePropertyName("sid");
-                w.WriteValue(SessionId);
-                w.WritePropertyName("flg");
-                w.WriteValue((int)Flag);
+                w.WriteValue(SessionId.ToString());
+                w.WritePropertyName("data");
+                w.WriteValue(Convert.ToBase64String(Data));
                 w.WriteEndObject();
                 w.Flush();
             }
@@ -818,16 +999,17 @@ namespace Sdm.Core.Messages
         {
             using (var r = new BinaryReader(s))
             {
-                SessionId = r.ReadString();
-                var tmp = r.ReadByte();
+                var sid = r.ReadString();
                 try
                 {
-                    Flag = (FileTrasferResult)tmp;
+                    SessionId = FileTransferId.Parse(sid);
                 }
                 catch (FormatException)
                 {
-                    throw new MessageLoadException("Invalid flg: " + tmp);
+                    throw new MessageLoadException("Invalid sid: " + sid);
                 }
+                var len = r.ReadInt32();
+                Data = r.ReadBytes(len);
             }
         }
 
@@ -835,34 +1017,44 @@ namespace Sdm.Core.Messages
         {
             using (var w = new BinaryWriter(s))
             {
-                w.Write(SessionId);
-                w.Write(Flag.ToString());
+                w.Write(SessionId.ToString());
+                w.Write(Data.Length);
+                w.Write(Data);
                 w.Flush();
             }
         }
     }
 
-    public class CsBlockTransfer : MultiprotocolMessage
+    public class CsFileTransferVerificationResult : MultiprotocolMessage
     {
-        public byte[] Block;
-        public string SessionId;
+        public FileTransferVerificationResult Result;
+        public FileTransferId SessionId;
 
-        public CsBlockTransfer() : base(MessageId.CsBlockTransfer) { }
+        public CsFileTransferVerificationResult() : base(MessageId.CsFileTransferVerificationResult) {}
+
         protected override void LoadJson(Stream s)
         {
             using (var r = new JsonStreamReader(s))
             {
                 var obj = JObject.Load(r);
-                SessionId = obj.GetString("sid");
-                var blk = obj.GetString("blk");
+                var tmp = obj.GetInt32("result");
                 try
                 {
-                    Block = Convert.FromBase64String(blk);
+                    Result = (FileTransferVerificationResult)tmp;
                 }
                 catch (FormatException)
                 {
-                    throw new MessageLoadException("Invalid block format");
-                }             
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = obj.GetString("sid");
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + tmp);
+                }
             }
         }
 
@@ -870,10 +1062,11 @@ namespace Sdm.Core.Messages
         {
             using (var w = new JsonStreamWriter(s))
             {
+                w.WriteStartObject();
+                w.WritePropertyName("result");
+                w.WriteValue((int)Result);
                 w.WritePropertyName("sid");
-                w.WriteValue(SessionId);
-                w.WritePropertyName("blk");
-                w.WriteValue(Convert.ToBase64String(Block));
+                w.WriteValue(SessionId.ToString());
                 w.WriteEndObject();
                 w.Flush();
             }
@@ -883,20 +1076,133 @@ namespace Sdm.Core.Messages
         {
             using (var r = new BinaryReader(s))
             {
-                SessionId = r.ReadString();
-                var len = r.ReadInt32();
-                Block = r.ReadBytes(len);
+                var tmp = r.ReadByte();
+                try
+                {
+                    Result = (FileTransferVerificationResult)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid result: " + tmp);
+                }
+                var sid = r.ReadString();
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + sid);
+                }
             }
         }
 
         protected override void SaveBin(Stream s)
         {
-
             using (var w = new BinaryWriter(s))
             {
-                w.Write(SessionId);
-                w.Write(Block.Length);
-                w.Write(Block);
+                w.Write((byte)Result);
+                w.Write(SessionId.ToString());
+                w.Flush();
+            }
+        }
+    }
+
+    // 1] sender wants to interrupt <waiting> transfer (token is required)
+    // 2] sender/receiver wants to interrupt <working/...> transfer (session id is required)
+    // note: client always receives this message with valid session id
+    public class CsFileTransferInterruption : MultiprotocolMessage
+    {
+        public FileTransferInterruption Int;
+        public FileTransferId SessionId;
+        public ulong Token;
+
+        public CsFileTransferInterruption() : base(MessageId.CsFileTransferInterruption) {}
+
+        protected override void LoadJson(Stream s)
+        {
+            using (var r = new JsonStreamReader(s))
+            {
+                var obj = JObject.Load(r);
+                var tmp = obj.GetInt32("int");
+                try
+                {
+                    Int = (FileTransferInterruption)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid int: " + tmp);
+                }
+                var sid = obj.GetString("sid");
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + tmp);
+                }
+                var token = obj.GetString("token");
+                try
+                {
+                    Token = UInt64.Parse(token);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid token: " + token);
+                }
+            }
+        }
+
+        protected override void SaveJson(Stream s)
+        {
+            using (var w = new JsonStreamWriter(s))
+            {
+                w.WriteStartObject();
+                w.WritePropertyName("int");
+                w.WriteValue((int)Int);
+                w.WritePropertyName("sid");
+                w.WriteValue(SessionId.ToString());
+                w.WritePropertyName("token");
+                w.WriteValue(Token.ToString());
+                w.WriteEndObject();
+                w.Flush();
+            }
+        }
+
+        protected override void LoadBin(Stream s)
+        {
+            using (var r = new BinaryReader(s))
+            {
+                var tmp = r.ReadByte();
+                try
+                {
+                    Int = (FileTransferInterruption)tmp;
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid int: " + tmp);
+                }
+                var sid = r.ReadString();
+                try
+                {
+                    SessionId = FileTransferId.Parse(sid);
+                }
+                catch (FormatException)
+                {
+                    throw new MessageLoadException("Invalid sid: " + sid);
+                }
+                Token = r.ReadUInt64();
+            }
+        }
+
+        protected override void SaveBin(Stream s)
+        {
+            using (var w = new BinaryWriter(s))
+            {
+                w.Write((byte)Int);
+                w.Write(SessionId.ToString());
+                w.Write(Token);
                 w.Flush();
             }
         }

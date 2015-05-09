@@ -24,10 +24,12 @@ namespace Sdm.Core
             Register(MessageId.SvUserlistUpdate, typeof(SvUserlistUpdate));
             Register(MessageId.CsChatMessage, typeof(CsChatMessage));
             Register(MessageId.ClFileTransferRequest, typeof(ClFileTransferRequest));
-            Register(MessageId.CsFileTransferRespond, typeof(CsFileTransferRespond));
+            Register(MessageId.ClFileTransferRespond, typeof(ClFileTransferRespond));
             Register(MessageId.SvFileTransferRequest, typeof(SvFileTransferRequest));
-            Register(MessageId.CsFileTransferResult, typeof(CsFileTransferResult));
-            Register(MessageId.CsBlockTransfer, typeof(CsBlockTransfer));
+            Register(MessageId.SvFileTransferResult, typeof(SvFileTransferResult));
+            Register(MessageId.CsFileTransferData, typeof(CsFileTransferData));
+            Register(MessageId.CsFileTransferVerificationResult, typeof(CsFileTransferVerificationResult));
+            Register(MessageId.CsFileTransferInterruption, typeof(CsFileTransferInterruption));
             // register all messages here
         }
 

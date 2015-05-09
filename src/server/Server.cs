@@ -72,11 +72,16 @@ namespace Sdm.Server
         private UserList users;
         private Socket svSocket;
         private Thread acceptingThread;
+        // client containers
         private readonly SortedList<ClientId, SocketClientBase> clients;
         private readonly ConcurrentQueue<SocketClientBase> newClients, delClients;
         private readonly List<IClient> iclients;
         private readonly ReadOnlyCollection<IClient> roClients;
         private readonly Dictionary<string, SocketClientBase> nameToClient;
+        // ~client containers
+        private readonly FileTransferSessionContainer ftsContainer;
+        private readonly int MaxBlockSize;
+        private const int MinBlockSize = 1024;
         private readonly ConcurrentQueue<IMessage> svcMessages;
         private readonly SemaphoreSlim semAcceptingThread;
         private volatile bool disconnecting = false;
@@ -98,6 +103,9 @@ namespace Sdm.Server
             iclients = new List<IClient>();
             roClients = iclients.AsReadOnly();
             nameToClient = new Dictionary<string, SocketClientBase>();
+            ftsContainer = new FileTransferSessionContainer();
+            int minBufSize = Math.Min(cfg.SocketReceiveBufferSize, cfg.SocketSendBufferSize);
+            MaxBlockSize = minBufSize / 2;
             svcMessages = new ConcurrentQueue<IMessage>();
             semAcceptingThread = new SemaphoreSlim(0, 1);
             Protocol = cfg.Protocol;
@@ -451,28 +459,21 @@ namespace Sdm.Server
                 OnCsChatMessage(msg as CsChatMessage, cl);
                 break;
             case MessageId.ClFileTransferRequest:
-                OnCsFileTransferRequest(msg as ClFileTransferRequest);
+                OnCsFileTransferRequest(msg as ClFileTransferRequest, cl);
                 break;
-            case MessageId.CsFileTransferResult:
-                OnCsFileTransferResult(msg as CsFileTransferResult);
+            case MessageId.ClFileTransferRespond:
+                OnClFileTransferRespond(msg as ClFileTransferRespond, cl);
                 break;
-            case MessageId.CsBlockTransfer:
-                OnCsBlockTransfer(msg as CsBlockTransfer);
+            case MessageId.CsFileTransferData:
+                OnCsFileTransferData(msg as CsFileTransferData, cl);
+                break;
+            case MessageId.CsFileTransferVerificationResult:
+                OnCsFileTransferVerificationResult(msg as CsFileTransferVerificationResult, cl);
+                break;
+            case MessageId.CsFileTransferInterruption:
+                OnCsFileTransferInterruption(msg as CsFileTransferInterruption, cl);
                 break;
             }
-        }
-
-        private void OnCsFileTransferRequest(ClFileTransferRequest msg)
-        {
-            throw new NotImplementedException();
-        }
-        private void OnCsFileTransferResult(CsFileTransferResult msg)
-        {
-            throw new NotImplementedException();
-        }
-        private void OnCsBlockTransfer(CsBlockTransfer msg)
-        {
-            throw new NotImplementedException();
         }
 
         private void OnClAuthRespond(ClAuthRespond msg, ClientId id)
@@ -573,6 +574,187 @@ namespace Sdm.Server
             }
         }
 
+        private void OnCsFileTransferRequest(ClFileTransferRequest msg, ClientId id)
+        {
+            var sender = clients[id];
+            SocketClientBase receiver;
+            if (!nameToClient.TryGetValue(msg.Username, out receiver))
+            {
+                // XXX: log 'client not found'
+                var result = new SvFileTransferResult
+                {
+                    Result = FileTrasferResult.Rejected,
+                    SessionId = FileTransferId.InvalidId,
+                    Token = msg.Token
+                };
+                SendTo(id, result);
+                return;
+            }
+            var ft = ftsContainer.CreateSession(msg.Token, sender.Login, receiver.Login, msg.FileHash, msg.FileSize);
+            ft.SrcName = msg.FileName;
+            ft.BlockSize = SelectBlockSize(msg.BlockSize);
+            var request = new SvFileTransferRequest
+            {
+                Username = sender.Login,
+                FileName = msg.FileName,
+                FileHash = msg.FileHash,
+                FileSize = msg.FileSize,
+                BlockSize = ft.BlockSize,
+                SessionId = ft.Id
+            };
+            SendTo(receiver.Id, request);
+        }
+
+        private void OnClFileTransferRespond(ClFileTransferRespond msg, ClientId id)
+        {
+            var cl = clients[id];
+            var ft = ftsContainer.GetSessionById(msg.SessionId);
+            if (ft == null)
+            {
+                // XXX: report failure, send result
+                return;
+            }
+            if (cl.Login != ft.Receiver)
+            {
+                // XXX: report username mismatch
+                return;
+            }
+            SocketClientBase fileSender;
+            if (!nameToClient.TryGetValue(ft.Sender, out fileSender))
+            {
+                // XXX: suspend session (cl is offline)
+                return;
+            }
+            var result = new SvFileTransferResult
+            {
+                Result = msg.Result,
+                Token = ft.Token
+            };
+            if (msg.Result == FileTrasferResult.Accepted)
+            {
+                var newBlockSize = Math.Min(SelectBlockSize(msg.BlockSize), ft.BlockSize);
+                ft.BlockSize = newBlockSize;
+                ft.State = FileTransferState.Working;
+                result.BlockSize = newBlockSize;
+                result.SessionId = msg.SessionId;
+            }
+            else
+            {
+                ftsContainer.DeleteSession(ft.Id);
+                result.SessionId = FileTransferId.InvalidId;
+            }
+            SendTo(fileSender.Id, result);
+        }
+
+        private void OnCsFileTransferData(CsFileTransferData msg, ClientId id)
+        {
+            var ft = ftsContainer.GetSessionById(msg.SessionId);
+            if (ft == null)
+            {
+                // XXX: report failure, send result
+                return;
+            }
+            SocketClientBase receiver;
+            if (!nameToClient.TryGetValue(ft.Receiver, out receiver))
+            {
+                // XXX: suspend session (cl is offline)
+                return;
+            }
+            // XXX: check session state + check receiver state
+            if (ft.State != FileTransferState.Working)
+            {
+                // XXX: log 'invalid state'
+                return;
+            }
+            SendTo(receiver.Id, msg);
+            ft.BlocksDone++;
+            if (ft.BlocksDone == ft.BlocksTotal)
+                ft.State = FileTransferState.Verification;
+        }
+
+        private void OnCsFileTransferVerificationResult(CsFileTransferVerificationResult msg, ClientId id)
+        {
+            var ft = ftsContainer.GetSessionById(msg.SessionId);
+            if (ft == null)
+            {
+                // XXX: report failure, send result
+                return;
+            }
+            if (ft.State != FileTransferState.Verification)
+            {
+                // XXX: log 'invalid state'
+                return;
+            }
+            SocketClientBase fileSender;
+            if (!nameToClient.TryGetValue(ft.Sender, out fileSender))
+            {
+                // XXX: suspend session (cl is offline)
+                return;
+            }
+            if (msg.Result == FileTransferVerificationResult.Success)
+                ft.State = FileTransferState.Success;
+            else
+                ft.State = FileTransferState.Failure;
+            ftsContainer.DeleteSession(ft.Id);
+            SendTo(fileSender.Id, msg);
+        }
+
+        private void OnCsFileTransferInterruption(CsFileTransferInterruption msg, ClientId id)
+        {
+            var sender = clients[id];
+            FileTransferSession ft = null;
+            if (msg.SessionId != FileTransferId.InvalidId)
+                ft = ftsContainer.GetSessionById(msg.SessionId);
+            else // client is sender and doesn't have sid yet
+            {
+                var senderSessions = ftsContainer.GetUserSessions(sender.Login);
+                if (senderSessions == null)
+                {
+                    // XXX: log 'session has been already cancelled and deleted'
+                    return;
+                }
+                foreach (var sid in senderSessions)
+                {
+                    var s = ftsContainer.GetSessionById(sid);
+                    if (s.Token == msg.Token && s.Sender == sender.Login)
+                    {
+                        ft = s;
+                        break;
+                    }
+                }
+            }
+            if (ft == null)
+            {
+                // XXX: report failure, send result
+                return;
+            }
+            string oppUsername = sender.Login == ft.Sender ? ft.Receiver : ft.Sender;
+            SocketClientBase oppClient;
+            if (!nameToClient.TryGetValue(oppUsername, out oppClient))
+            {
+                // XXX: suspend session (cl is offline)
+                return;
+            }
+            msg.SessionId = ft.Id;
+            switch (msg.Int)
+            {
+            case FileTransferInterruption.Cancel:
+            default:
+                ft.State = FileTransferState.Cancelled;
+                ftsContainer.DeleteSession(ft.Id);
+                break;
+            }
+            SendTo(oppClient.Id, msg);
+        }
+
+        private int SelectBlockSize(int clSize)
+        {
+            int blockSize = Math.Min(MaxBlockSize, clSize);
+            if (blockSize < MinBlockSize)
+                blockSize = MinBlockSize;
+            return blockSize;
+        }
+
         public override IClient IdToClient(ClientId id)
         { return clients[id]; }
         
@@ -644,7 +826,7 @@ namespace Sdm.Server
             rng.GetBytes(key);
             return key;
         }
-
+        
         protected override void Dispose(bool disposing)
         {
             if (!disposed)

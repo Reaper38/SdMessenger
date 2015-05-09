@@ -19,10 +19,12 @@ namespace Sdm.Core
         SvUserlistUpdate = 9,
         CsChatMessage = 10,
         ClFileTransferRequest = 11,
-        CsFileTransferRespond = 12,
+        ClFileTransferRespond = 12,
         SvFileTransferRequest = 13,
-        CsFileTransferResult = 14,
-        CsBlockTransfer = 15,
+        SvFileTransferResult = 14,
+        CsFileTransferData = 15,
+        CsFileTransferVerificationResult = 16,
+        CsFileTransferInterruption = 17,
         Max // add new ids above
     }
 

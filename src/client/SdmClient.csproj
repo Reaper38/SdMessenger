@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AppController.cs" />
     <Compile Include="BlockFile.cs" />
+    <Compile Include="FileTransferManager.cs" />
     <Compile Include="ClientConfig.cs" />
     <Compile Include="Client\Client.cs" />
     <Compile Include="Controls\FormEx.cs">
