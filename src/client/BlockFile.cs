@@ -70,6 +70,8 @@ namespace Sdm.Client
 
         public bool Eof { get { return CurrentBlock >= BlockCount; } }
 
+        public void Flush() { fs.Flush(); }
+
         public void Close() { Dispose(); }
 
         #region IDisposable Members
@@ -162,6 +164,8 @@ namespace Sdm.Client
         public int Padding { get; private set; }
 
         public bool Eof { get { return CurrentBlock >= BlockCount; } }
+
+        public void Flush() { fs.Flush(); }
 
         public void Close() { Dispose(); }
 
