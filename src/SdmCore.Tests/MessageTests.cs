@@ -226,5 +226,181 @@ namespace SdmCore.Tests
                 Assert.AreEqual(msg.Message, refMessage);
             });
         }
+
+        [Test]
+        public void SaveLoadClFileTransferRequest()
+        {
+            // arrange
+            const string refUsername = "King";
+            const string refFileName = "crown.png";
+            byte[] refFileHash = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+            const long refFileSize = 420042;
+            const int refBlockSize = 8192;
+            const ulong refToken = 120982;
+            var msg = new ClFileTransferRequest
+            {
+                Username = refUsername,
+                FileName = refFileName,
+                FileHash = refFileHash,
+                FileSize = refFileSize,
+                BlockSize = refBlockSize,
+                Token = refToken,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Username, refUsername);
+                Assert.AreEqual(msg.FileName, refFileName);
+                Assert.AreEqual(msg.FileHash, refFileHash);
+                Assert.AreEqual(msg.FileSize, refFileSize);
+                Assert.AreEqual(msg.BlockSize, refBlockSize);
+                Assert.AreEqual(msg.Token, refToken);
+            });
+        }
+
+        [Test]
+        public void SaveLoadSvFileTransferRequest()
+        {
+            // arrange
+            const string refUsername = "King";
+            const string refFileName = "crown.png";
+            byte[] refFileHash = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+            const long refFileSize = 420042;
+            const int refBlockSize = 8192;
+            var refSid = new FileTransferId(81289);
+            var msg = new SvFileTransferRequest
+            {
+                Username = refUsername,
+                FileName = refFileName,
+                FileHash = refFileHash,
+                FileSize = refFileSize,
+                BlockSize = refBlockSize,
+                SessionId = refSid,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Username, refUsername);
+                Assert.AreEqual(msg.FileName, refFileName);
+                Assert.AreEqual(msg.FileHash, refFileHash);
+                Assert.AreEqual(msg.FileSize, refFileSize);
+                Assert.AreEqual(msg.BlockSize, refBlockSize);
+                Assert.AreEqual(msg.SessionId, refSid);
+            });
+        }
+
+        [Test]
+        public void SaveLoadClFileTransferRespond()
+        {
+            // arrange
+            const FileTransferRequestResult refResult = FileTransferRequestResult.Accepted;
+            var refSid = new FileTransferId(81289);
+            const int refBlockSize = 8192;
+            var msg = new ClFileTransferRespond
+            {
+                Result = refResult,
+                SessionId = refSid,
+                BlockSize = refBlockSize,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Result, refResult);
+                Assert.AreEqual(msg.SessionId, refSid);
+                Assert.AreEqual(msg.BlockSize, refBlockSize);
+            });
+        }
+
+        [Test]
+        public void SaveLoadSvFileTransferResult()
+        {
+            // arrange
+            const FileTransferRequestResult refResult = FileTransferRequestResult.Accepted;
+            var refSid = new FileTransferId(81289);
+            const ulong refToken = 120982;
+            const int refBlockSize = 8192;
+            var msg = new SvFileTransferResult
+            {
+                Result = refResult,
+                SessionId = refSid,
+                Token = refToken,
+                BlockSize = refBlockSize,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Result, refResult);
+                Assert.AreEqual(msg.SessionId, refSid);
+                Assert.AreEqual(msg.Token, refToken);
+                Assert.AreEqual(msg.BlockSize, refBlockSize);
+            });
+        }
+
+        [Test]
+        public void SaveLoadCsFileTransferData()
+        {
+            // arrange
+            var refSid = new FileTransferId(81289);
+            byte[] refData = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+            var msg = new CsFileTransferData
+            {
+                SessionId = refSid,
+                Data = refData,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.SessionId, refSid);
+                Assert.AreEqual(msg.Data, refData);
+            });
+        }
+
+        [Test]
+        public void SaveLoadCsFileTransferVerificationResult()
+        {
+            // arrange
+            const FileTransferVerificationResult refResult = FileTransferVerificationResult.Success;
+            var refSid = new FileTransferId(81289);
+            var msg = new CsFileTransferVerificationResult
+            {
+                Result = refResult,
+                SessionId = refSid,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Result, refResult);
+                Assert.AreEqual(msg.SessionId, refSid);
+            });
+        }
+
+        [Test]
+        public void SaveLoadCsFileTransferInterruption()
+        {
+            // arrange
+            const FileTransferInterruption refInt = FileTransferInterruption.Cancel;
+            var refSid = new FileTransferId(81289);
+            const ulong refToken = 120982;
+            var msg = new CsFileTransferInterruption
+            {
+                Int = refInt,
+                SessionId = refSid,
+                Token = refToken,
+            };
+            // act
+            MultiprotocolSaveLoad(msg, () =>
+            {
+                // assert
+                Assert.AreEqual(msg.Int, refInt);
+                Assert.AreEqual(msg.SessionId, refSid);
+                Assert.AreEqual(msg.Token, refToken);
+            });
+        }
     }
 }

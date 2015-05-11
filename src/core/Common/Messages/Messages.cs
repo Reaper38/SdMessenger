@@ -576,8 +576,6 @@ namespace Sdm.Core.Messages
         }
     }
     
-    // XXX: unit tests are required for all messages below
-
     public class ClFileTransferRequest : MultiprotocolMessage
     {
         public string Username, FileName;
