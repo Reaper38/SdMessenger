@@ -105,7 +105,6 @@ namespace Sdm.Client
         
         private void cmiLogin_Click(object sender, EventArgs e)
         {
-            // XXX: show login window or logout
             if (Controller.State == ConnectionState.Disconnected)
                 Controller.ShowLoginDialog();
             else

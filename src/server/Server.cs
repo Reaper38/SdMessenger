@@ -660,7 +660,6 @@ namespace Sdm.Server
                 // XXX: suspend session (cl is offline)
                 return;
             }
-            // XXX: check session state + check receiver state
             if (ft.State != FileTransferState.Working)
             {
                 // XXX: log 'invalid state'
