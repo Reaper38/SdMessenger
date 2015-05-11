@@ -425,9 +425,6 @@ namespace Sdm.Client
             fileDialog.Show();
         }
 
-        public void Disconnect()
-        {
-            client.Disconnect();
-        }
+        public void Disconnect() { client.Disconnect(); }
     }
 }

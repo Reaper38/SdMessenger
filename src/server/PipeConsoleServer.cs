@@ -45,7 +45,9 @@ namespace Sdm.Server
         {
             var locker = ar.AsyncState;
             lock (locker)
-            { Monitor.Pulse(locker); }
+            {
+                Monitor.Pulse(locker);
+            }
         }
 
         private void ClientServiceLoop()

@@ -56,7 +56,9 @@ namespace Sdm.Server
         public void Clear()
         {
             lock (sync)
-            { users.Clear(); }
+            {
+                users.Clear();
+            }
         }
 
         public void Load()
