@@ -35,7 +35,12 @@ namespace SdmCore.Tests
             const MessageId refId = MessageId.SvUserlistUpdate;
             const MessageFlags refFlags = MessageFlags.Secure;
             const int refSize = 42;
-            var hdr = new MsgHeader {Id = refId, Flags = refFlags, Size = refSize};
+            var hdr = new MsgHeader
+            {
+                Id = refId,
+                Flags = refFlags,
+                Size = refSize,
+            };
             // act
             MultiprotocolSaveLoad(hdr, () =>
             {
@@ -52,7 +57,11 @@ namespace SdmCore.Tests
             // arrange
             const string refLogin = "username";
             const string refPassword = "password";
-            var msg = new ClAuthRespond {Login = refLogin, Password = refPassword};
+            var msg = new ClAuthRespond
+            {
+                Login = refLogin,
+                Password = refPassword,
+            };
             using (var csp = CryptoProviderFactory.Instance.CreateSymmetric(SdmSymmetricAlgorithm.AES))
             {
                 using (var container = new MessageCryptoContainer())
@@ -78,7 +87,10 @@ namespace SdmCore.Tests
         {
             // arrange
             const int refKeySize = 2048;
-            var msg = new SvPublicKeyChallenge {KeySize = refKeySize};
+            var msg = new SvPublicKeyChallenge
+            {
+                KeySize = refKeySize,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -92,7 +104,10 @@ namespace SdmCore.Tests
         {
             // arrange
             const string refKey = "rsa_public_key";
-            var msg = new ClPublicKeyRespond {Key = refKey};
+            var msg = new ClPublicKeyRespond
+            {
+                Key = refKey,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -106,7 +121,10 @@ namespace SdmCore.Tests
         {
             // arrange
             byte[] refSessionKey = {88, 10, 42, 98, 61, 210, 99, 65, 88, 1, 24, 89, 61, 201, 99, 56};
-            var msg = new SvAuthChallenge {SessionKey = refSessionKey};
+            var msg = new SvAuthChallenge
+            {
+                SessionKey = refSessionKey,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -121,7 +139,11 @@ namespace SdmCore.Tests
             // arrange
             const string refLogin = "username";
             const string refPassword = "password";
-            var msg = new ClAuthRespond {Login = refLogin, Password = refPassword};
+            var msg = new ClAuthRespond
+            {
+                Login = refLogin,
+                Password = refPassword,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -137,7 +159,11 @@ namespace SdmCore.Tests
             // arrange
             const string refMessage = "You have been banned by serveradmin";
             const AuthResult refResult = AuthResult.Banned;
-            var msg = new SvAuthResult {Message = refMessage, Result = refResult};
+            var msg = new SvAuthResult
+            {
+                Message = refMessage,
+                Result = refResult,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -162,7 +188,11 @@ namespace SdmCore.Tests
             // arrange
             const string refMessage = "Server will be available again in 5 min";
             const DisconnectReason refReason = DisconnectReason.Shutdown;
-            var msg = new SvDisconnect {Message = refMessage, Reason = refReason};
+            var msg = new SvDisconnect
+            {
+                Message = refMessage,
+                Reason = refReason,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -186,7 +216,10 @@ namespace SdmCore.Tests
         {
             // arrange
             string[] refUsernames = {"admin", "user", "godzilla", "king", "octopus"};
-            var msg = new SvUserlistRespond {Usernames = refUsernames};
+            var msg = new SvUserlistRespond
+            {
+                Usernames = refUsernames,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -201,7 +234,11 @@ namespace SdmCore.Tests
             // arrange
             string[] refConnected = {"godzilla", "octopus"};
             string[] refDisconnected = {"admin", "user", "king"};
-            var msg = new SvUserlistUpdate {Connected = refConnected, Disconnected = refDisconnected};
+            var msg = new SvUserlistUpdate
+            {
+                Connected = refConnected,
+                Disconnected = refDisconnected,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
@@ -217,7 +254,11 @@ namespace SdmCore.Tests
             // arrange
             const string refUsername = "king";
             const string refMessage = "I'm a king";
-            var msg = new CsChatMessage {Username = refUsername, Message = refMessage};
+            var msg = new CsChatMessage
+            {
+                Username = refUsername,
+                Message = refMessage,
+            };
             // act
             MultiprotocolSaveLoad(msg, () =>
             {
