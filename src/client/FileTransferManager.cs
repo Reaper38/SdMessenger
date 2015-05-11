@@ -135,7 +135,7 @@ namespace Sdm.Client
                 case FileTransferState.Waiting:
                     msg = new ClFileTransferRespond
                     {
-                        Result = FileTrasferResult.Rejected,
+                        Result = FileTransferRequestResult.Rejected,
                         SessionId = Id
                     };
                     break;
@@ -236,7 +236,7 @@ namespace Sdm.Client
                 case FileTransferState.Waiting:
                     msg = new ClFileTransferRespond
                     {
-                        Result = FileTrasferResult.Rejected,
+                        Result = FileTransferRequestResult.Rejected,
                         SessionId = Id
                     };
                     break;
@@ -427,7 +427,7 @@ namespace Sdm.Client
             ift.Writer = new BlockFileWriter(ift.Name, ift.BlockSize, ift.BytesTotal);
             var respond = new ClFileTransferRespond
             {
-                Result = FileTrasferResult.Accepted,
+                Result = FileTransferRequestResult.Accepted,
                 SessionId = ift.Id,
                 BlockSize = ift.BlockSize
             };
@@ -523,7 +523,7 @@ namespace Sdm.Client
             }
             switch (msg.Result)
             {
-            case FileTrasferResult.Accepted:
+            case FileTransferRequestResult.Accepted:
                 pendingFts.Remove(msg.Token);
                 oft.SetId(msg.SessionId);
                 oft.State = FileTransferState.Working;

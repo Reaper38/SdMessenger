@@ -583,7 +583,7 @@ namespace Sdm.Server
                 // XXX: log 'client not found'
                 var result = new SvFileTransferResult
                 {
-                    Result = FileTrasferResult.Rejected,
+                    Result = FileTransferRequestResult.Rejected,
                     SessionId = FileTransferId.InvalidId,
                     Token = msg.Token
                 };
@@ -630,7 +630,7 @@ namespace Sdm.Server
                 Result = msg.Result,
                 Token = ft.Token
             };
-            if (msg.Result == FileTrasferResult.Accepted)
+            if (msg.Result == FileTransferRequestResult.Accepted)
             {
                 var newBlockSize = Math.Min(SelectBlockSize(msg.BlockSize), ft.BlockSize);
                 ft.BlockSize = newBlockSize;

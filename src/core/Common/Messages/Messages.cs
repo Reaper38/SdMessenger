@@ -758,7 +758,7 @@ namespace Sdm.Core.Messages
     // XXX: add DstFileName field
     public class ClFileTransferRespond : MultiprotocolMessage
     {
-        public FileTrasferResult Result;
+        public FileTransferRequestResult Result;
         public FileTransferId SessionId;
         public int BlockSize;
 
@@ -772,7 +772,7 @@ namespace Sdm.Core.Messages
                 var tmp = obj.GetInt32("result");
                 try
                 {
-                    Result = (FileTrasferResult)tmp;
+                    Result = (FileTransferRequestResult)tmp;
                 }
                 catch (FormatException)
                 {
@@ -814,7 +814,7 @@ namespace Sdm.Core.Messages
                 var tmp = r.ReadByte();
                 try
                 {
-                    Result = (FileTrasferResult)tmp;
+                    Result = (FileTransferRequestResult)tmp;
                 }
                 catch (FormatException)
                 {
@@ -847,7 +847,7 @@ namespace Sdm.Core.Messages
     
     public class SvFileTransferResult : MultiprotocolMessage
     {
-        public FileTrasferResult Result;
+        public FileTransferRequestResult Result;
         public FileTransferId SessionId;
         public ulong Token;
         public int BlockSize;
@@ -862,7 +862,7 @@ namespace Sdm.Core.Messages
                 var tmp = obj.GetInt32("result");
                 try
                 {
-                    Result = (FileTrasferResult)tmp;
+                    Result = (FileTransferRequestResult)tmp;
                 }
                 catch (FormatException)
                 {
@@ -915,7 +915,7 @@ namespace Sdm.Core.Messages
                 var tmp = r.ReadByte();
                 try
                 {
-                    Result = (FileTrasferResult)tmp;
+                    Result = (FileTransferRequestResult)tmp;
                 }
                 catch (FormatException)
                 {
