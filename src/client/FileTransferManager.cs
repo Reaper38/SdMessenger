@@ -50,14 +50,13 @@ namespace Sdm.Client
     {
         private abstract class FileTransferBase : IFileTransfer
         {
-            private readonly DateTime timestamp;
+            private readonly int hashCode;
             protected readonly FileTransferManager Owner;
 
             protected FileTransferBase(FileTransferManager owner)
             {
                 // all file transfer instances are unique => assign random number to each instance as hash
-                // XXX: use random int instead of timestamp
-                timestamp = DateTime.Now;
+                hashCode = new Random().Next();
                 Owner = owner;
             }
 
@@ -75,8 +74,7 @@ namespace Sdm.Client
             public abstract void Delete();
             protected abstract void Dispose(bool disposing);
 
-            public override int GetHashCode()
-            { return timestamp.GetHashCode(); }
+            public override int GetHashCode() { return hashCode; }
 
             public void Dispose()
             {
