@@ -253,7 +253,8 @@ namespace Sdm.Client
             {
                 if (!uiProxies.TryGetValue(ft, out proxy))
                 {
-                    // XXX: log error
+                    Root.Log(LogLevel.Error, "AppController: skipping unknown file transfer session [sid={0}]",
+                        ft.Id);
                     return;
                 }
             }
