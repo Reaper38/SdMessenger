@@ -49,7 +49,11 @@ namespace Sdm.Client
             uiProxies = new Dictionary<IFileTransfer, FileTransferUiProxy>();
             MainForm = mainDialog;
             evUpdaterThread = new ManualResetEvent(false);
-            updaterThread = new Thread(UpdateProc) {IsBackground = true};
+            updaterThread = new Thread(UpdateProc)
+            {
+                Name = "AppController updater",
+                IsBackground = true,
+            };
             updaterThread.Start();
         }
         
