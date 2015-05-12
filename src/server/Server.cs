@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -580,7 +581,8 @@ namespace Sdm.Server
             SocketClientBase receiver;
             if (!nameToClient.TryGetValue(msg.Username, out receiver))
             {
-                // XXX: log 'client not found'
+                Root.Log(LogLevel.Warning, "Server: client {0} requested file transfer " +
+                    "to unknown client {1}", id, msg.Username);
                 var result = new SvFileTransferResult
                 {
                     Result = FileTransferRequestResult.Rejected,
@@ -611,17 +613,16 @@ namespace Sdm.Server
             var ft = ftsContainer.GetSessionById(msg.SessionId);
             if (ft == null)
             {
-                // XXX: report failure, send result
-                return;
-            }
-            if (cl.Login != ft.Receiver)
-            {
-                // XXX: report username mismatch
+                Root.Log(LogLevel.Warning, "Server: bad file transfer session id ({0}) received from client {1} ",
+                    msg.SessionId, cl.Login);
+                // XXX: send result
                 return;
             }
             SocketClientBase fileSender;
             if (!nameToClient.TryGetValue(ft.Sender, out fileSender))
             {
+                Root.Log(LogLevel.Warning, "Server: client {0} attempted to send file transfer verification result " +
+                    "to disconnected client {1}", cl.Login, ft.Receiver);
                 // XXX: suspend session (cl is offline)
                 return;
             }
@@ -648,21 +649,27 @@ namespace Sdm.Server
 
         private void OnCsFileTransferData(CsFileTransferData msg, ClientId id)
         {
+            var cl = clients[id];
             var ft = ftsContainer.GetSessionById(msg.SessionId);
             if (ft == null)
             {
-                // XXX: report failure, send result
+                Root.Log(LogLevel.Warning, "Server: bad file transfer session id ({0}) received from client {1} ",
+                    msg.SessionId, cl.Login);
+                // XXX: send result
                 return;
             }
             SocketClientBase receiver;
             if (!nameToClient.TryGetValue(ft.Receiver, out receiver))
             {
+                Root.Log(LogLevel.Warning, "Server: ignoring file transfer data {0} -> {1} (receiver disconnected)",
+                    cl.Login, ft.Receiver);
                 // XXX: suspend session (cl is offline)
                 return;
             }
             if (ft.State != FileTransferState.Working)
             {
-                // XXX: log 'invalid state'
+                Root.Log(LogLevel.Error, "Server: invalid file transfer state [sid={0}, expected={1}, got={2}]",
+                    ft.Id, FileTransferState.Working, ft.State);
                 return;
             }
             SendTo(receiver.Id, msg);
@@ -673,20 +680,26 @@ namespace Sdm.Server
 
         private void OnCsFileTransferVerificationResult(CsFileTransferVerificationResult msg, ClientId id)
         {
+            var cl = clients[id];
             var ft = ftsContainer.GetSessionById(msg.SessionId);
             if (ft == null)
             {
-                // XXX: report failure, send result
+                Root.Log(LogLevel.Warning, "Server: bad file transfer session id ({0}) received from client {1} ",
+                    msg.SessionId, cl.Login);
+                // XXX: send result
                 return;
             }
             if (ft.State != FileTransferState.Verification)
             {
-                // XXX: log 'invalid state'
+                Root.Log(LogLevel.Error, "Server: invalid file transfer state [sid={0}, expected={1}, got={2}]",
+                    ft.Id, FileTransferState.Verification, ft.State);
                 return;
             }
             SocketClientBase fileSender;
             if (!nameToClient.TryGetValue(ft.Sender, out fileSender))
             {
+                Root.Log(LogLevel.Warning, "Server: client {0} attempted to send file transfer verification result " +
+                    "to disconnected client {1}", cl.Login, ft.Receiver);
                 // XXX: suspend session (cl is offline)
                 return;
             }
@@ -707,30 +720,31 @@ namespace Sdm.Server
             else // client is sender and doesn't have sid yet
             {
                 var senderSessions = ftsContainer.GetUserSessions(sender.Login);
-                if (senderSessions == null)
+                if (senderSessions != null)
                 {
-                    // XXX: log 'session has been already cancelled and deleted'
-                    return;
-                }
-                foreach (var sid in senderSessions)
-                {
-                    var s = ftsContainer.GetSessionById(sid);
-                    if (s.Token == msg.Token && s.Sender == sender.Login)
+                    foreach (var sid in senderSessions)
                     {
-                        ft = s;
-                        break;
+                        var s = ftsContainer.GetSessionById(sid);
+                        if (s.Token == msg.Token && s.Sender == sender.Login)
+                        {
+                            ft = s;
+                            break;
+                        }
                     }
                 }
-            }
-            if (ft == null)
-            {
-                // XXX: report failure, send result
-                return;
+                if (ft == null)
+                {
+                    Root.Log(LogLevel.Warning, "Server: ignoring file transfer interruption from client {0} " +
+                        "- session not found", sender.Login);
+                    return;
+                }
             }
             string oppUsername = sender.Login == ft.Sender ? ft.Receiver : ft.Sender;
             SocketClientBase oppClient;
             if (!nameToClient.TryGetValue(oppUsername, out oppClient))
             {
+                Root.Log(LogLevel.Warning, "Server: client {0} attempted to send file transfer data " +
+                    "to disconnected client {1}", ft.Sender, ft.Receiver);
                 // XXX: suspend session (cl is offline)
                 return;
             }
