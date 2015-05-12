@@ -371,6 +371,8 @@ namespace Sdm.Client
             };
             var ft = new OutcomingFileTransfer(this, info);
             newPendingFts.Enqueue(ft);
+            Root.Log(LogLevel.Info, "FileTransferManager: created outcoming session [file='{0}', token={1}]",
+                fileName, info.Token);
             return ft;
         }
         
@@ -508,6 +510,8 @@ namespace Sdm.Client
             var ft = new IncomingFileTransfer(this, info);
             // XXX: check key presence
             assignedFts.Add(ft.Id, ft);
+            Root.Log(LogLevel.Info, "FileTransferManager: created incoming session [file='{0}', sid={1}]",
+                msg.FileName, msg.SessionId);
             OnTransferRequestReceived(ft);
         }
 
@@ -516,7 +520,7 @@ namespace Sdm.Client
             OutcomingFileTransfer oft;
             if (!pendingFts.TryGetValue(msg.Token, out oft))
             {
-                // XXX: log 'invalid token'
+                Root.Log(LogLevel.Error, "FileTransferManager: session not found [token={0}]", msg.Token);
                 return;
             }
             switch (msg.Result)
@@ -542,18 +546,19 @@ namespace Sdm.Client
             FileTransferBase ft;
             if (!assignedFts.TryGetValue(msg.SessionId, out ft))
             {
-                // XXX: log 'invalid session id'
+                Root.Log(LogLevel.Error, "FileTransferManager: session not found [sid={0}]", msg.SessionId);
                 return;
             }
             var ift = ft as IncomingFileTransfer;
             if (ift == null)
             {
-                // XXX: log
+                Root.Log(LogLevel.Error, "FileTransferManager: expected incoming session [sid={0}]", msg.SessionId);
                 return;
             }
             if (ift.Writer == null)
             {
-                // XXX: log
+                Root.Log(LogLevel.Error, "FileTransferManager: can't process session [sid={0}] data: " +
+                    "writer is not initialized", msg.SessionId);
                 return;
             }
             ift.Writer.Write(msg.Data);
@@ -567,6 +572,8 @@ namespace Sdm.Client
                 ift.Writer.Close();
                 var hash = ComputeHash(ift.Name);
                 var success = CompareHashes(hash, ift.Hash);
+                Root.Log(LogLevel.Info, "FileTransferManager: data verification [sid={0}] {1}",
+                    msg.SessionId, success ? "succeeded" : "failed");
                 var ftvr = success ? FileTransferVerificationResult.Success :
                     FileTransferVerificationResult.ChecksumMismatch;
                 var result = new CsFileTransferVerificationResult
@@ -584,7 +591,7 @@ namespace Sdm.Client
             FileTransferBase ft;
             if (!assignedFts.TryGetValue(msg.SessionId, out ft))
             {
-                // XXX: log 'invalid session id'
+                Root.Log(LogLevel.Error, "FileTransferManager: session not found [sid={0}]", msg.SessionId);
                 return;
             }
             ApplyVerificationResult(ft, msg.Result);
@@ -595,7 +602,7 @@ namespace Sdm.Client
             FileTransferBase ft;
             if (!assignedFts.TryGetValue(msg.SessionId, out ft))
             {
-                // XXX: log 'invalid sid'
+                Root.Log(LogLevel.Error, "FileTransferManager: session not found [sid={0}]", msg.SessionId);
                 return;
             }
             switch (msg.Int)
