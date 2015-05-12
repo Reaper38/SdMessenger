@@ -306,7 +306,15 @@ namespace Sdm.Client
         }
 
         private static void OpenFile(string path)
-        { Process.Start(path); }
+        {
+            if (!File.Exists(path))
+            {
+                var msg = String.Format("File not found:\r\n'{0}'", path);
+                MessageBox.Show(msg, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            Process.Start(path);
+        }
 
         private static void ShowFile(string path)
         {
