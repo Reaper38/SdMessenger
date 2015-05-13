@@ -393,6 +393,8 @@ namespace Sdm.Client
                 {
                     sfd.OverwritePrompt = true;
                     sfd.RestoreDirectory = true;
+                    sfd.FileName = Path.GetFileName(Desc.Name);
+                    sfd.Filter = String.Format("*{0}|", Path.GetExtension(Desc.Name));
                     if (sfd.ShowDialog() != DialogResult.OK)
                         return;
                     ift.Accept(sfd.FileName);
