@@ -21,7 +21,8 @@ namespace Sdm.Client.Controls
                         SelectedText = "";
                         break;
                     }
-                    // XXX: handle ctrl+backspace
+                    if (e.Control)
+                        SendKeys.SendWait("^+{LEFT}{BACKSPACE}");
                     break;
                 }
                 }
