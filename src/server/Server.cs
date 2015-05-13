@@ -431,6 +431,8 @@ namespace Sdm.Server
 
         private AuthResult AuthenticateClient(string login, string password, ref UserAccess accessFlags)
         {
+            if (nameToClient.ContainsKey(login))
+                return AuthResult.AlreadyLoggedIn;
             var user = users.Find(login);
             if (user == null)
                 return AuthResult.InvalidLogin;

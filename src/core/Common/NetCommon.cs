@@ -70,6 +70,7 @@ namespace Sdm.Core
         Accepted = 0,
         InvalidLogin = 1,
         Banned = 2,
+        AlreadyLoggedIn = 3,
     }
     
     public enum FileTransferRequestResult
@@ -99,6 +100,7 @@ namespace Sdm.Core
             case AuthResult.Accepted: return "Login successful";
             case AuthResult.InvalidLogin: return "Invalid login/password";
             case AuthResult.Banned: return "You have been banned";
+            case AuthResult.AlreadyLoggedIn: return "Login is currently being used";
             default: return "Unknown result";
             }
         }
