@@ -37,6 +37,7 @@ namespace Sdm.Server
             if (!svPipe.IsConnected)
                 return;
             var thread = new Thread(ClientServiceLoop);
+            thread.Name = "PipeConsoleServer";
             thread.IsBackground = true;
             thread.Start();
         }
