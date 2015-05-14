@@ -462,7 +462,7 @@ namespace Sdm.Server
                 OnCsChatMessage(msg as CsChatMessage, cl);
                 break;
             case MessageId.ClFileTransferRequest:
-                OnCsFileTransferRequest(msg as ClFileTransferRequest, cl);
+                OnClFileTransferRequest(msg as ClFileTransferRequest, cl);
                 break;
             case MessageId.ClFileTransferRespond:
                 OnClFileTransferRespond(msg as ClFileTransferRespond, cl);
@@ -577,7 +577,7 @@ namespace Sdm.Server
             }
         }
 
-        private void OnCsFileTransferRequest(ClFileTransferRequest msg, ClientId id)
+        private void OnClFileTransferRequest(ClFileTransferRequest msg, ClientId id)
         {
             var sender = clients[id];
             SocketClientBase receiver;
