@@ -600,7 +600,7 @@ namespace Sdm.Server
             var request = new SvFileTransferRequest
             {
                 Username = sender.Login,
-                FileName = msg.FileName,
+                FileName = Path.GetFileName(msg.FileName),
                 FileHash = msg.FileHash,
                 FileSize = msg.FileSize,
                 BlockSize = ft.BlockSize,
