@@ -125,6 +125,60 @@ namespace Sdm.Server
                 }
             }
         }
+        
+        private sealed class CmdUserMod : Command
+        {
+            public override string Name { get { return "user.mod"; } }
+            public override string Format { get { return "<login> [-p <password>][-a <access>]"; } }
+            public override string Info { get { return "modify user account"; } }
+
+            private bool ApplyUserOption(UserAccount account, string opt, string value)
+            {
+                switch (opt)
+                {
+                case "-p":
+                    account.UpdatePassword(value);
+                    break;
+                case "-a":
+                    UserAccess access;
+                    if (UserAccessUtil.FromShortString(out access, value))
+                        account.Access = access;
+                    else
+                        goto default;
+                    break;
+                default:
+                    return false;
+                }
+                return true;
+            }
+
+            public override void Run(string[] args, PipeConsole console)
+            {
+                // user.mod login -p pass // =4
+                // user.mod login -p pass -a access // =6
+                if (args.Length != 4 && args.Length != 6)
+                {
+                    PrintUsage(console);
+                    return;
+                }
+                var users = Root.Server.Users;
+                var login = args[1];
+                var user = users.Find(login);
+                if (user == null)
+                {
+                    console.WriteLine("user not found");
+                    return;
+                }
+                for (int i = 2; i + 1 < args.Length; i += 2)
+                {
+                    if (!ApplyUserOption(user, args[i], args[i + 1]))
+                    {
+                        PrintUsage(console);
+                        break;
+                    }
+                }
+            }
+        }
 
         private sealed class CmdUserDel : Command
         {
@@ -198,6 +252,7 @@ namespace Sdm.Server
             RegisterCommand(cmdHelp);
             RegisterCommand(new CmdUserAdd());
             RegisterCommand(new CmdUserSt());
+            RegisterCommand(new CmdUserMod());
             RegisterCommand(new CmdUserDel());
             RegisterCommand(new CmdUserLoad());
             RegisterCommand(new CmdUserSave());

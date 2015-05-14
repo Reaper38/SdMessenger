@@ -22,6 +22,9 @@ namespace Sdm.Server
             Access = access;
         }
 
+        public void UpdatePassword(string newPassword)
+        { Password = TransformPassword(newPassword); }
+
         public static string TransformPassword(string plainPassword)
         {
             var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(plainPassword + PasswordSalt));
