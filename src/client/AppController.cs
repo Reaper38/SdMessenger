@@ -159,7 +159,11 @@ namespace Sdm.Client
         private void ClientConnectionStateChanged()
         {
             if (client.ConnectionState == ConnectionState.Disconnected)
+            {
                 evUpdaterThread.Reset();
+                ClearFileTransfers();
+                fileDialog.Hide();
+            }
             mainDialog.InvokeAsync(() => mainDialog.ApplyConnectionState(client.ConnectionState));
         }
 
@@ -447,10 +451,21 @@ namespace Sdm.Client
             lock (syncUiProxies)
             {
                 uiProxies.Remove(proxy.Desc);
+                proxy.Desc.Cancel();
             }
             fileDialog.View.Items.Remove(proxy.View);
         }
-        
+
+        private void ClearFileTransfers()
+        {
+            lock (syncUiProxies)
+            {
+                foreach (var kv in uiProxies)
+                    fileDialog.View.Items.Remove(kv.Value.View);
+                uiProxies.Clear();
+            }
+        }
+
         public void SendFiles(string username, string[] filenames)
         {
             foreach (var filename in filenames)
