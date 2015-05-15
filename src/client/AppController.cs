@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Sdm.Client.Controls;
@@ -290,6 +291,8 @@ namespace Sdm.Client
         {
             mainDialog.InvokeAsync(() =>
             {
+                var fileDesc = String.Format("\"{0}\" ({1} bytes)", ft.Name, ft.BytesTotal);
+                mainDialog.AddSystemMessage(ft.Sender, "Incoming file transfer", fileDesc);
                 var proxy = new FileTransferUiProxy(ft);
                 lock (syncUiProxies)
                 {
@@ -479,12 +482,16 @@ namespace Sdm.Client
 
         public void SendFiles(string username, string[] filenames)
         {
+            var fileList = new StringBuilder();
             foreach (var filename in filenames)
             {
                 var ft = ftMgr.Add(username, filename);
                 var proxy = new FileTransferUiProxy(ft);
                 AddFileTransfer(proxy);
+                var fileDesc = String.Format("\"{0}\" ({1} bytes)\r\n", Path.GetFileName(ft.Name), ft.BytesTotal);
+                fileList.Append(fileDesc);
             }
+            mainDialog.AddSystemMessage(username, "Outcoming file transfer", fileList.ToString());
             fileDialog.Show();
         }
 

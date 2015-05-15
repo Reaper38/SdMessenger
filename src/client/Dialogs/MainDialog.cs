@@ -143,6 +143,12 @@ namespace Sdm.Client
             conv.Content.AddMessage(DateTime.Now, type, sender, message);
         }
 
+        public void AddSystemMessage(string convWith, string desc, string message)
+        {
+            var conv = GetConversation(convWith);
+            conv.Content.AddMessage(DateTime.Now, MsgType.System, desc, message);
+        }
+
         private void UpdateHeader(ConnectionState state)
         {
             const string appName = "SdmClient";
