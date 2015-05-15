@@ -46,6 +46,7 @@
             this.ClientSize = new System.Drawing.Size(404, 165);
             this.Controls.Add(this.ftv);
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(380, 200);
             this.Name = "FileTransferDialog";
             this.Text = "File transfer";
