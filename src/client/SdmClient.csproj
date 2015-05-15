@@ -51,6 +51,12 @@
   <ItemGroup>
     <Compile Include="AppController.cs" />
     <Compile Include="BlockFile.cs" />
+    <Compile Include="Dialogs\LogDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\LogDialog.Designer.cs">
+      <DependentUpon>LogDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileTransferManager.cs" />
     <Compile Include="ClientConfig.cs" />
     <Compile Include="Client\Client.cs" />
