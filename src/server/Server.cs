@@ -193,15 +193,7 @@ namespace Sdm.Server
                 Root.Log(LogLevel.Info, "Server: new client {0} ({1})", GetClientName(cl), cl.Address);
                 AddClient(cl);
                 var challenge = new SvPublicKeyChallenge {KeySize = asymCp.KeySize};
-                try
-                { SendTo(cl.Id, challenge); }
-                catch (IOException e)
-                {
-                    if (NetUtil.CheckConnectionReset(e))
-                        OnClientConnectionReset(cl);
-                    else
-                        throw;
-                }
+                SendTo(cl.Id, challenge);
             }
         }
 
@@ -409,13 +401,17 @@ namespace Sdm.Server
         public override void DisconnectClient(IClient cl, DisconnectReason reason, string message = "")
         {
             var msg = new SvDisconnect {Message = message, Reason = reason};
-            SendTo(cl.Id, msg);
-            var scl = clients[cl.Id];
-            DisconnectClient(scl);
+            if (SendTo(cl.Id, msg)) // in case of failure, SendTo calls OnClientConnectionReset
+            {
+                var scl = clients[cl.Id];
+                DisconnectClient(scl);
+            }
         }
 
         private void DisconnectClient(SocketClientBase cl)
         {
+            if (cl.DeferredDisconnect)
+                return;
             Root.Log(LogLevel.Info, "Server: disconnecting client: " + GetClientName(cl));
             cl.DeferredDisconnect = true;
             delClients.Enqueue(cl);
@@ -485,36 +481,26 @@ namespace Sdm.Server
             var accessFlags = UserAccess.Default;
             var result = AuthenticateClient(msg.Login, msg.Password, ref accessFlags);
             var respond = new SvAuthResult { Result = result };
-            try
+            if (result == AuthResult.Accepted)
             {
-                if (result == AuthResult.Accepted)
-                {
-                    cl.Login = msg.Login;
-                    cl.Password = msg.Password;
-                    cl.AccessFlags = accessFlags;
-                    cl.Authenticated = true;
-                    nameToClient.Add(cl.Login, cl);
-                    respond.Message = "All ok";
-                    SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication succeeded", cl.Id, cl.Login);
+                cl.Login = msg.Login;
+                cl.Password = msg.Password;
+                cl.AccessFlags = accessFlags;
+                cl.Authenticated = true;
+                nameToClient.Add(cl.Login, cl);
+                Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication succeeded", cl.Id, cl.Login);
+                respond.Message = "All ok";
+                if (SendTo(id, respond))
                     OnClientAuthSuccess(id);
-                }
-                else
-                {
-                    // XXX: add extra details here
-                    respond.Message = "";
-                    SendTo(id, respond);
-                    Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication failed <{2}>",
-                        cl.Id, msg.Login, result);
-                    DisconnectClient(cl);
-                }
             }
-            catch (IOException e)
+            else
             {
-                if (NetUtil.CheckConnectionReset(e))
-                    OnClientConnectionReset(cl);
-                else
-                    throw;
+                Root.Log(LogLevel.Info, "Client #{0} ({1}) : authentication failed <{2}>",
+                    cl.Id, msg.Login, result);
+                // XXX: add extra details here
+                respond.Message = "";
+                if (SendTo(id, respond))
+                    DisconnectClient(cl);
             }
         }
 
@@ -533,15 +519,8 @@ namespace Sdm.Server
             asymCp.SetKey(msg.Key);
             var encryptedKey = asymCp.Encrypt(cl.SessionKey);
             var challenge = new SvAuthChallenge {SessionKey = encryptedKey};
-            try
-            { SendTo(id, challenge); }
-            catch (IOException e)
-            {
-                if (NetUtil.CheckConnectionReset(e))
-                    OnClientConnectionReset(cl);
-                else
-                    throw;
-            }
+            if (!SendTo(id, challenge))
+                return;
             cl.Secure = true;
         }
 
@@ -674,7 +653,11 @@ namespace Sdm.Server
                     ft.Id, FileTransferState.Working, ft.State);
                 return;
             }
-            SendTo(receiver.Id, msg);
+            if (!SendTo(receiver.Id, msg))
+            {
+                // XXX: suspend file transfer session
+                return;
+            }
             ft.BlocksDone++;
             if (ft.BlocksDone == ft.BlocksTotal)
                 ft.State = FileTransferState.Verification;
@@ -759,7 +742,10 @@ namespace Sdm.Server
                 ftsContainer.DeleteSession(ft.Id);
                 break;
             }
-            SendTo(oppClient.Id, msg);
+            if (!SendTo(oppClient.Id, msg))
+            {
+                // XXX: suspend file transfer session
+            }
         }
 
         private int SelectBlockSize(int clSize)
@@ -773,13 +759,13 @@ namespace Sdm.Server
         public override IClient IdToClient(ClientId id)
         { return clients[id]; }
         
-        public override void SendTo(ClientId id, IMessage msg)
+        public override bool SendTo(ClientId id, IMessage msg)
         {
             var cl = clients[id];
             if (cl.DeferredDisconnect)
             {
                 Root.Log(LogLevel.Debug, "Server: attempt to send message to disconnected client");
-                return;
+                return false;
             }
             using (var rawBuf = new MemoryStream())
             {
@@ -802,10 +788,21 @@ namespace Sdm.Server
                     msg.Save(buf, Protocol);
                     header.Size = (int)buf.Length;
                 }
-                // XXX: handle exceptions
-                // exception will be thrown here if client was disconnected ungracefully
-                header.Save(cl.NetStream, Protocol);
-                rawBuf.WriteTo(cl.NetStream);
+                try
+                {
+                    header.Save(cl.NetStream, Protocol);
+                    rawBuf.WriteTo(cl.NetStream);
+                }
+                catch (IOException e)
+                {
+                    if (NetUtil.CheckConnectionReset(e))
+                    {
+                        OnClientConnectionReset(cl);
+                        return false;
+                    }
+                    throw;
+                }
+                return true;
             }
         }
 

@@ -300,12 +300,12 @@ namespace Sdm.Client
         }
         
         // XXX: write generalized version (both for server and client) and move to core
-        public override void Send(IMessage msg)
+        public override bool Send(IMessage msg)
         {
             if (!Connected)
             {
                 Root.Log(LogLevel.Debug, "Client: attempt to send message with no connection");
-                return;
+                return false;
             }
             using (var rawBuf = new MemoryStream())
             {
@@ -330,10 +330,22 @@ namespace Sdm.Client
                     msg.Save(buf, cfg.Protocol);
                     header.Size = (int)buf.Length;
                 }
-                // XXX: handle exceptions (connection loss)
-                header.Save(netStream, cfg.Protocol);
-                rawBuf.WriteTo(netStream);
+                try
+                {
+                    header.Save(netStream, cfg.Protocol);
+                    rawBuf.WriteTo(netStream);
+                }
+                catch (IOException e)
+                {
+                    if (NetUtil.CheckConnectionReset(e))
+                    {
+                        OnServerConnectionReset();
+                        return false;
+                    }
+                    throw;
+                }
             }
+            return true;
         }
 
         protected override void Dispose(bool disposing)

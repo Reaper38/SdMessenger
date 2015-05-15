@@ -36,7 +36,7 @@ namespace Sdm.Core
         public abstract void Disconnect();
         public abstract void Update();
         public abstract void OnMessage(IMessage msg);
-        public abstract void Send(IMessage msg);
+        public abstract bool Send(IMessage msg);
 
         protected void OnConnectionResult(ConnectionResult cr, string msg = null)
         {

@@ -244,9 +244,12 @@ namespace Sdm.Client
         public bool SendMessage(string username, string message)
         {
             var msg = new CsChatMessage {Username = username, Message = message};
-            client.Send(msg);
-            mainDialog.AddMessage(username, Config.Login, message);
-            return true;
+            if (client.Send(msg))
+            {
+                mainDialog.AddMessage(username, Config.Login, message);
+                return true;
+            }
+            return false;
         }
 
         private void FileTransferStateChanged(IFileTransfer ft)
