@@ -51,6 +51,12 @@
   <ItemGroup>
     <Compile Include="AppController.cs" />
     <Compile Include="BlockFile.cs" />
+    <Compile Include="Controls\OwnerDrawnMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\VistaMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Dialogs\LogDialog.cs">
       <SubType>Form</SubType>
     </Compile>
