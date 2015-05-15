@@ -12,6 +12,7 @@ namespace Sdm.Client.Controls
 
         public event SendMessageHandler SendMessage;
         public event SendMessageHandler SendFile;
+        public event EventHandler ToggleFileTransferWindow;
 
         private void OnSendMessage()
         {
@@ -23,6 +24,12 @@ namespace Sdm.Client.Controls
         {
             if (SendFile != null)
                 SendFile();
+        }
+
+        private void OnToggleFileTransferWindow()
+        {
+            if (ToggleFileTransferWindow != null)
+                ToggleFileTransferWindow(this, EventArgs.Empty);
         }
         
         public void AddMessage(DateTime dt, MsgType type, string from, string msg)
@@ -114,6 +121,9 @@ namespace Sdm.Client.Controls
             Attachments = (string[])e.Data.GetData(DataFormats.FileDrop);
             OnSendFile();
         }
+
+        private void btnToggleFileTransfer_Click(object sender, EventArgs e)
+        { OnToggleFileTransferWindow(); }
     }
 
     internal delegate void SendMessageHandler();

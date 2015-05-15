@@ -256,6 +256,17 @@ namespace Sdm.Client
             return false;
         }
 
+        public void ToggleFileTransferWindow()
+        {
+            if (fileDialog.Visible)
+                fileDialog.Hide();
+            else
+            {
+                fileDialog.Show();
+                fileDialog.Focus();
+            }
+        }
+
         private void FileTransferStateChanged(IFileTransfer ft)
         {
             FileTransferUiProxy proxy;

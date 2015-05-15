@@ -33,6 +33,7 @@
             this.btnSendFile = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.tbNewMsg = new Sdm.Client.Controls.TextBoxEx();
+            this.btnToggleFileTransfer = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.scChat)).BeginInit();
             this.scChat.Panel1.SuspendLayout();
             this.scChat.Panel2.SuspendLayout();
@@ -54,6 +55,7 @@
             // 
             // scChat.Panel2
             // 
+            this.scChat.Panel2.Controls.Add(this.btnToggleFileTransfer);
             this.scChat.Panel2.Controls.Add(this.btnSendFile);
             this.scChat.Panel2.Controls.Add(this.btnSend);
             this.scChat.Panel2.Controls.Add(this.tbNewMsg);
@@ -114,6 +116,18 @@
             this.tbNewMsg.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbNewMsg_DragEnter);
             this.tbNewMsg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbNewMsg_KeyDown);
             // 
+            // btnToggleFileTransfer
+            // 
+            this.btnToggleFileTransfer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnToggleFileTransfer.BackgroundImage = global::Sdm.Client.Properties.Resources.IconFileTransfer;
+            this.btnToggleFileTransfer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnToggleFileTransfer.Location = new System.Drawing.Point(80, 77);
+            this.btnToggleFileTransfer.Name = "btnShowFileTransfer";
+            this.btnToggleFileTransfer.Size = new System.Drawing.Size(24, 23);
+            this.btnToggleFileTransfer.TabIndex = 3;
+            this.btnToggleFileTransfer.UseVisualStyleBackColor = true;
+            this.btnToggleFileTransfer.Click += new System.EventHandler(this.btnToggleFileTransfer_Click);
+            // 
             // ConversationTab
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -138,6 +152,7 @@
         private System.Windows.Forms.Button btnSend;
         private TextBoxEx tbNewMsg;
         private RichTextBoxEx rtbHistory;
+        private System.Windows.Forms.Button btnToggleFileTransfer;
 
     }
 }

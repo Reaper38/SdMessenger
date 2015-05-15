@@ -70,6 +70,9 @@ namespace Sdm.Client
             conv.ClearAttachments();
         }
 
+        private void ToggleFileTransferWindow(object sender, EventArgs e)
+        { Controller.ToggleFileTransferWindow(); }
+
         private ConversationDesc GetConversation(string username)
         {
             if (!convs.ContainsKey(username))
@@ -79,6 +82,7 @@ namespace Sdm.Client
                 tabConvs.TabPages.Add(conv.Container);
                 conv.Content.SendMessage += TrySendMessage;
                 conv.Content.SendFile += TrySendFile;
+                conv.Content.ToggleFileTransferWindow += ToggleFileTransferWindow;
                 return conv;
             }
             return convs[username];
