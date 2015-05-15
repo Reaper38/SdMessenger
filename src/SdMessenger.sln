@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoNet", "lib\Crypto.NET
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdmCore.Tests", "SdmCore.Tests\SdmCore.Tests.csproj", "{9285D03A-EDED-4F2F-8EF0-AE2C39031556}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xrConsole", "lib\xrConsole\xrConsole.csproj", "{B8EB167F-4F36-4899-94D8-E6220DFBB692}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{9285D03A-EDED-4F2F-8EF0-AE2C39031556}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9285D03A-EDED-4F2F-8EF0-AE2C39031556}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9285D03A-EDED-4F2F-8EF0-AE2C39031556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8EB167F-4F36-4899-94D8-E6220DFBB692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8EB167F-4F36-4899-94D8-E6220DFBB692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8EB167F-4F36-4899-94D8-E6220DFBB692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8EB167F-4F36-4899-94D8-E6220DFBB692}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,5 +60,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D} = {1D336912-9CA2-4D4D-9A1D-45B3219099FF}
 		{C99FD931-AC03-465A-B8A9-C4A665BBAA0E} = {1D336912-9CA2-4D4D-9A1D-45B3219099FF}
+		{B8EB167F-4F36-4899-94D8-E6220DFBB692} = {1D336912-9CA2-4D4D-9A1D-45B3219099FF}
 	EndGlobalSection
 EndGlobal

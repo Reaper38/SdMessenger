@@ -148,6 +148,10 @@
       <Project>{96ba763d-d823-4c37-b884-c2a0278f9e82}</Project>
       <Name>SdmCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\lib\xrConsole\xrConsole.csproj">
+      <Project>{b8eb167f-4f36-4899-94d8-e6220dfbb692}</Project>
+      <Name>xrConsole</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\IconClose.png" />
