@@ -14,6 +14,7 @@ namespace Sdm.Client.Util
                 case '\\': dst.Append(@"\\"); continue;
                 case '{': dst.Append(@"\{"); continue;
                 case '}': dst.Append(@"\}"); continue;
+                case '\n': dst.Append(@"\line "); continue;
                 }
                 if (c <= 0x7f)
                     dst.Append(c);
