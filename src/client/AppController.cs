@@ -483,13 +483,16 @@ namespace Sdm.Client
         public void SendFiles(string username, string[] filenames)
         {
             var fileList = new StringBuilder();
-            foreach (var filename in filenames)
+            for (int i = 0; i < filenames.Length; i++)
             {
+                var filename = filenames[i];
                 var ft = ftMgr.Add(username, filename);
                 var proxy = new FileTransferUiProxy(ft);
                 AddFileTransfer(proxy);
-                var fileDesc = String.Format("\"{0}\" ({1} bytes)\r\n", Path.GetFileName(ft.Name), ft.BytesTotal);
+                var fileDesc = String.Format("\"{0}\" ({1} bytes)", Path.GetFileName(ft.Name), ft.BytesTotal);
                 fileList.Append(fileDesc);
+                if (i != filenames.Length - 1)
+                    fileList.AppendLine();
             }
             mainDialog.AddSystemMessage(username, "Outcoming file transfer", fileList.ToString());
             fileDialog.Show();
