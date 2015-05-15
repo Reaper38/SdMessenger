@@ -23,7 +23,6 @@ namespace Sdm.Client
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
         private FileTransferDialog fileDialog;
-        // XXX: allow user to delete finished sessions
         private readonly object syncUiProxies = 1;
         private readonly Dictionary<IFileTransfer, FileTransferUiProxy> uiProxies;
         private readonly FileTransferManager ftMgr;
@@ -351,9 +350,11 @@ namespace Sdm.Client
                     // received
                     View.Open += ViewOpen;
                     View.ShowInFolder += ViewShowInFolder;
+                    View.Conceal += ViewConceal;
                     break;
                 case FileTransferDirection.Out:
                     View.Cancel += ViewCancel;
+                    View.Conceal += ViewConceal;
                     break;
                 }
                 lastUpdate = DateTime.Now;
@@ -424,6 +425,27 @@ namespace Sdm.Client
 
             private void ViewShowInFolder(object sender, EventArgs e)
             { ShowFile(Desc.Name); }
+
+            private void ViewConceal(object sender, EventArgs e)
+            { Instance.RemoveFileTransfer(this); }
+        }
+
+        private void AddFileTransfer(FileTransferUiProxy proxy)
+        {
+            lock (syncUiProxies)
+            {
+                uiProxies.Add(proxy.Desc, proxy);
+            }
+            fileDialog.View.Items.Add(proxy.View);
+        }
+
+        private void RemoveFileTransfer(FileTransferUiProxy proxy)
+        {
+            lock (syncUiProxies)
+            {
+                uiProxies.Remove(proxy.Desc);
+            }
+            fileDialog.View.Items.Remove(proxy.View);
         }
         
         public void SendFiles(string username, string[] filenames)
@@ -432,11 +454,7 @@ namespace Sdm.Client
             {
                 var ft = ftMgr.Add(username, filename);
                 var proxy = new FileTransferUiProxy(ft);
-                lock (syncUiProxies)
-                {
-                    uiProxies.Add(proxy.Desc, proxy);
-                }
-                fileDialog.View.Items.Add(proxy.View);
+                AddFileTransfer(proxy);
             }
             fileDialog.Show();
         }

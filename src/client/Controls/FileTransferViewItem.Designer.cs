@@ -38,6 +38,7 @@
             this.lSlash = new System.Windows.Forms.Label();
             this.lTotal = new System.Windows.Forms.Label();
             this.lSizeUnit = new System.Windows.Forms.Label();
+            this.btnConceal = new System.Windows.Forms.Button();
             this.flpDetails.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,18 +53,6 @@
             this.pbProgress.Size = new System.Drawing.Size(312, 8);
             this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbProgress.TabIndex = 0;
-            // 
-            // btn1
-            // 
-            this.btn1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn1.Location = new System.Drawing.Point(165, 29);
-            this.btn1.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.btn1.Name = "btn1";
-            this.btn1.Size = new System.Drawing.Size(75, 23);
-            this.btn1.TabIndex = 3;
-            this.btn1.Text = "Decline";
-            this.btn1.UseVisualStyleBackColor = true;
-            this.btn1.Click += new System.EventHandler(this.btn1_Click);
             // 
             // btn2
             // 
@@ -87,9 +76,21 @@
             this.tbFileName.MaxLength = 2048;
             this.tbFileName.Name = "tbFileName";
             this.tbFileName.ReadOnly = true;
-            this.tbFileName.Size = new System.Drawing.Size(312, 13);
+            this.tbFileName.Size = new System.Drawing.Size(296, 13);
             this.tbFileName.TabIndex = 2;
             this.tbFileName.Text = "if_you_know_what_i_mean.png";
+            // 
+            // btn1
+            // 
+            this.btn1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn1.Location = new System.Drawing.Point(165, 29);
+            this.btn1.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.btn1.Name = "btn1";
+            this.btn1.Size = new System.Drawing.Size(75, 23);
+            this.btn1.TabIndex = 3;
+            this.btn1.Text = "Decline";
+            this.btn1.UseVisualStyleBackColor = true;
+            this.btn1.Click += new System.EventHandler(this.btn1_Click);
             // 
             // flpDetails
             // 
@@ -162,12 +163,28 @@
             this.lSizeUnit.TabIndex = 11;
             this.lSizeUnit.Text = "KB";
             // 
+            // btnConceal
+            // 
+            this.btnConceal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnConceal.BackColor = System.Drawing.SystemColors.Control;
+            this.btnConceal.BackgroundImage = global::Sdm.Client.Properties.Resources.IconClose;
+            this.btnConceal.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnConceal.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnConceal.Location = new System.Drawing.Point(302, 4);
+            this.btnConceal.Margin = new System.Windows.Forms.Padding(0);
+            this.btnConceal.Name = "btnConceal";
+            this.btnConceal.Size = new System.Drawing.Size(13, 12);
+            this.btnConceal.TabIndex = 7;
+            this.btnConceal.UseVisualStyleBackColor = false;
+            this.btnConceal.Click += new System.EventHandler(this.btnConceal_Click);
+            // 
             // FileTransferViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.btnConceal);
             this.Controls.Add(this.flpDetails);
             this.Controls.Add(this.btn1);
             this.Controls.Add(this.tbFileName);
@@ -196,5 +213,6 @@
         private System.Windows.Forms.Label lTotal;
         private System.Windows.Forms.Label lSizeUnit;
         private System.Windows.Forms.Label lStatus;
+        private System.Windows.Forms.Button btnConceal;
     }
 }

@@ -15,6 +15,7 @@ namespace Sdm.Client.Controls
         public event EventHandler Cancel;
         public event EventHandler Open;
         public event EventHandler ShowInFolder;
+        public event EventHandler Conceal;
 
         public FileTransferViewItem(string fileName, long fileSize, FileTransferDirection direction)
         {
@@ -66,6 +67,12 @@ namespace Sdm.Client.Controls
                 ShowInFolder(this, EventArgs.Empty);
         }
 
+        private void OnConceal()
+        {
+            if (Conceal != null)
+                Conceal(this, EventArgs.Empty);
+        }
+
         private void UpdateProgressBar()
         {
             var min = pbProgress.Minimum;
@@ -94,6 +101,7 @@ namespace Sdm.Client.Controls
                     btn1.Text = "Cancel";
                     btn2.Visible = true;
                     btn2.Text = "Save as...";
+                    btnConceal.Visible = false;
                     pbProgress.Visible = true;
                     pbProgress.Style = ProgressBarStyle.Marquee;
                     lStatus.Visible = false;
@@ -106,6 +114,7 @@ namespace Sdm.Client.Controls
                     btn1.Visible = false;
                     btn2.Visible = true;
                     btn2.Text = "Cancel";
+                    btnConceal.Visible = false;
                     pbProgress.Visible = true;
                     pbProgress.Style = ProgressBarStyle.Continuous;
                     lStatus.Visible = false;
@@ -119,6 +128,7 @@ namespace Sdm.Client.Controls
                     btn1.Text = "Open";
                     btn2.Visible = true;
                     btn2.Text = "Show";
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = "File received.";
                     lStatus.Visible = true;
@@ -130,6 +140,7 @@ namespace Sdm.Client.Controls
                 case FileTransferState.Failure: // <hidden> <hidden>
                     btn1.Visible = false;
                     btn2.Visible = false;
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = ErrorMessage;
                     lStatus.Visible = true;
@@ -141,6 +152,7 @@ namespace Sdm.Client.Controls
                 case FileTransferState.Cancelled: // <hidden> <hidden>
                     btn1.Visible = false;
                     btn2.Visible = false;
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = "Cancelled.";
                     lStatus.Visible = true;
@@ -160,6 +172,7 @@ namespace Sdm.Client.Controls
                     btn1.Visible = false;
                     btn2.Visible = true;
                     btn2.Text = "Cancel";
+                    btnConceal.Visible = false;
                     pbProgress.Visible = true;
                     pbProgress.Style = ProgressBarStyle.Marquee;
                     lStatus.Text = "Waiting";
@@ -173,6 +186,7 @@ namespace Sdm.Client.Controls
                     btn1.Visible = false;
                     btn2.Visible = true;
                     btn2.Text = "Cancel";
+                    btnConceal.Visible = false;
                     pbProgress.Visible = true;
                     pbProgress.Style = ProgressBarStyle.Continuous;
                     lStatus.Visible = false;
@@ -184,6 +198,7 @@ namespace Sdm.Client.Controls
                 case FileTransferState.Success: // <hidden> <hidden>
                     btn1.Visible = false;
                     btn2.Visible = false;
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = "File sent.";
                     lStatus.Visible = true;
@@ -195,6 +210,7 @@ namespace Sdm.Client.Controls
                 case FileTransferState.Failure: // <hidden> <hidden>
                     btn1.Visible = false;
                     btn2.Visible = false;
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = ErrorMessage;
                     lStatus.Visible = true;
@@ -206,6 +222,7 @@ namespace Sdm.Client.Controls
                 case FileTransferState.Cancelled: // <hidden> <hidden>
                     btn1.Visible = false;
                     btn2.Visible = false;
+                    btnConceal.Visible = true;
                     pbProgress.Visible = false;
                     lStatus.Text = "Cancelled.";
                     lStatus.Visible = true;
@@ -354,6 +371,9 @@ namespace Sdm.Client.Controls
                 break;
             }
         }
+
+        private void btnConceal_Click(object sender, EventArgs e)
+        { OnConceal(); }
     }
 
     internal enum FileTransferDirection
