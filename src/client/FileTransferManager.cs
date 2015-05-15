@@ -232,12 +232,6 @@ namespace Sdm.Client
                 case FileTransferState.Cancelled:
                     return;
                 case FileTransferState.Waiting:
-                    msg = new ClFileTransferRespond
-                    {
-                        Result = FileTransferRequestResult.Rejected,
-                        SessionId = Id
-                    };
-                    break;
                 case FileTransferState.Working:
                 default:
                     msg = new CsFileTransferInterruption
