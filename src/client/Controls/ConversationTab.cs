@@ -67,7 +67,11 @@ namespace Sdm.Client.Controls
             sb.Append(@"}\line ");
             RtfUtil.EscapeString(sb, msg);
             sb.Append(@"\line\line}");
+            var scrollPos = rtbHistory.GetScrollPosition().Y + rtbHistory.ClientSize.Height;
+            var maxScrollPos = rtbHistory.GetMaxScrollPosition();
             rtbHistory.AppendRtf(sb.ToString());
+            if (scrollPos >= maxScrollPos)
+                rtbHistory.ScrollToEnd();
         }
         
         public void ClearHistory()
