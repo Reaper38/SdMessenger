@@ -16,7 +16,8 @@ namespace Sdm.Client
 {
     internal sealed class AppController : ApplicationContext
     {
-        private static readonly AppController instance = new AppController();
+        private static readonly object SyncRoot = 1;
+        private static volatile AppController instance;
         private Client client;
         private Thread updaterThread;
         private volatile bool updaterExit;
@@ -32,7 +33,22 @@ namespace Sdm.Client
         public ClientConfig Config { get; private set; }
         public ConnectionState State { get { return client.ConnectionState; } }
         public string Login { get { return Config.Login; } }
-        public static AppController Instance { get { return instance; } }
+
+        public static AppController Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (SyncRoot)
+                    {
+                        if (instance == null)
+                            instance = new AppController();
+                    }
+                }
+                return instance;
+            }
+        }
         
         private AppController()
         {
