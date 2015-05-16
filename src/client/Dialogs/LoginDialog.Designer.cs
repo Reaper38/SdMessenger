@@ -130,6 +130,7 @@
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.lHost);
             this.Controls.Add(this.tbHost);
+            this.Icon = Properties.Resources.Icon;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "LoginDialog";

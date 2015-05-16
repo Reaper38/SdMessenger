@@ -36,6 +36,9 @@
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Properties\Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -166,16 +169,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\IconClose.png" />
+    <Content Include="Properties\IconClose.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\IconFileTransfer.png" />
+    <Content Include="Properties\IconFileTransfer.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\IconLog.png" />
+    <Content Include="Properties\IconLog.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\IconLogin.png" />
+    <Content Include="Properties\IconLogin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

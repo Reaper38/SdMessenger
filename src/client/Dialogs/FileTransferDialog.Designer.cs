@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ftv = new Controls.FileTransferView();
+            this.ftv = new Sdm.Client.Controls.FileTransferView();
             this.SuspendLayout();
             // 
             // ftv
@@ -45,6 +45,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(404, 165);
             this.Controls.Add(this.ftv);
+            this.Icon = Properties.Resources.Icon;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(380, 200);

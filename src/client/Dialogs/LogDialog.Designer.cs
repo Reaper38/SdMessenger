@@ -46,6 +46,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 282);
             this.Controls.Add(this.xrConsole);
+            this.Icon = Properties.Resources.Icon;
             this.Name = "LogDialog";
             this.Text = "Log";
             this.ResumeLayout(false);

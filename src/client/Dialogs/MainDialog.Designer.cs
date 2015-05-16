@@ -154,6 +154,7 @@ namespace Sdm.Client
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 330);
             this.Controls.Add(this.scRoot);
+            this.Icon = Properties.Resources.Icon;
             this.Menu = this.mmMenu;
             this.MinimumSize = new System.Drawing.Size(480, 320);
             this.Name = "MainDialog";
