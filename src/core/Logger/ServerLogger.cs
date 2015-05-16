@@ -10,7 +10,6 @@ namespace Sdm.Core
         private readonly object sync = 0;
         private FileStream fs;
         private StreamWriter fsw;
-        private volatile int lineCount;
         private string logFileName;
         private bool disposed = false;
 
@@ -24,27 +23,23 @@ namespace Sdm.Core
             var separator = new string('=', 80);
             fsw.WriteLine(separator);
         }
-
-        public override int LineCount { get { return lineCount; } }
-
+        
         public override void Log(LogLevel logLevel, string message)
         {
             if (logLevel < MinLogLevel)
                 return;
+            var time = DateTime.Now;
             lock (sync)
             {
-                var fstr = String.Format("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat),
+                var fstr = String.Format("{0} [{1}] {2}", time.ToString(DateTimeFormat),
                     FormatLogLevel(logLevel), message);
 #if LOG_TO_CONSOLE
                 Console.WriteLine(fstr);
 #endif
                 fsw.WriteLine(fstr);
-                lineCount++;
             }
-            OnMessageLogged(message);
+            OnMessageLogged(logLevel, time, message);
         }
-
-        public override void Clear() { /* not supported in ServerLogger */ }
 
         public override void Flush() { /* filestream flushes automatically */ }
 

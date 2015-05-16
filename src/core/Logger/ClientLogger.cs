@@ -11,7 +11,6 @@ namespace Sdm.Core
         private MemoryStream ms;
         private StreamWriter msw;
         private DateTime startTime;
-        private volatile int lineCount;
         private string fDir, fBaseName, fExt;
         private volatile bool flushRequired = false;
         private bool disposed = false;
@@ -28,32 +27,20 @@ namespace Sdm.Core
             startTime = DateTime.Now;
         }
 
-        public override int LineCount { get { return lineCount; } }
-
         public override void Log(LogLevel logLevel, string message)
         {
             if (logLevel < MinLogLevel)
                 return;
+            var time = DateTime.Now;
             lock (sync)
             {
-                msw.WriteLine("{0} [{1}] {2}", DateTime.Now.ToString(DateTimeFormat),
+                msw.WriteLine("{0} [{1}] {2}", time.ToString(DateTimeFormat),
                     FormatLogLevel(logLevel), message);
-                lineCount++;
                 flushRequired = true;
             }
-            OnMessageLogged(message);
+            OnMessageLogged(logLevel, time, message);
         }
-
-        public override void Clear()
-        {
-            lock (sync)
-            {
-                ms.SetLength(0);
-                lineCount = 0;
-            }
-            OnLogCleaned();
-        }
-
+        
         public override void Flush()
         {
             const string fsDateTimeFormat = "dd.MM.yy-HH.mm.ss";

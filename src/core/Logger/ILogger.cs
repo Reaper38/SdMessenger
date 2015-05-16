@@ -16,12 +16,9 @@ namespace Sdm.Core
 
     public interface ILogger : IDisposable
     {
-        event Action<string> MessageLogged;
-        event Action LogCleared;
-        int LineCount { get; }
+        event Action<LogLevel, DateTime, string> MessageLogged;
         void Log(LogLevel logLevel, string message);
         void Log(LogLevel logLevel, string format, params object[] args);
-        void Clear();
         void Flush();
     }
 }

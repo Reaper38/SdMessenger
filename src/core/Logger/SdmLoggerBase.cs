@@ -4,19 +4,12 @@ namespace Sdm.Core
 {
     internal abstract class SdmLoggerBase : ILogger
     {
-        public event Action<string> MessageLogged;
-        public event Action LogCleared;
+        public event Action<LogLevel, DateTime, string> MessageLogged;
 
-        protected void OnMessageLogged(string msg)
+        protected void OnMessageLogged(LogLevel lvl, DateTime time, string msg)
         {
             if (MessageLogged != null)
-                MessageLogged(msg);
-        }
-
-        protected void OnLogCleaned()
-        {
-            if (LogCleared != null)
-                LogCleared();
+                MessageLogged(lvl, time, msg);
         }
 
         protected static string FormatLogLevel(LogLevel l)
@@ -28,13 +21,11 @@ namespace Sdm.Core
         protected SdmLoggerBase(LogLevel minLogLevel)
         { MinLogLevel = minLogLevel; }
 
-        public abstract int LineCount { get; }
         public abstract void Log(LogLevel logLevel, string message);
 
         public void Log(LogLevel logLevel, string format, params object[] args)
         { Log(logLevel, String.Format(format, args)); }
 
-        public abstract void Clear();
         public abstract void Flush();
         public abstract void Dispose();
     }
