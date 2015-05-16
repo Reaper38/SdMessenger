@@ -1,4 +1,5 @@
-﻿namespace Sdm.Client
+﻿
+namespace Sdm.Client
 {
     partial class MainDialog
     {
@@ -28,17 +29,20 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.lvUsers = new Sdm.Client.Controls.ListViewEx();
             this.scRoot = new System.Windows.Forms.SplitContainer();
-            this.btnSrv = new System.Windows.Forms.Button();
             this.tbHost = new System.Windows.Forms.TextBox();
-            this.cmConnection = new System.Windows.Forms.ContextMenu();
-            this.cmiLogin = new System.Windows.Forms.MenuItem();
             this.tabConvs = new System.Windows.Forms.TabControl();
+            this.vmMenu = new wyDay.Controls.VistaMenu(this.components);
+            this.mmMenu = new System.Windows.Forms.MainMenu(this.components);
+            this.miSdm = new System.Windows.Forms.MenuItem();
+            this.miLogin = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
             this.scRoot.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.vmMenu)).BeginInit();
             this.SuspendLayout();
             // 
             // lvUsers
@@ -63,7 +67,6 @@
             // 
             // scRoot.Panel1
             // 
-            this.scRoot.Panel1.Controls.Add(this.btnSrv);
             this.scRoot.Panel1.Controls.Add(this.tbHost);
             this.scRoot.Panel1.Controls.Add(this.lvUsers);
             this.scRoot.Panel1MinSize = 160;
@@ -76,17 +79,6 @@
             this.scRoot.SplitterDistance = 180;
             this.scRoot.TabIndex = 1;
             // 
-            // btnSrv
-            // 
-            this.btnSrv.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSrv.Location = new System.Drawing.Point(153, 2);
-            this.btnSrv.Name = "btnSrv";
-            this.btnSrv.Size = new System.Drawing.Size(25, 22);
-            this.btnSrv.TabIndex = 3;
-            this.btnSrv.Text = "...";
-            this.btnSrv.UseVisualStyleBackColor = true;
-            this.btnSrv.Click += new System.EventHandler(this.btnSrv_Click);
-            // 
             // tbHost
             // 
             this.tbHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -94,19 +86,8 @@
             this.tbHost.Location = new System.Drawing.Point(3, 3);
             this.tbHost.Name = "tbHost";
             this.tbHost.ReadOnly = true;
-            this.tbHost.Size = new System.Drawing.Size(149, 20);
+            this.tbHost.Size = new System.Drawing.Size(174, 20);
             this.tbHost.TabIndex = 1;
-            // 
-            // cmConnection
-            // 
-            this.cmConnection.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.cmiLogin});
-            // 
-            // cmiLogin
-            // 
-            this.cmiLogin.Index = 0;
-            this.cmiLogin.Text = "Login";
-            this.cmiLogin.Click += new System.EventHandler(this.cmiLogin_Click);
             // 
             // tabConvs
             // 
@@ -117,12 +98,35 @@
             this.tabConvs.Size = new System.Drawing.Size(456, 351);
             this.tabConvs.TabIndex = 0;
             // 
+            // vmMenu
+            // 
+            this.vmMenu.ContainerControl = this;
+            // 
+            // mmMenu
+            // 
+            this.mmMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.miSdm});
+            // 
+            // miSdm
+            // 
+            this.miSdm.Index = 0;
+            this.miSdm.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.miLogin});
+            this.miSdm.Text = "SdMessenger";
+            // 
+            // miLogin
+            // 
+            this.miLogin.Index = 0;
+            this.miLogin.Text = "Login";
+            this.miLogin.Click += new System.EventHandler(this.miLogin_Click);
+            // 
             // MainDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 351);
             this.Controls.Add(this.scRoot);
+            this.Menu = this.mmMenu;
             this.MinimumSize = new System.Drawing.Size(480, 320);
             this.Name = "MainDialog";
             this.Text = "SdmClient - username";
@@ -131,6 +135,7 @@
             this.scRoot.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).EndInit();
             this.scRoot.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.vmMenu)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -140,9 +145,10 @@
         private Controls.ListViewEx lvUsers;
         private System.Windows.Forms.SplitContainer scRoot;
         private System.Windows.Forms.TextBox tbHost;
-        private System.Windows.Forms.Button btnSrv;
-        private System.Windows.Forms.ContextMenu cmConnection;
-        private System.Windows.Forms.MenuItem cmiLogin;
         private System.Windows.Forms.TabControl tabConvs;
+        private wyDay.Controls.VistaMenu vmMenu;
+        private System.Windows.Forms.MainMenu mmMenu;
+        private System.Windows.Forms.MenuItem miSdm;
+        private System.Windows.Forms.MenuItem miLogin;
     }
 }

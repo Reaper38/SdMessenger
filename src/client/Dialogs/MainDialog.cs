@@ -93,9 +93,6 @@ namespace Sdm.Client
             var conv = GetConversation(username);
             tabConvs.SelectTab(conv.Container);
         }
-        
-        private void btnSrv_Click(object sender, EventArgs e)
-        { cmConnection.Show(btnSrv, new Point(0, btnSrv.Height)); }
 
         private void lvUsers_DoubleClick(object sender, EventArgs e)
         {
@@ -106,8 +103,8 @@ namespace Sdm.Client
                 return;
             OpenConversation(username);
         }
-        
-        private void cmiLogin_Click(object sender, EventArgs e)
+
+        private void miLogin_Click(object sender, EventArgs e)
         {
             if (Controller.State == ConnectionState.Disconnected)
                 Controller.ShowLoginDialog();
@@ -163,17 +160,17 @@ namespace Sdm.Client
             {
             case ConnectionState.Disconnected:
                 tbHost.Text = "Disconnected";
-                cmiLogin.Text = "Connect";
+                miLogin.Text = "Connect";
                 ClearUserList();
                 UpdateHeader(newState);
                 break;
             case ConnectionState.Waiting:
                 tbHost.Text = "Waiting...";
-                cmiLogin.Text = "Disconnect";
+                miLogin.Text = "Disconnect";
                 break;
             case ConnectionState.Connected:
                 tbHost.Text = String.Format("{0}:{1}", Controller.Config.Host, Controller.Config.Port);
-                cmiLogin.Text = "Disconnect";
+                miLogin.Text = "Disconnect";
                 UpdateHeader(newState);
                 break;
             }
