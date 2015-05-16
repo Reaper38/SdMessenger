@@ -69,10 +69,7 @@ namespace Sdm.Client
             Controller.SendFiles(username, files);
             conv.ClearAttachments();
         }
-
-        private void ToggleFileTransferWindow(object sender, EventArgs e)
-        { Controller.ToggleFileTransferWindow(); }
-
+        
         private ConversationDesc GetConversation(string username)
         {
             if (!convs.ContainsKey(username))
@@ -82,7 +79,6 @@ namespace Sdm.Client
                 tabConvs.TabPages.Add(conv.Container);
                 conv.Content.SendMessage += TrySendMessage;
                 conv.Content.SendFile += TrySendFile;
-                conv.Content.ToggleFileTransferWindow += ToggleFileTransferWindow;
                 return conv;
             }
             return convs[username];
@@ -179,7 +175,13 @@ namespace Sdm.Client
         private void miLog_Click(object sender, EventArgs e)
         { Controller.LogWindowVisible = !miLog.Checked; }
 
+        private void miFileTransfer_Click(object sender, EventArgs e)
+        { Controller.FileTransferWindowVisible = !miFileTransfer.Checked; }
+
         private void miView_Popup(object sender, EventArgs e)
-        { miLog.Checked = Controller.LogWindowVisible; }
+        {
+            miLog.Checked = Controller.LogWindowVisible;
+            miFileTransfer.Checked = Controller.FileTransferWindowVisible;
+        }
     }
 }

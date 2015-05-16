@@ -260,22 +260,17 @@ namespace Sdm.Client
             }
             return false;
         }
-
-        public void ToggleFileTransferWindow()
-        {
-            if (fileDialog.Visible)
-                fileDialog.Hide();
-            else
-            {
-                fileDialog.Show();
-                fileDialog.Focus();
-            }
-        }
-
+        
         public bool LogWindowVisible
         {
             get { return logDialog.Visible; }
             set { logDialog.Visible = value; }
+        }
+
+        public bool FileTransferWindowVisible
+        {
+            get { return fileDialog.Visible; }
+            set { fileDialog.Visible = value; }
         }
 
         private void FileTransferStateChanged(IFileTransfer ft)

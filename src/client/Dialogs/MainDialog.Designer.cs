@@ -40,6 +40,7 @@ namespace Sdm.Client
             this.miLogin = new System.Windows.Forms.MenuItem();
             this.miView = new System.Windows.Forms.MenuItem();
             this.miLog = new System.Windows.Forms.MenuItem();
+            this.miFileTransfer = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
@@ -127,7 +128,8 @@ namespace Sdm.Client
             // 
             this.miView.Index = 1;
             this.miView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.miLog});
+            this.miLog,
+            this.miFileTransfer});
             this.miView.Text = "View";
             this.miView.Popup += new System.EventHandler(this.miView_Popup);
             // 
@@ -136,6 +138,13 @@ namespace Sdm.Client
             this.miLog.Index = 0;
             this.miLog.Text = "Log";
             this.miLog.Click += new System.EventHandler(this.miLog_Click);
+            // 
+            // miFileTransfer
+            // 
+            this.vmMenu.SetImage(this.miFileTransfer, global::Sdm.Client.Properties.Resources.IconFileTransfer);
+            this.miFileTransfer.Index = 1;
+            this.miFileTransfer.Text = "File transfer";
+            this.miFileTransfer.Click += new System.EventHandler(this.miFileTransfer_Click);
             // 
             // MainDialog
             // 
@@ -169,5 +178,6 @@ namespace Sdm.Client
         private System.Windows.Forms.MenuItem miLogin;
         private System.Windows.Forms.MenuItem miView;
         private System.Windows.Forms.MenuItem miLog;
+        private System.Windows.Forms.MenuItem miFileTransfer;
     }
 }
