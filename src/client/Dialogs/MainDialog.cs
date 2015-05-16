@@ -175,5 +175,11 @@ namespace Sdm.Client
                 break;
             }
         }
+        
+        private void miLog_Click(object sender, EventArgs e)
+        { Controller.LogWindowVisible = !miLog.Checked; }
+
+        private void miView_Popup(object sender, EventArgs e)
+        { miLog.Checked = Controller.LogWindowVisible; }
     }
 }

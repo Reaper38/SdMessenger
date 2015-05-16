@@ -21,6 +21,8 @@ namespace Sdm.Client
         private Thread updaterThread;
         private volatile bool updaterExit;
         private ManualResetEvent evUpdaterThread;
+        private LogDialog logDialog;
+        private LogAdapter logAdapter;
         private MainDialog mainDialog;
         private LoginDialog loginDialog;
         private FileTransferDialog fileDialog;
@@ -43,6 +45,8 @@ namespace Sdm.Client
             ftMgr.TransferStateChanged += FileTransferStateChanged;
             ftMgr.DataSent += FileTransferDataSent;
             ftMgr.DataReceived += FileTransferDataReceived;
+            logDialog = new LogDialog();
+            logAdapter = new LogAdapter(logDialog.Console);
             mainDialog = new MainDialog();
             loginDialog = new LoginDialog();
             fileDialog = new FileTransferDialog();
@@ -266,6 +270,12 @@ namespace Sdm.Client
                 fileDialog.Show();
                 fileDialog.Focus();
             }
+        }
+
+        public bool LogWindowVisible
+        {
+            get { return logDialog.Visible; }
+            set { logDialog.Visible = value; }
         }
 
         private void FileTransferStateChanged(IFileTransfer ft)
@@ -499,5 +509,51 @@ namespace Sdm.Client
         }
 
         public void Disconnect() { client.Disconnect(); }
+    }
+
+    internal sealed class LogAdapter : xr.ILogger
+    {
+        private volatile int lineCount;
+        private const string DateTimeFormat = "MMM dd HH:mm:ss";
+
+        public LogAdapter(xr.Console console)
+        {
+            console.AttachLogger(this);
+            SdmCore.Logger.MessageLogged += SdmMessageLogged;
+        }
+
+        private string LogLevelToColorPrefix(LogLevel lvl)
+        {
+            switch (lvl)
+            {
+            case LogLevel.Trace: return "";
+            case LogLevel.Debug: return "- ";
+            case LogLevel.Info: return "* ";
+            case LogLevel.Warning: return "~ ";
+            case LogLevel.Error: return "! ";
+            case LogLevel.Fatal: return "! ";
+            default: return "";
+            }
+        }
+
+        private void SdmMessageLogged(LogLevel lvl, DateTime time, string msg)
+        {
+            lineCount++;
+            if (MessageLogged == null)
+                return;
+            var prefix = LogLevelToColorPrefix(lvl);
+            var timeString = time.ToString(DateTimeFormat);
+            var lvlString = lvl.ToString().ToLower();
+            MessageLogged(String.Format("{0}{1} [{2}] {3}", prefix, timeString, lvlString, msg));
+        }
+
+        public event Action LogCleared;
+        public event Action<string> MessageLogged;
+
+        public void Log(string message) { /* ignore console output */ }
+        public int LineCount { get { return lineCount; } }
+        public void Clear() { }
+
+        public void Dispose() { }
     }
 }

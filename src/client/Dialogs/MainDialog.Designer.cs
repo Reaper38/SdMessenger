@@ -38,6 +38,8 @@ namespace Sdm.Client
             this.mmMenu = new System.Windows.Forms.MainMenu(this.components);
             this.miSdm = new System.Windows.Forms.MenuItem();
             this.miLogin = new System.Windows.Forms.MenuItem();
+            this.miView = new System.Windows.Forms.MenuItem();
+            this.miLog = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.scRoot)).BeginInit();
             this.scRoot.Panel1.SuspendLayout();
             this.scRoot.Panel2.SuspendLayout();
@@ -105,7 +107,8 @@ namespace Sdm.Client
             // mmMenu
             // 
             this.mmMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.miSdm});
+            this.miSdm,
+            this.miView});
             // 
             // miSdm
             // 
@@ -119,6 +122,20 @@ namespace Sdm.Client
             this.miLogin.Index = 0;
             this.miLogin.Text = "Login";
             this.miLogin.Click += new System.EventHandler(this.miLogin_Click);
+            // 
+            // miView
+            // 
+            this.miView.Index = 1;
+            this.miView.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.miLog});
+            this.miView.Text = "View";
+            this.miView.Popup += new System.EventHandler(this.miView_Popup);
+            // 
+            // miLog
+            // 
+            this.miLog.Index = 0;
+            this.miLog.Text = "Log";
+            this.miLog.Click += new System.EventHandler(this.miLog_Click);
             // 
             // MainDialog
             // 
@@ -150,5 +167,7 @@ namespace Sdm.Client
         private System.Windows.Forms.MainMenu mmMenu;
         private System.Windows.Forms.MenuItem miSdm;
         private System.Windows.Forms.MenuItem miLogin;
+        private System.Windows.Forms.MenuItem miView;
+        private System.Windows.Forms.MenuItem miLog;
     }
 }
