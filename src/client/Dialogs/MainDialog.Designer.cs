@@ -55,7 +55,7 @@ namespace Sdm.Client
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvUsers.Location = new System.Drawing.Point(3, 26);
             this.lvUsers.Name = "lvUsers";
-            this.lvUsers.Size = new System.Drawing.Size(174, 322);
+            this.lvUsers.Size = new System.Drawing.Size(174, 301);
             this.lvUsers.TabIndex = 0;
             this.lvUsers.UseCompatibleStateImageBehavior = false;
             this.lvUsers.View = System.Windows.Forms.View.List;
@@ -78,7 +78,7 @@ namespace Sdm.Client
             // 
             this.scRoot.Panel2.Controls.Add(this.tabConvs);
             this.scRoot.Panel2MinSize = 240;
-            this.scRoot.Size = new System.Drawing.Size(640, 351);
+            this.scRoot.Size = new System.Drawing.Size(640, 330);
             this.scRoot.SplitterDistance = 180;
             this.scRoot.TabIndex = 1;
             // 
@@ -98,7 +98,7 @@ namespace Sdm.Client
             this.tabConvs.Location = new System.Drawing.Point(0, 0);
             this.tabConvs.Name = "tabConvs";
             this.tabConvs.SelectedIndex = 0;
-            this.tabConvs.Size = new System.Drawing.Size(456, 351);
+            this.tabConvs.Size = new System.Drawing.Size(456, 330);
             this.tabConvs.TabIndex = 0;
             // 
             // vmMenu
@@ -120,6 +120,7 @@ namespace Sdm.Client
             // 
             // miLogin
             // 
+            this.vmMenu.SetImage(this.miLogin, global::Sdm.Client.Properties.Resources.IconLogin);
             this.miLogin.Index = 0;
             this.miLogin.Text = "Login";
             this.miLogin.Click += new System.EventHandler(this.miLogin_Click);
@@ -135,6 +136,7 @@ namespace Sdm.Client
             // 
             // miLog
             // 
+            this.vmMenu.SetImage(this.miLog, global::Sdm.Client.Properties.Resources.IconLog);
             this.miLog.Index = 0;
             this.miLog.Text = "Log";
             this.miLog.Click += new System.EventHandler(this.miLog_Click);
@@ -150,7 +152,7 @@ namespace Sdm.Client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(640, 351);
+            this.ClientSize = new System.Drawing.Size(640, 330);
             this.Controls.Add(this.scRoot);
             this.Menu = this.mmMenu;
             this.MinimumSize = new System.Drawing.Size(480, 320);
