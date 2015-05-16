@@ -106,9 +106,9 @@ namespace Sdm.Core
 #if !DEBUG
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            var ex = (Exception)e.ExceptionObject;
             try
             {
-                var ex = (Exception)e.ExceptionObject;
                 if (SdmCore.Logger != null)
                     SdmCore.Logger.Log(LogLevel.Fatal, ex.ToString());
                 SdmCore.Destroy();
