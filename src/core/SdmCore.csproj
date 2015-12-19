@@ -72,6 +72,7 @@
     <Compile Include="Logger\ServerLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\IniFile.cs" />
+    <Compile Include="Util\IniWriter.cs" />
     <Compile Include="Util\NetUtil.cs" />
     <Compile Include="Util\StreamUtil.cs" />
     <Compile Include="Util\StringUtil.cs" />
