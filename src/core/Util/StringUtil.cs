@@ -16,7 +16,7 @@ namespace Sdm.Core.Util
                     inQuotes = !inQuotes;
                 return !inQuotes && c == ' ';
             });
-            return quoted.Select(arg => StringUtil.EscapeCmdString(arg.Trim(), false))
+            return quoted.Select(arg => EscapeCmdString(arg.Trim(), false))
                 .Where(arg => !String.IsNullOrEmpty(arg));
         }
 
