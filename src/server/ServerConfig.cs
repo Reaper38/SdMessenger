@@ -103,38 +103,25 @@ namespace Sdm.Server
 
         private void Save()
         {
-            using (var w = new StreamWriter(ConfigFileName, false, Encoding.UTF8))
+            using (var w = new IniWriter(ConfigFileName, false, Encoding.UTF8))
             {
-                w.WriteLine("[server]");
-                w.Write("protocol = ");
-                w.WriteLine(Protocol.ToString().ToLower());
-                w.Write("address = ");
-                w.WriteLine(Address);
-                w.Write("port = ");
-                w.WriteLine(Port);
-                w.WriteLine("[security]");
-                w.Write("sym_algorithm = ");
-                w.WriteLine(SymAlgorithm.ToString().ToLower());
-                w.Write("asym_algorithm = ");
-                w.WriteLine(AsymAlgorithm.ToString().ToLower());
-                w.Write("sym_key_size = ");
-                w.WriteLine(SymAlgorithmKeySize);
-                w.Write("asym_key_size = ");
-                w.WriteLine(AsymAlgorithmKeySize);
-                w.WriteLine("[socket]");
-                w.Write("ipv6 = ");
-                w.WriteLine(UseIPv6 ? 1 : 0);
-                w.Write("send_timeout = ");
-                w.WriteLine(SocketSendTimeout);
-                w.Write("send_buffer_size = ");
-                w.WriteLine(SocketSendBufferSize);
-                w.Write("recv_buffer_size = ");
-                w.WriteLine(SocketReceiveBufferSize);
-                w.Write("backlog = ");
-                w.WriteLine(SocketBacklog);
-                w.WriteLine("[misc]");
-                w.Write("update_sleep = ");
-                w.WriteLine(UpdateSleep);
+                w.WriteSection("server");
+                w.Write("protocol", Protocol.ToString().ToLower());
+                w.Write("address", Address.ToString());
+                w.Write("port", Port);
+                w.WriteSection("security");
+                w.Write("sym_algorithm", SymAlgorithm.ToString().ToLower());
+                w.Write("asym_algorithm", AsymAlgorithm.ToString().ToLower());
+                w.Write("sym_key_size", SymAlgorithmKeySize);
+                w.Write("asym_key_size", AsymAlgorithmKeySize);
+                w.WriteSection("socket");
+                w.Write("ipv6", UseIPv6);
+                w.Write("send_timeout", SocketSendTimeout);
+                w.Write("send_buffer_size", SocketSendBufferSize);
+                w.Write("recv_buffer_size", SocketReceiveBufferSize);
+                w.Write("backlog", SocketBacklog);
+                w.WriteSection("misc");
+                w.Write("update_sleep", UpdateSleep);
             }
         }
     }
