@@ -93,24 +93,28 @@ namespace Sdm.ClientWPF.Pages
 
         private void ShowError(string msg, Control c)
         {
-         /*   if (btnConnect.ToolTip())
+            if (ttAlert.IsOpen)
                 ttAlert.IsOpen = false;
-            ttText.Text = msg;
-            ttAlert.Content = ttText.Text;*/
+            ttAlert.Child.SetValue(TextBlock.TextProperty, msg);
+            ttAlert.PlacementTarget = c;
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
+            //FIX: Uncomment wheh finish appcontroller
      //       AppController.Instance.Connect();
         }
 
         private void OnEnter(KeyEventArgs e)
         {
-      /*      if (e.Key != Key.Return)
+            if (e.Key != Key.Return)
                 return;
             e.Handled = true;
             if (tbHost.Text.Length > 0 && tbLogin.Text.Length > 0 && tbPassword.Password.Length > 0)
-                AppController.Instance.Connect();*/
+            {
+                //FIX: Uncomment wheh finish appcontroller
+                //        AppController.Instance.Connect();
+            }
         }
 
         private void tbHost_KeyDown(object sender, KeyEventArgs e) { OnEnter(e); }
