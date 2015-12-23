@@ -1,12 +1,13 @@
-﻿<Window x:Class="Sdm.ClientWPF.MainWindow"
+﻿<ext:WindowEx x:Class="Sdm.ClientWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Sdm.ClientWPF"
+        xmlns:ext="clr-namespace:Sdm.ClientWPF.Controls"
         mc:Ignorable="d"
         Title="SDMessenger" Height="300" Width="200" WindowStartupLocation="CenterScreen" Icon="/SdmClientWPF;component/Properties/Icon.ico" >
     <Grid>
         <Frame Name="frMain"/>
     </Grid>
-</Window>
+</ext:WindowEx>
