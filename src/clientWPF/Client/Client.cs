@@ -7,7 +7,7 @@ using Sdm.Core.Crypto;
 using Sdm.Core.Messages;
 using Sdm.Core.Util;
 
-namespace Sdm.Client
+namespace Sdm.ClientWPF
 {
     internal class Client : PureClientBase
     {
