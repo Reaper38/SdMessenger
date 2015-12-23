@@ -30,7 +30,6 @@ namespace Sdm.ClientWPF.Controls
             src.AddHook(new HwndSourceHook(WndProc));
         }
 
-
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const uint WM_NCACTIVATE = 0x0086;
