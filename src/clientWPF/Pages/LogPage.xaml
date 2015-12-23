@@ -4,11 +4,14 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Sdm.ClientWPF.Pages"
+      xmlns:xr="clr-namespace:xr;assembly=xrConsole"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
       Title="LogPage">
 
     <Grid>
-        
+        <WindowsFormsHost Name="wfHost">
+            <xr:Console Dock="Fill"/>
+        </WindowsFormsHost>
     </Grid>
 </Page>
