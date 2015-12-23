@@ -65,6 +65,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\LogPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -75,6 +79,9 @@
     </Compile>
     <Compile Include="Pages\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LogPage.xaml.cs">
+      <DependentUpon>LogPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -110,6 +117,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Properties\Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\SdmCore.csproj">
+      <Project>{96ba763d-d823-4c37-b884-c2a0278f9e82}</Project>
+      <Name>SdmCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\xrConsole\xrConsole.csproj">
+      <Project>{b8eb167f-4f36-4899-94d8-e6220dfbb692}</Project>
+      <Name>xrConsole</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
