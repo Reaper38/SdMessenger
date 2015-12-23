@@ -1,0 +1,27 @@
+﻿<Page x:Class="Sdm.ClientWPF.Pages.LoginPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Sdm.ClientWPF.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="200"
+      Title="LoginPage">
+
+    <StackPanel Margin="20,20,20,20">
+        <Label Content="Host:Port"/>
+        <TextBox x:Name="tbHost" Height="23" TextWrapping="Wrap" KeyDown="tbHost_KeyDown"/>
+        <Label Content="Login"/>
+        <TextBox x:Name="tbLogin" Height="23" TextWrapping="Wrap" KeyDown="tbLogin_KeyDown"/>
+        <Label Content="Password"/>
+        <PasswordBox x:Name="tbPassword" KeyDown="tbPassword_KeyDown"/>
+        <CheckBox x:Name="chkSavePass" Content="Save Password" HorizontalAlignment="Center"  Margin="0,10,0,0"/>
+        <Button x:Name="btnConnect" HorizontalAlignment="Center" Width="100" Margin="0,10,0,0" Content="Connect" Click="btnConnect_Click">
+            <Button.ToolTip>
+                <ToolTip Name="ttAlert" Background="PaleGoldenrod">
+                    <TextBlock Name="tbAlertText" Margin="3"></TextBlock>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+    </StackPanel>
+</Page>
