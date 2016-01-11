@@ -10,9 +10,9 @@ namespace Sdm.ClientWPF.Pages
     /// <summary>
     /// Interaction logic for ConversationPage.xaml
     /// </summary>
-    internal partial class ConversationPage : Page
+    public partial class ConversationPage : Page
     {
-        public ConversationPage()
+        ConversationPage()
         {
             InitializeComponent();
         }
