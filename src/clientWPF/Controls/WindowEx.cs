@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -23,11 +19,12 @@ namespace Sdm.ClientWPF.Controls
         /// </summary>
         public bool isActive { get; private set; }
 
-        private void OnHandleCreated(object sender, EventArgs e)
-        {
-            handle = (new WindowInteropHelper(this)).Handle;
+        protected override void OnSourceInitialized(EventArgs e)
+        {            
+            handle = new WindowInteropHelper(this).Handle;
             HwndSource src = HwndSource.FromHwnd(handle);
             src.AddHook(new HwndSourceHook(WndProc));
+            base.OnSourceInitialized(e);
         }
 
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
