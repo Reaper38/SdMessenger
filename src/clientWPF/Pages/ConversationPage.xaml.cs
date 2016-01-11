@@ -12,7 +12,7 @@ namespace Sdm.ClientWPF.Pages
     /// </summary>
     public partial class ConversationPage : Page
     {
-        ConversationPage()
+        public ConversationPage()
         {
             InitializeComponent();
         }
@@ -76,11 +76,11 @@ namespace Sdm.ClientWPF.Pages
         { rtbHistory.Document.Blocks.Clear(); }
 
         public void ClearMessage()
-        { rtbNewMsg.Document.Blocks.Clear(); }
+        { rtbNewMsg.Clear(); }
 
-        public int MessageLength { get { return rtbNewMsg.Document.Blocks.Count; } }
+        public int MessageLength { get { return rtbNewMsg.Text.Length; } }
 
-        public string MessageText { get { return new TextRange(rtbNewMsg.Document.ContentStart, rtbNewMsg.Document.ContentEnd).Text; } }
+        public string MessageText { get { return rtbNewMsg.Text; } }
 
         public string[] Attachments { get; private set; }
 
