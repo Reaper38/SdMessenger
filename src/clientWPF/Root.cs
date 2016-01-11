@@ -19,9 +19,8 @@ namespace Sdm.ClientWPF
         private static void Main()
         {
             SdmCore.Initialize(AppType.Client);
-            App app = new App();
             var appc = AppController.Instance;
-            app.Run(appc.MainWindow);
+
             AppController.Instance.Config.Save();
             SdmCore.Destroy();
         }
